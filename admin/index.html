@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+        <meta name="viewport" content="width=device-width">
+        <title>Administer Locations</title>
+        <link rel="stylesheet" href="../css/style.css">
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script>
+            window.jQuery || document.write('<script src="js/vendor/jquery-2.4.1.min.js"><\/script>');
+        </script>
+        <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css" />
+        <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+        <script src="http://maps.google.com/maps/api/js?sensor=false"
+        type="text/javascript"></script>
+    </head>
+    <body>
+        <div class="container-admin">
+            <div class="top-bar">
+                <ul class="menu">
+                    <li>
+                        <a href="../locations.html" target="_blank">Find a Doctor</a>
+                    </li>
+                    <li>
+                        <a href="../locations.html" target="_blank">Find a Doctor</a>
+                    </li>
+                    <li>
+                        <a href="admin.html" class="no-click">Administer</a>
+                    </li>
+                    <li>
+                        <a href="../account/" class="no-click">Accounts</a>
+                    </li>
+                    <li>
+                        <a href="../controllers/login.php">Log Out</a>
+                    </li>
+                </ul>
+            </div>
+            <form class="form" action="admin.php" method="post" onsubmit="return validateLocation()">
+                <div class="form-content">
+                    <div class="locations">
+                        <select id="filters" multiple="multiple" disabled="disabled">
+                            <optgroup label="Filter By">
+                                <option value="all" selected="selected">All</option>
+                                <option value="macuhealth">MacuHealth</option>
+                                <option value="cliradex">Cliradex</option>
+                            </optgroup>
+                        </select>
+                        <select id="locations" size="35"></select>
+                        <input id="export" name="export" type="button" value="Export">
+                    </div>
+                    <div class="input-form">
+                        <div>
+                            <div>
+                                <label for="id">ID: </label>
+                                <input id="id" name="id" type="number" placeholder="ID" disabled="disabled">
+                            </div>
+                            <div>
+                                <label for="name">Name: </label>
+                                <input id="name" name="name" type="text" placeholder="Name">
+                            </div>
+                        </div>
+                        <div class="products">
+                            <div>
+                                <label for="macuhealth">MacuHealth: </label>
+                                <input id="macuhealth" name="macuhealth" type="checkbox">
+                            </div>
+                            <div>
+                                <label for="cliradex">Cliradex: </label>
+                                <input id="cliradex" name="cliradex" type="checkbox">
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <label for="doctor">Doctor: <em>Use commas(,) to seperate doctors.</em></label>
+                                <input id="doctor" name="doctor" type="text" placeholder="Doctor">
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <label for="address">Address: </label>
+                                <input id="address" name="address" type="text" placeholder="Address">
+                            </div>
+                            <div>
+                                <input id="update-address" name="update-address" type="button" onclick="searchLocation()" value="Locate on Map">
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <label for="tel">Telephone: </label>
+                                <input id="tel" name="tel" type="tel" placeholder="Telephone">
+                            </div>
+                            <div>
+                                <label for="link">Website: </label>
+                                <input id="link" name="link" type="url" placeholder="Website" value="http://">
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <label for="info">Additional Information: </label>
+                                <textarea id="info" name="info"></textarea>
+                            </div>
+                            <div>
+                                <input id="clear" name="clear" type="button" onclick="clearAll()" value="Clear All">
+                            </div>
+                        </div>
+                        <div class="submit">
+                            <div>
+                                <input id="create" name="create" type="submit" onclick="return verifyCreate()" value="Create / Update">
+                            </div>
+                            <div>
+                                <input id="delete" name="delete" type="submit" onclick="return verifyDelete()" value="Delete">
+                            </div>
+                        </div>
+                        <div>
+                            <div>
+                                <label for="lat">Latitude: </label>
+                                <input id="lat" name="lat" type="number" step="0.000001" placeholder="Latitude" disabled="disabled">
+                            </div>
+                            <div>
+                                <label for="lng">Longitude: </label>
+                                <input id="lng" name="lng" type="number" step="0.000001" placeholder="Longitude" disabled="disabled">
+                            </div>
+                            <div>
+                                <input id="latlng" name="latlng" type="button" onclick="enableLatLng()" value="Custom">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="input-map"></div>
+            </form>
+        </div>
+        <script>
+            var locations = $();
+            window.onload = function () {
+                var options = "";
+
+                $('#lat').attr("disabled", "disabled");
+                $('#lng').attr("disabled", "disabled");
+                $('#id').attr("disabled", "disabled");
+
+                $.getJSON('../controllers/admin.php', function (data) {
+                    locations = data;
+                    $.each(data, function (j, location) {
+                        options += '<option value="' + location.id + '">' + location.name + '&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;' + location.doctor + '</option>';
+                    });
+                    $('#locations').html(options);
+                    $('.no-click').removeClass('no-click');
+                    $('#filters').removeAttr("disabled");
+                    $('#clear').removeAttr("disabled");
+                    $('#create').removeAttr("disabled");
+                    $('#delete').removeAttr("disabled");
+                    $('#link').val("http://");
+                }).fail(function () {
+                    window.location.replace("../login.html");
+                });
+
+                $('#filters').change(function () {
+                    $('#filters').attr("disabled", "disabled");
+                    var filter = [];
+                    $('#filters option:selected').each(function () {
+                        filter.push($(this).val());
+                    });
+                    var searchUrl = filter != "" ? '../controllers/admin.php?filter=' + filter : '../controllers/admin.php';
+                    options = '';
+                    $('#locations').html(options);
+                    $('#locations').empty();
+                    $.getJSON(searchUrl, function (data) {
+                        locations = data;
+                        $.each(data, function (j, location) {
+                            options += '<option value="' + location.id + '">' + location.name + '&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;' + location.doctor + '</option>';
+                        });
+                        $('#locations').empty();
+                        $('#locations').html(options);
+                        $('#filters').removeAttr("disabled");
+                    });
+                });
+
+                $('#locations').change(function () {
+                    var id = $('#locations option:selected').val();
+                    var location = retrieveLocation(id);
+                    setLocation(location);
+                });
+
+                $("#export").click(function (e) {
+                    e.preventDefault();
+                    var csv = genCSV(locations);
+                    var uri = "data:text/csv;charset=utf-8," + escape(csv);
+                    var downloadLink = document.createElement("a");
+                    downloadLink.href = uri;
+                    downloadLink.download = "data.csv";
+
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                });
+
+                load();
+
+                function retrieveLocation(id) {
+                    var location = $();
+                    $.each(locations, function (j, loc) {
+                        if (loc.id === id) {
+                            location = loc;
+                            return location;
+                        }
+                    });
+
+                    return location;
+                }
+
+
+                $('#name').focus(function () {
+                    if ($('#name').val() === "") {
+                        $('#name').val($('#doctor').val());
+                    }
+                });
+
+                $('#doctor').focus(function () {
+                    if ($('#doctor').val() === "") {
+                        $('#doctor').val($('#name').val());
+                    }
+                });
+
+            };
+            // close onload
+
+            function verifyCreate() {
+                var id = $('#id').val(), duplicate = false, name = "", doctor = "", link = "", address = "", tel = "", lat = "", lng = "", loc = $();
+                $.each(locations, function (i, location) {
+                    if ($('#name').val() === location.name && id !== location.id) {
+                        name = " Clinic Name";
+                        loc = location;
+                        duplicate = true;
+                        return false;
+                    }
+                });
+                $.each(locations, function (i, location) {
+                    if ($('#doctor').val() === location.doctor && id !== location.id) {
+                        doctor = " Doctor";
+                        loc = location;
+                        duplicate = true;
+                        return false;
+                    }
+                });
+                $.each(locations, function (i, location) {
+                    if ($('#link').val() === location.link && id !== location.id) {
+                        link = " Website";
+                        loc = location;
+                        duplicate = true;
+                        return false;
+                    }
+                });
+                $.each(locations, function (i, location) {
+                    if ($('#address').val() === location.address && id !== location.id) {
+                        address = " Address";
+                        loc = location;
+                        duplicate = true;
+                        return false;
+                    }
+                });
+                var num = $('#tel').val().replace(/\D/g, '');
+                $.each(locations, function (i, location) {
+                    if (num === location.tel && id !== location.id) {
+                        tel = " Telephone Number";
+                        loc = location;
+                        duplicate = true;
+                        return false;
+                    }
+                });
+                num = Math.round($('#lat').val() * 10000) / 10000;
+                $.each(locations, function (i, location) {
+                    if (num === parseFloat(location.lat) && id !== location.id) {
+                        lat = " Latitude";
+                        loc = location;
+                        duplicate = true;
+                        return false;
+                    }
+                });
+                num = Math.round($('#lng').val() * 10000) / 10000;
+                $.each(locations, function (i, location) {
+                    if (num === parseFloat(location.lng) && id !== location.id) {
+                        lng = " Longitude";
+                        loc = location;
+                        duplicate = true;
+                        return false;
+                    }
+                });
+
+                if (duplicate) {
+                    return confirm("WARNING: This may be a duplicate of " + loc.name + " (" + loc.id + ").\nDuplicate fields are" + name + doctor + link + address + tel + lat + lng + ".\nProceed Anyway?");
+                }
+                if ($('#id').val() === "") {
+                    return true;
+                }
+                return confirm("Are you sure you want to modify this clinic?");
+            }
+
+            function verifyDelete() {
+                return confirm("Are you sure you want to delete this clinic?");
+            }
+
+            function setLocation(location) {
+                $('#id').val(location.id);
+                $('#name').val(location.name);
+                $('#lat').val(location.lat);
+                $('#lng').val(location.lng);
+                $('#doctor').val(location.doctor);
+                $('#address').val(location.address);
+                $('#tel').val(location.tel);
+                $('#link').val(location.link);
+                if (location.product.indexOf("macuhealth") >= 0) {
+                    $('#macuhealth').prop("checked", true);
+                } else {
+                    $('#macuhealth').prop("checked", false);
+                }
+                if (location.product.indexOf("cliradex") >= 0) {
+                    $('#cliradex').prop("checked", true);
+                } else {
+                    $('#cliradex').prop("checked", false);
+                }
+                $('#info').val(location.info);
+            }
+
+            function genCSV(json) {
+                var array = json;
+
+                var str = '';
+                var line = '';
+
+                var head = array[0];
+                for (var index in array[0]) {
+                    var value = index + "";
+                    line += '"' + value.replace(/"/g, '""') + '",';
+                }
+
+                line = line.slice(0, -1);
+                str += line + '\r\n';
+
+                for (var i = 0; i < array.length; i++) {
+                    var line = '';
+                    for (var index in array[i]) {
+                        var value = array[i][index] + "";
+                        line += '"' + value.replace(/"/g, '""') + '",';
+                    }
+
+                    line = line.slice(0, -1);
+                    str += line + '\r\n';
+                }
+                return str;
+            }
+
+            function clearAll() {
+                $('#id').val("");
+                $('#name').val("");
+                $('#lat').val("");
+                $('#lng').val("");
+                $('#doctor').val("");
+                $('#address').val("");
+                $('#tel').val("");
+                $('#link').val("http://");
+                $('#macuhealth').prop("checked", false);
+                $('#cliradex').prop("checked", false);
+                $('#info').val("");
+                clearLocation();
+                $('#lat').attr("disabled", "disabled");
+                $('#lng').attr("disabled", "disabled");
+                $('#id').attr("disabled", "disabled");
+                $('#locations').val([]);
+            }
+
+            function enableLatLng() {
+                $('#lat').removeAttr("disabled");
+                $('#lng').removeAttr("disabled");
+            }
+
+            function validateLocation() {
+                $('#clear').attr("disabled", "disabled");
+                $('#create').attr("disabled", "disabled");
+                $('#delete').attr("disabled", "disabled");
+                if ($('#name').val() === "") {
+                    alert("Name is Required");
+                } else if ($("#doctor").val() === "") {
+                    alert("Doctor is Required");
+                } else if ($('#address').val() === "") {
+                    alert("Address is Required");
+                } else if ($('#tel').val() === "") {
+                    alert("Telephone number is Required");
+                } else if (!$('#macuhealth').prop("checked") && !$('#cliradex').prop("checked")) {
+                    alert("A product is required");
+                } else if ($('#lat').val() === "") {
+                    alert("Latitude is Required");
+                } else if ($('#lng').val() === "") {
+                    alert("Longitude is Required");
+                } else {
+                    if ($("#link").val().length < 9) {
+                        $("#link").val("");
+                    }
+                    enableLatLng();
+                    $('#id').removeAttr("disabled");
+                    $('#clear').removeAttr("disabled");
+                    $('#create').removeAttr("disabled");
+                    $('#delete').removeAttr("disabled");
+                    return true;
+                }
+                $('#clear').removeAttr("disabled");
+                $('#create').removeAttr("disabled");
+                $('#delete').removeAttr("disabled");
+                return false;
+            }
+
+            //<![CDATA[
+            var map;
+            var marker;
+            var markerColor = 'ffffff';
+            var shadow = new google.maps.MarkerImage('https://www.google.com/intl/en_ALL/mapfiles/shadow50.png', new google.maps.Size(37, 34), new google.maps.Point(0, 0), new google.maps.Point(10, 34));
+
+            function iconWithColor(color) {
+                //return 'http://chart.googleapis.com/chart?chst=d_map_xpin_letter&chld=pin|+|' + color + '|000000|ffffff';
+                return 'bright-optical.png';
+            }
+
+            function load() {
+                map = new google.maps.Map(document.getElementById("input-map"), {
+                    center: new google.maps.LatLng(61, -97),
+                    zoom: 3,
+                    mapTypeId: 'roadmap',
+                    mapTypeControlOptions: {
+                        style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+                    }
+                });
+            }
+
+            function searchLocation() {
+                var address = document.getElementById("address").value;
+                var geocoder = new google.maps.Geocoder();
+                $('#lat').attr("disabled", "disabled");
+                $('#lng').attr("disabled", "disabled");
+                $('#id').attr("disabled", "disabled");
+                geocoder.geocode({
+                    address: address
+                }, function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        updateLocation(results[0].geometry.location);
+                    } else {
+                        alert(address + ' not found');
+                    }
+                });
+            }
+
+            function clearLocation() {
+                if (typeof (marker) != 'undefined' && marker != 0) {
+                    marker.setMap(null);
+                    marker = 0;
+                }
+            }
+
+            function updateLocation(geo) {
+                clearLocation();
+
+                var bounds = new google.maps.LatLngBounds();
+                var name = document.getElementById("name").value;
+                var address = document.getElementById("address").value;
+                $('#lat').val(parseFloat(geo.lat()));
+                $('#lng').val(parseFloat(geo.lng()));
+                var latlng = new google.maps.LatLng(parseFloat($('#lat').val()), parseFloat($('#lng').val()));
+
+                createMarker(latlng, name, address);
+                bounds.extend(latlng);
+                map.fitBounds(bounds);
+
+                zoomChangeBoundsListener = google.maps.event.addListenerOnce(map, 'bounds_changed', function (event) {
+                    if (this.getZoom()) {
+                        this.setZoom(16);
+                    }
+                });
+                setTimeout(function () {
+                    google.maps.event.removeListener(zoomChangeBoundsListener);
+                }, 2000);
+            }
+
+            function createMarker(latlng, name, address) {
+                var html = "<b>" + name + "</b> <br/>" + address;
+                var mark = new google.maps.Marker({
+                    map: map,
+                    position: latlng,
+                    title: name,
+                    icon: iconWithColor(markerColor),
+                    shadow: shadow
+                });
+
+                mark.desc = html;
+                marker = mark;
+            }
+
+            //]]>
+        </script>
+    </body>
+</html>

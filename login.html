@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+        <meta name="viewport" content="width=device-width">
+        <title>Admin Login</title>
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <div class="container-admin">
+            <div class="top-bar">
+                <ul class="menu">
+                    <li>
+                        <a href="locations.html" target="_blank">Find a Doctor</a>
+                    </li>
+                    <li>
+                        <a href="locations.html" target="_blank">Find a Doctor</a>
+                    </li>
+                    <li>
+                        <a href="admin/">Administer</a>
+                    </li>
+                    <li>
+                        <a href="account/">Accounts</a>
+                    </li>
+                    <li>
+                        <a href="login.html">Log In</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="login">
+                <form action="controllers/login.php" method="post">
+                    <div>
+                        <label for="username">Username: </label>
+                        <input id="username" name="username" type="text">
+                    </div>
+                    <div>
+                        <label for="password">Password: </label>
+                        <input id="password" name="password" type="password">
+                    </div>
+                    <div>
+                        <input id="submit" type="submit" value="Sign In">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
