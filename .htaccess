@@ -1,0 +1,45 @@
+DirectorySlash Off
+
+IndexOptions FancyIndexing
+Options All -Indexes
+RewriteEngine On
+DirectorySlash On
+RewriteCond %{HTTP_USER_AGENT} libwww-perl.* 
+RewriteRule .* – [F,L]
+RewriteBase /
+
+DirectoryIndex index.html index.php /404.html
+
+RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+
+RewriteCond %{HTTP_HOST} ^127\.0\.0\.1
+RewriteRule (.*) http://cmsproject.loc/$1 [R=301,L]
+
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /([^/]+/)*[^.]+\.html
+RewriteRule ^(([^/]+/)*[^.]+)\.html$ http://cmsproject.loc/$1 [R=301,L]
+
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(([^/]+/)*[^/.]+)$ /$1.html [L] 
+
+ErrorDocument 404 http://cmsproject.loc/404.html
+ErrorDocument 403 /404.html
+
+AddOutputFilterByType DEFLATE text/plain
+AddOutputFilterByType DEFLATE text/html
+AddOutputFilterByType DEFLATE text/xml
+AddOutputFilterByType DEFLATE text/css
+AddOutputFilterByType DEFLATE application/xml
+AddOutputFilterByType DEFLATE application/xhtml+xml
+AddOutputFilterByType DEFLATE application/rss+xml
+AddOutputFilterByType DEFLATE application/javascript
+AddOutputFilterByType DEFLATE application/x-javascript
+
+<IfModule mod_expires.c>
+    ExpiresActive on
+ 
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+</IfModule>
