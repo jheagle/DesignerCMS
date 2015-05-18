@@ -2,8 +2,9 @@
 
 require_once($_SERVER['DOCUMENT_ROOT'] . '/global_include.php');
 
-$connection = "";
 session_start();
+$message = '';
+$fail = 0;
 if (empty($_SESSION['username']) || trim($_SESSION['username']) === '') {
     require_once ($MODELS['dbConnectClass']);
     $table = "account";
@@ -11,27 +12,27 @@ if (empty($_SESSION['username']) || trim($_SESSION['username']) === '') {
     if ((!empty($_POST['username']) || trim($_POST['username']) !== '') && (!empty($_POST['password']) || trim($_POST['password']) !== '')) {
         $user = sanitizeInput($_POST['username']);
         $pass = sanitizeInput($_POST['password']);
-        $db->select("SELECT id FROM {$table} WHERE username='{$user}' AND password='{$pass}'");
-        $count = mysql_num_rows($result);
-        if ($count == 1) {
+        $result = $db->select_assoc("SELECT id FROM {$table} WHERE username='{$user}' AND password=SHA2('{$pass}', 512)");
+        $count = count($result);
+        if ($count === 1) {
             $_SESSION['username'] = $user;
-            $row = @mysql_fetch_assoc($result);
-            $_SESSION['admin'] = $row['type'];
-            header("location:../admin/");
-            echo "Logged In as " . $_SESSION['username'];
+            if (!empty($_SESSION['page'])) {
+                list($dir, $file) = explode(':', $_SESSION['page']);
+                unset($_SESSION['page']);
+                header("location:{$$dir[$file]}");
+            }
+            header("location: {$HOME}/");
         } else {
-            header("location:../login.html");
-            echo "Incorrect Username and Password";
+            $message = 'Incorrect Username and Password';
+            $fail = 1;
         }
     } else {
-        mysql_close($connection);
-        header("location:../login.html");
-        echo "Username and Password are both required.";
+        $message = 'Username and Password are both required.';
+        $fail = 2;
     }
-} else {
+} elseif (!empty($_POST['logout'])) {
     unset($_SESSION['username']);
-    unset($_SESSION['admin']);
     session_destroy();
-    header("location:../login.html");
-    echo "Logged Out";
+    header("location: {$HOME}/");
 }
+header("location: {$HOME}/login.html?fail='{$fail}'");
