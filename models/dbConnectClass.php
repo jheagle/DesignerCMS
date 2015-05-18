@@ -1,5 +1,7 @@
 <?php
 
+require_once($_SERVER['DOCUMENT_ROOT'] . '/global_include.php');
+
 //$screenOut = true;
 
 class DBConnect {
@@ -16,7 +18,7 @@ class DBConnect {
 
     protected function __construct($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = true, $production = false) {
         if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password)) {
-            include_once($_SERVER['DOCUMENT_ROOT'] . '/projects/php/addressbook/resources/dbInfo.php');
+            include_once($RESOURCES['dbInfo']);
         }
 //        $testing = true;
 //        $production = false;
@@ -159,7 +161,7 @@ class DBConnect {
         if (empty($this->result) || $queryRaw !== $this->queryRaw) {
             $this->query($queryRaw, 'select');
         }
-        return $this->pdoInstance[$this->database] && $this->result ? $result->fetch($this->pdoInstance[$this->database]->FETCH_LAZY) : $result;
+        return $this->pdoInstance[$this->database] && $this->result ? $this->result->fetch($this->pdoInstance[$this->database]->FETCH_LAZY) : $this->result;
     }
 
     private function queryValidation($queryRaw, $type) {
