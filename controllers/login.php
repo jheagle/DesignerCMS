@@ -10,8 +10,8 @@ if (empty($_SESSION['username']) || trim($_SESSION['username']) === '') {
     $table = "account";
     $db = DBConnect::instantiateDB('', '', '', '', false, true);
     if ((!empty($_POST['username']) || trim($_POST['username']) !== '') && (!empty($_POST['password']) || trim($_POST['password']) !== '')) {
-        $user = sanitizeInput($_POST['username']);
-        $pass = sanitizeInput($_POST['password']);
+        $user = $db->sanitizeInput($_POST['username']);
+        $pass = $db->sanitizeInput($_POST['password']);
         $result = $db->select_assoc("SELECT id FROM {$table} WHERE username='{$user}' AND password=SHA2('{$pass}', 512)");
         $count = count($result);
         if ($count === 1) {
@@ -19,20 +19,24 @@ if (empty($_SESSION['username']) || trim($_SESSION['username']) === '') {
             if (!empty($_SESSION['page'])) {
                 list($dir, $file) = explode(':', $_SESSION['page']);
                 unset($_SESSION['page']);
-                header("location:{$$dir[$file]}");
+                header("Location: {$$dir[$file]}");
             }
-            header("location: {$HOME}/");
+            header("Location: {$HOME}/");
         } else {
             $message = 'Incorrect Username and Password';
             $fail = 1;
         }
-    } else {
+    } elseif ((!empty($_POST['username']) || trim($_POST['username']) !== '') || (!empty($_POST['password']) || trim($_POST['password']) !== '')) {
         $message = 'Username and Password are both required.';
         $fail = 2;
     }
 } elseif (!empty($_POST['logout'])) {
     unset($_SESSION['username']);
     session_destroy();
-    header("location: {$HOME}/");
+    header("Location: {$HOME}/");
 }
-header("location: {$HOME}/login.html?fail='{$fail}'");
+if ($fail) {
+    header("Location: {$HOME}/login.html?fail='{$fail}'");
+} else {
+    header("Location: {$HOME}/login.html");
+}

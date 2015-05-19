@@ -6,9 +6,10 @@ $globalDirs = array('account', 'admin', 'controllers', 'img', 'js', 'models', 's
 
 foreach ($globalDirs as $dir) {
     $dirParts = explode('/', $dir);
-    $uppDir = strtoupper($dir[count($dir) - 1]);
+    $uppDir = strtoupper($dirParts[count($dirParts) - 1]);
     $$uppDir = dirAssocArray("{$HOME}/{$dir}/");
 }
+unset($globalDirs, $dirParts, $dir, $uppDir);
 
 function dirAssocArray($dirName) {
     $dirArray = scandir($dirName);
