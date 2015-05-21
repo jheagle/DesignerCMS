@@ -66,7 +66,7 @@ class DBConnect {
         
     }
 
-    private function exec($queryRaw = '', $type = 'insert') {
+    protected function exec($queryRaw = '', $type = 'insert') {
         $count = 0;
         $query = empty($queryRaw) ? $this->query : $this->queryValidation($queryRaw, $type);
         if (empty($query)) {
@@ -104,7 +104,7 @@ class DBConnect {
         return $this->exec($queryRaw, 'delete');
     }
 
-    private function query($queryRaw = '', $type = 'select') {
+    protected function query($queryRaw = '', $type = 'select') {
         $query = empty($queryRaw) ? $this->query : $this->queryValidation($queryRaw, $type);
         if (empty($query)) {
             return;

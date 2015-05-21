@@ -1,12 +1,10 @@
 <?php
 
 require_once($_SERVER['DOCUMENT_ROOT'] . '/global_include.php');
-header("Location: ../confirm-account.html");
 
 session_start();
 $message = '';
 $fail = 0;
-exit("Location: {$HOME}/confirm-account.html");
 
 if (empty($_SESSION['username']) || trim($_SESSION['username']) === '') {
     if (isset($_SESSION['page'])) {
@@ -56,7 +54,7 @@ if (empty($_SESSION['username']) || trim($_SESSION['username']) === '') {
 }
 
 if ($fail) {
-    header("Location: {$HOME}/login.html?fail='{$fail}'");
+    header("Location: {$HOME}/login.html?fail={$fail}");
 } else {
     header("Location: {$HOME}/login.html");
 }

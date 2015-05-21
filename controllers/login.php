@@ -36,7 +36,7 @@ if (empty($_SESSION['username']) || trim($_SESSION['username']) === '') {
     header("Location: {$HOME}/");
 }
 if ($fail) {
-    header("Location: {$HOME}/login.html?fail='{$fail}'");
+    header("Location: {$HOME}/login.html?fail={$fail}");
 } else {
     header("Location: {$HOME}/login.html");
 }
