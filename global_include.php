@@ -13,7 +13,6 @@ unset($globalDirs, $dirParts, $dir, $uppDir);
 $HOME = '';
 
 function dirAssocArray($dirName) {
-    echo $dirName;
     $dirArray = scandir($dirName);
     $assocArray = array();
     foreach ($dirArray as $name) {
