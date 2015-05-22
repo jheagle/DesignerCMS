@@ -1,9 +1,5 @@
 <?php
 
-header('Content-Type: application/json');
-
-use DBConnect;
-
 require_once($MODELS['dbConnectClass']);
 
 class AjaxDBConnect extends DBConnect {
@@ -16,26 +12,42 @@ class AjaxDBConnect extends DBConnect {
 
     public function insert($queryRaw = '') {
         $this->jsonResult = json_encode(parent::insert($queryRaw));
-        echo $this->jsonResult;
+        return $this->jsonResult;
     }
 
     public function update($queryRaw = '') {
         $this->jsonResult = json_encode(parent::update($queryRaw));
-        echo $this->jsonResult;
+        return $this->jsonResult;
     }
 
     public function delete($queryRaw = '') {
         $this->jsonResult = json_encode(parent::delete($queryRaw));
-        echo $this->jsonResult;
+        return $this->jsonResult;
     }
 
-    public function select_assoc($queryRaw = '') {
+    public function select($queryRaw = '') {
         $this->jsonResult = json_encode(parent::select_assoc($queryRaw));
-        echo $this->jsonResult;
+        return $this->jsonResult;
+    }
+
+    public function requestValidation($request) {
+        $type = substr($request, 0, 6);
+        $query = substr($request, 7);
+        list($ex_type, $ex_query) = explode(':', $request, 2);
+        return preg_match('/^(insert|update|delete|select)/', $request) && $type === $ex_type && $query === $ex_query;
     }
 
     protected function queryValidation($queryRaw, $type) {
         return parent::queryValidation($queryRaw, $type);
+    }
+
+    public function consoleOut($outputIn, $typeIn = 'DB') {
+        $output = is_array($outputIn) || is_object($outputIn) ? addslashes(json_encode($outputIn)) : addslashes($outputIn);
+        $type = addslashes($typeIn);
+        if (!headers_sent()) {
+            header('Content-Type: application/json');
+        }
+        echo "{$type}: {$output}|\r\n<br>";
     }
 
 }
