@@ -2,6 +2,8 @@
 
 require_once($MODELS['dbConnectClass']);
 
+$screenOut = true;
+
 class AjaxDBConnect extends DBConnect {
 
     private $jsonResult;
@@ -42,12 +44,7 @@ class AjaxDBConnect extends DBConnect {
     }
 
     public function consoleOut($outputIn, $typeIn = 'DB') {
-        $output = is_array($outputIn) || is_object($outputIn) ? addslashes(json_encode($outputIn)) : addslashes($outputIn);
-        $type = addslashes($typeIn);
-        if (!headers_sent()) {
-            header('Content-Type: application/json');
-        }
-        echo "{$type}: {$output}|\r\n<br>";
+        parent::consoleOut($outputIn, $typeIn);
     }
 
 }

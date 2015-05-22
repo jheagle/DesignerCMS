@@ -2,8 +2,6 @@
 
 require_once($_SERVER['DOCUMENT_ROOT'] . '/global_include.php');
 
-//$screenOut = true;
-
 class DBConnect {
 
     protected static $instance;
@@ -21,8 +19,6 @@ class DBConnect {
             global $RESOURCES;
             include_once($RESOURCES['dbInfo']);
         }
-//        $testing = true;
-//        $production = false;
         $this->database = $database;
         $this->testing = $testing;
         $this->production = $production;
@@ -165,7 +161,7 @@ class DBConnect {
         return isset($this->pdoInstance[$this->database]) && $this->result ? $this->result->fetch($this->pdoInstance[$this->database]->FETCH_LAZY) : $this->result;
     }
 
-    private function queryValidation($queryRaw, $type) {
+    protected function queryValidation($queryRaw, $type) {
         if ($queryRaw === $this->queryRaw) {
             return $this->query;
         }
@@ -217,11 +213,15 @@ class DBConnect {
 
     public function consoleOut($outputIn, $typeIn = 'DB') {
         global $screenOut;
-        $output = is_array($outputIn) || is_object($outputIn) ? addslashes(json_encode($outputIn)) : addslashes($outputIn);
+        $output = is_array($outputIn) || is_object($outputIn) ? json_encode($outputIn) : $outputIn;
         $type = addslashes($typeIn);
+        if (!headers_sent()) {
+            header('Content-Type: application/json');
+        }
         if (isset($screenOut) && $screenOut) {
-            echo "{$type}: {$output}|\r\n<br>";
+            echo "{$type}: {$output}\r\n";
         } else {
+            $output = addcslashes($output);
             echo "<script>console.log(\"{$type}: {$output}\")</script>";
         }
     }
