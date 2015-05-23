@@ -44,7 +44,37 @@ class AjaxDBConnect extends DBConnect {
     }
 
     public function consoleOut($outputIn, $typeIn = 'DB') {
-        parent::consoleOut($outputIn, $typeIn);
+        $output = is_array($outputIn) || is_object($outputIn) ? json_encode($outputIn) : $outputIn;
+        $type = addslashes($typeIn);
+        if (!headers_sent()) {
+            header('Content-Type: application/json');
+        }
+        echo "{$type}: {$output}\r\n";
+    }
+
+    public function sanitizeOutput($output) {
+        if (is_array($output)) {
+            $new_output = array();
+            foreach ($output as $key => $value) {
+                if (is_array($value)) {
+                    $new_output[$key] = $this->sanitizeOutput($value);
+                } else {
+                    /*
+                     * Cannot use this because the idiots at Network Solutions do not offer a server with a version of PHP higher than 5.3
+                      $new_output[$key] = stripslashes(htmlentities(str_replace('\r', '', $value), ENT_HTML5, 'UTF-8', false));
+                     * 
+                     */
+                    $new_output[$key] = stripslashes(htmlentities(str_replace('\r', '', $value), ENT_QUOTES, 'UTF-8', false));
+                }
+            }
+            return $new_output;
+        }
+        /*
+         * Cannot use this because the idiots at Network Solutions do not offer a server with a version of PHP higher than 5.3
+          return stripslashes(htmlentities(str_replace('\r', '', $output), ENT_HTML5, 'UTF-8', false));
+         * 
+         */
+        return stripslashes(htmlentities(str_replace('\r', '', $output), ENT_QUOTES, 'UTF-8', false));
     }
 
 }

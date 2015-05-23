@@ -6,9 +6,9 @@ session_start();
 $message = '';
 $fail = 0;
 if (empty($_SESSION['username']) || trim($_SESSION['username']) === '') {
-    require_once ($MODELS['dbConnectClass']);
+    require_once ($MODELS['phpDBConnect']);
     $table = "account";
-    $db = DBConnect::instantiateDB('', '', '', '', false, true);
+    $db = PHPDBConnect::instantiateDB('', '', '', '', false, true);
     if ((!empty($_POST['username']) || trim($_POST['username']) !== '') && (!empty($_POST['password']) || trim($_POST['password']) !== '')) {
         $user = $db->sanitizeInput($_POST['username']);
         $pass = $db->sanitizeInput($_POST['password']);

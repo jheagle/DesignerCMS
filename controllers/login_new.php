@@ -10,9 +10,9 @@ if (empty($_SESSION['username']) || trim($_SESSION['username']) === '') {
     if (isset($_SESSION['page'])) {
         unset($_SESSION['page']);
     }
-    require_once ($MODELS['dbConnectClass']);
+    require_once ($MODELS['phpDBConnect']);
     $table = "account";
-    $db = DBConnect::instantiateDB('', '', '', '', true, false);
+    $db = PHPDBConnect::instantiateDB('', '', '', '', true, false);
     if ((!empty($_POST['username']) || trim($_POST['username']) !== '') && (!empty($_POST['password']) || trim($_POST['password']) !== '')) {
         $user = $db->sanitizeInput($_POST['username']);
         $pass = $db->sanitizeInput($_POST['password']);
