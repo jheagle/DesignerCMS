@@ -2,8 +2,6 @@
 
 require_once($MODELS['dbConnectClass']);
 
-$screenOut = true;
-
 class AjaxDBConnect extends DBConnect {
 
     private $jsonResult;

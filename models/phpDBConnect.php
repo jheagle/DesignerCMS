@@ -126,7 +126,7 @@ class PHPDBConnect extends DBConnect {
         if (isset($screenOut) && $screenOut) {
             echo "{$type}: {$output}\r\n";
         } else {
-            $output = addcslashes($output);
+            $output = addslashes($output);
             echo "<script>console.log(\"{$type}: {$output}\")</script>";
         }
     }

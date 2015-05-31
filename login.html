@@ -31,11 +31,11 @@
                 <form action="controllers/login.php" method="post">
                     <div>
                         <label for="username">Username: </label>
-                        <input id="username" name="username" type="text">
+                        <input id="username" name="username" type="text" required>
                     </div>
                     <div>
                         <label for="password">Password: </label>
-                        <input id="password" name="password" type="password">
+                        <input id="password" name="password" type="password" required>
                     </div>
                     <div>
                         <input id="submit" type="submit" value="Sign In">
@@ -46,23 +46,23 @@
                 <form action="controllers/login_new.php" method="post">
                     <div>
                         <label for="username">Username: </label>
-                        <input id="username" name="username" type="text">
+                        <input id="username" name="username" type="text" required>
                     </div>
                     <div>
                         <label for="password">Password: </label>
-                        <input id="password" name="password" type="password">
+                        <input id="password" name="password" type="password" required>
                     </div>
                     <div>
                         <label for="confirm-password">Re-type Password: </label>
-                        <input id="password" name="confirmpass" type="password">
+                        <input id="password" name="confirmpass" type="password" required>
                     </div>
                     <div>
                         <label for="email">Email: </label>
-                        <input id="email" name="email" type="email">
+                        <input id="email" name="email" type="email" required>
                     </div>
                     <div>
                         <label for="confirm-email">Re-type Email: </label>
-                        <input id="confirmemail" name="confirmemail" type="email">
+                        <input id="confirmemail" name="confirmemail" type="email" required>
                     </div>
                     <div>
                         <input id="submit" type="submit" value="Register">
@@ -70,5 +70,28 @@
                 </form>
             </div>
         </div>
+        <script>
+            var errorTypes = ['Success!', 'Incorrect Username or Password.', 'Username and Password are both required.', 'Please Enter Username and Password.', 'You may only have one email per account.', 'Your email and confirmation do not match.', 'Your password and confirmation do not match.', 'Please select another username.', 'Unable to create account at this time.\nContact Support: contact@joshuaheagle.com'];
+            
+            function URLToArray(url) {
+                var request = {};
+                var pairs = url.substring(url.indexOf('?') + 1).split('&');
+                for (var i = 0; i < pairs.length; i++) {
+                    var pair = pairs[i].split('=');
+                    request[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+                }
+                if (url in request) {
+                    return {};
+                }
+                return request;
+            }
+
+            var params = URLToArray(window.location.href);
+            if ('fail' in params) {
+                if (params['fail'] < 9) {
+                    alert(errorTypes[params['fail']]);
+                }
+            }
+        </script>
     </body>
 </html>
