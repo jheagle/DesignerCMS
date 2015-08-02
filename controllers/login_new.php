@@ -12,7 +12,7 @@ if (!empty($_POST)) {
             unset($_SESSION['page']);
         }
         require_once ($MODELS['phpDBConnect']);
-        $table = "account";
+        $table = "access_tracking";
         $db = PHPDBConnect::instantiateDB('', '', '', '', false, false);
         if ((!empty($_POST['username']) || trim($_POST['username']) !== '') && (!empty($_POST['password']) || trim($_POST['password']) !== '')) {
             $user = $db->sanitizeInput($_POST['username']);
@@ -20,10 +20,10 @@ if (!empty($_POST)) {
             $passConfirm = $db->sanitizeInput($_POST['confirmpass']);
             $email = $db->sanitizeInput($_POST['email']);
             $emailConfirm = $db->sanitizeInput($_POST['confirmemail']);
-            $result = $db->select_assoc("SELECT id FROM {$table} WHERE email='{$email}'");
+            $result = $db->select_assoc("SELECT id FROM {$table} WHERE access_email='{$email}'");
             $count = count($result);
             if ($count) {
-                $fail = 4; // 'You may only have one email per account.'
+                $fail = 4; // 'You may only have one account per email.'
             } elseif ($email !== $emailConfirm) {
                 $fail = 5; // 'Your email and confirmation do not match.'
             } elseif ($pass !== $passConfirm) {
@@ -36,6 +36,8 @@ if (!empty($_POST)) {
                 }
             }
             if (!$fail) {
+                $result = $db->insert("INSERT INTO account (username, password, email) VALUES('{$user}', SHA2('{$pass}', 512), '{$email}')");
+                $accountId = $db->lastInsertId();
                 $result = $db->insert("INSERT INTO {$table} (username, password, email) VALUES('{$user}', SHA2('{$pass}', 512), '{$email}')");
                 if ($result) {
                     $_SESSION['username'] = $user;
