@@ -129,6 +129,7 @@ class PHPDBConnect extends DBConnect {
             $output = addslashes($output);
             echo "<script>console.log(\"{$type}: {$output}\")</script>";
         }
+        return true;
     }
 
     public function sanitizeOutput($output) {

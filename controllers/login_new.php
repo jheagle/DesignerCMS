@@ -36,7 +36,7 @@ if (!empty($_POST)) {
                 }
             }
             if (!$fail) {
-                $result = $db->insert("INSERT INTO account (username, password, email) VALUES('{$user}', SHA2('{$pass}', 512), '{$email}')");
+                $result = $db->insert("INSERT INTO account (username, password) VALUES('{$user}', SHA2('{$pass}', 512))");
                 $accountId = $db->lastInsertId();
                 $result = $db->insert("INSERT INTO {$table} (username, password, email) VALUES('{$user}', SHA2('{$pass}', 512), '{$email}')");
                 if ($result) {

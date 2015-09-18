@@ -123,25 +123,19 @@ abstract class DBConnect {
 
     abstract protected function consoleOut($outputIn, $typeIn);
 
+    public function lastInsertId($name = null) {
+        return $this->pdoInstance[$this->database]->lastInsertId($name);
+    }
+
     public function sanitizeInput($input, $escape = true) {
         if (is_array($input)) {
             $new_input = array();
             foreach ($input as $key => $value) {
-                /*
-                 * Cannot use this because the idiots at Network Solutions do not offer a server with a version of PHP higher than 5.3
-                  $new_input[$key] = $escape ? addslashes(html_entity_decode(trim($value), ENT_HTML5, 'UTF-8')) : html_entity_decode(trim($value), ENT_HTML5, 'UTF-8');
-                 * 
-                 */
-                $new_input[$key] = $escape ? addslashes(html_entity_decode(trim($value), ENT_QUOTES, 'UTF-8')) : html_entity_decode(trim($value), ENT_QUOTES, 'UTF-8');
+                $new_input[$key] = $escape ? addslashes(html_entity_decode(trim($value), ENT_HTML5, 'UTF-8')) : html_entity_decode(trim($value), ENT_HTML5, 'UTF-8');
             }
             return $new_input;
         }
-        /*
-         * Cannot use this because the idiots at Network Solutions do not offer a server with a version of PHP higher than 5.3
-          return $escape ? addslashes(html_entity_decode(trim($input), ENT_HTML5, 'UTF-8')) : html_entity_decode(trim($input), ENT_HTML5, 'UTF-8');
-         * 
-         */
-        return $escape ? addslashes(html_entity_decode(trim($input), ENT_QUOTES, 'UTF-8')) : html_entity_decode(trim($input), ENT_QUOTES, 'UTF-8');
+        return $escape ? addslashes(html_entity_decode(trim($input), ENT_HTML5, 'UTF-8')) : html_entity_decode(trim($input), ENT_HTML5, 'UTF-8');
     }
 
     abstract public function sanitizeOutput($output);
