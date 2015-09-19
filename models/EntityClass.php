@@ -1,5 +1,8 @@
 <?php
 
+require_once($_SERVER['DOCUMENT_ROOT'] . '/global_include.php');
+require_once($MODELS['EntityFieldClass']);
+
 abstract class Entity {
 
     protected $db;
@@ -46,7 +49,7 @@ abstract class Entity {
             if (is_array($this->{$property})) {
                 return $this->{$property};
             }
-            return $this->db->sanitizeOutput($this->{$property});
+            return $this->db->sanitizeOutput($this->{$property}->getValue());
         }
         return false;
     }
@@ -75,7 +78,7 @@ abstract class Entity {
             if ($value instanceof Entity) {
                 $this->{$property} = array($value);
             } else {
-                $this->{$property} = $this->db->sanitizeInput($value);
+                $this->{$property}->setValue($this->db->sanitizeInput($value));
             }
             return $this->{$property};
         }
@@ -86,11 +89,14 @@ abstract class Entity {
         $columns = $values = array();
 
         foreach ($ob_vars as $prop => $val) {
-            if ($prop !== 'id' && $prop !== 'db' && (!isset($val) || empty($val) || $val < 0) && preg_match('/^(first_name|address|phone_number)/', $prop)) {
+            if (!($val instanceof Field) || $val->hasAttr(Field::AUTO_INCREMENT)) {
+                continue;
+            }
+            if (($val->hasAttr(Field::REQUIRED) && empty($val->getValue())) || ($prop->hasAttr(Field::UNSIGNED) && $val->getValue < 0)) {
                 return false;
-            } elseif (!preg_match('/^(db|id|address|phone_number)/', $prop)) {
+            } else {
                 $columns[] = "`{$prop}`";
-                $values[] = "'{$val}'";
+                $values[] = "'{$val->getValue()}'";
             }
         }
 

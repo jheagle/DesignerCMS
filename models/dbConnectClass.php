@@ -127,6 +127,10 @@ abstract class DBConnect {
         return $this->pdoInstance[$this->database]->lastInsertId($name);
     }
 
+    public function rowCount() {
+        return $this->pdoInstance[$this->database]->rowCount();
+    }
+
     public function sanitizeInput($input, $escape = true) {
         if (is_array($input)) {
             $new_input = array();
