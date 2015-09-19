@@ -55,41 +55,49 @@ abstract class Entity {
     }
 
     public function set($property, $value) {
-        if (preg_match('/^(db|do_output)$/', $property)) {
+        if (preg_match('/^(db|do_output)$/', $property) || !property_exists($this, $property)) {
             return false;
         }
-        if (property_exists($this, $property)) {
-            if (is_array($value)) {
-                if (!is_array($this->{$property})) {
-                    $this->{$property} = empty($this->{$property}) ? array() : array($this->{$property});
-                }
-                foreach ($value as $val) {
-                    if ($val instanceof Entity) {
-                        $this->{$property}[] = $val;
-                    } else {
-                        $this->db->consoleOut("Invalid Entity Type for {$property} as " . json_encode($value), strtoupper(get_class($this)));
-                        return false;
-                    }
+        if (is_array($value)) {
+            if (!is_array($this->{$property})) {
+                $this->{$property} = empty($this->{$property}) ? array() : array($this->{$property});
+            }
+            foreach ($value as $val) {
+                if ($val instanceof Entity) {
+                    $this->{$property}[] = $val;
+                } else {
+                    $this->db->consoleOut("Invalid Entity Type for {$property} as " . json_encode($value), strtoupper(get_class($this)));
+                    return false;
                 }
             }
-            if ($this->do_output) {
-                $this->db->consoleOut("Setting {$property} to " . json_encode($value), strtoupper(get_class($this)));
-            }
-            if ($value instanceof Entity) {
-                $this->{$property} = array($value);
-            } else {
-                $this->{$property}->setValue($this->db->sanitizeInput($value));
-            }
-            return $this->{$property};
         }
+        if ($this->do_output) {
+            $this->db->consoleOut("Setting {$property} to " . json_encode($value), strtoupper(get_class($this)));
+        }
+        if ($value instanceof Entity) {
+            $this->{$property} = array($value);
+        } else {
+            $this->{$property}->setValue($this->db->sanitizeInput($value));
+        }
+        return $this->{$property};
     }
 
-    public function create_entity() {
+    public function createEntity() {
         $ob_vars = get_object_vars($this);
         $columns = $values = array();
+        $idProp = '';
+        $children = array();
 
         foreach ($ob_vars as $prop => $val) {
-            if (!($val instanceof Field) || $val->hasAttr(Field::AUTO_INCREMENT)) {
+            if (!($val instanceof Field)) {
+                continue;
+            }
+            if ($val->hasAttr(Field::AUTO_INCREMENT) && $val->hasAttr(Field::PRIMARY_KEY)) {
+                $idProp = $prop;
+                continue;
+            }
+            if (is_array($val)) {
+                $children[] = $prop;
                 continue;
             }
             if (($val->hasAttr(Field::REQUIRED) && empty($val->getValue())) || ($prop->hasAttr(Field::UNSIGNED) && $val->getValue < 0)) {
@@ -104,10 +112,17 @@ abstract class Entity {
         $cols = implode(',', $columns);
         $vals = implode(',', $values);
         $this->db->insert("INSERT INTO `{$table}` ({$cols}) VALUES ({$vals})");
-        $this->set('id', end($this->search_contact_ids(null, true)));
+        if (!empty($idProp)) {
+            $this->{$idProp}->setValue($this->db->lastInsertId());
+        }
         $GLOBALS['tracking']->add_event("Created {$this->first_name} {$this->middle_name} {$this->last_name}", $this, $this->id);
-        $this->create_contact_info('address');
-        $this->create_contact_info('phone_number');
+        foreach ($children as $child) {
+            foreach ($this->{$child} as $entity) {
+                if ($entity instanceof Entity) {
+                    $entity->createEntity();
+                }
+            }
+        }
         return $this;
     }
 
