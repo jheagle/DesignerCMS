@@ -84,9 +84,8 @@ abstract class Entity {
 
     public function createEntity() {
         $ob_vars = get_object_vars($this);
-        $columns = $values = array();
+        $columns = $values = $children = array();
         $idProp = '';
-        $children = array();
 
         foreach ($ob_vars as $prop => $val) {
             if (!($val instanceof Field)) {

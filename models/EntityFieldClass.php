@@ -13,6 +13,8 @@ class Field {
     const ZERO_FILL = 32;
     const AUTO_INCREMENT = 64;
     const REQUIRED = 128;
+    const INDEX = 256;
+    const FULLTEXT = 512;
 
     protected static $name;
     protected $dataType;
