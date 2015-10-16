@@ -39,7 +39,7 @@ class Field {
     }
 
     public function hasAttr($attr) {
-        return (($this->attributes & $attr) == $attr);
+        return (($this->attributes & $attr) === $attr);
     }
 
     public function hasAttribute($attr) {

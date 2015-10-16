@@ -118,6 +118,7 @@ abstract class Entity {
         foreach ($children as $child) {
             foreach ($this->{$child} as $entity) {
                 if ($entity instanceof Entity) {
+                    $entity->setForeignKey($table, $this->{$idProp}->getValue());
                     $entity->createEntity();
                 }
             }
