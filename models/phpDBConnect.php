@@ -1,9 +1,9 @@
 <?php
 
-require_once($MODELS['dbConnectClass']);
+require_once $MODELS['dbConnectClass'];
 
-class PHPDBConnect extends DBConnect {
-
+class PHPDBConnect extends DBConnect
+{
     protected static $instance;
     private static $pdoInstance;
     private $database;
@@ -14,66 +14,83 @@ class PHPDBConnect extends DBConnect {
     private $queryRaw;
     private $query;
 
-    protected function __construct($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = true, $production = false) {
+    protected function __construct($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = true, $production = false)
+    {
         parent::__construct($hostname, $database, $username, $password, $testing, $production);
     }
 
-    public function insert($queryRaw = '') {
+    public function insert($queryRaw = '')
+    {
         return $this->exec($queryRaw, 'insert');
     }
 
-    public function update($queryRaw = '') {
+    public function update($queryRaw = '')
+    {
         return $this->exec($queryRaw, 'update');
     }
 
-    public function delete($queryRaw = '') {
+    public function delete($queryRaw = '')
+    {
         return $this->exec($queryRaw, 'delete');
     }
 
-    public function select($queryRaw = '') {
+    public function select($queryRaw = '')
+    {
         return $this->query($queryRaw, 'select');
     }
 
-    public function select_assoc($queryRaw = '') {
+    public function select_assoc($queryRaw = '')
+    {
         if (empty($this->result) || $queryRaw !== $this->queryRaw) {
             $this->query($queryRaw, 'select');
         }
+
         return isset($this->pdoInstance[$this->database]) && $this->result ? $this->result->fetch(PDO::FETCH_ASSOC) : $this->result;
     }
 
-    public function select_num($queryRaw = '') {
+    public function select_num($queryRaw = '')
+    {
         if (empty($this->result) || $queryRaw !== $this->queryRaw) {
             $this->query($queryRaw, 'select');
         }
+
         return isset($this->pdoInstance[$this->database]) && $this->result ? $this->result->fetch(PDO::FETCH_NUM) : $this->result;
     }
 
-    public function select_both($queryRaw = '') {
+    public function select_both($queryRaw = '')
+    {
         if (empty($this->result) || $queryRaw !== $this->queryRaw) {
             $this->query($queryRaw, 'select');
         }
+
         return isset($this->pdoInstance[$this->database]) && $this->result ? $this->result->fetch(PDO::FETCH_BOTH) : $this->result;
     }
 
-    public function select_object($queryRaw = '') {
+    public function select_object($queryRaw = '')
+    {
         if (empty($this->result) || $queryRaw !== $this->queryRaw) {
             $this->query($queryRaw, 'select');
         }
+
         return isset($this->pdoInstance[$this->database]) && $this->result ? $this->result->fetch(PDO::FETCH_OBJECT) : $this->result;
     }
 
-    public function select_lazy($queryRaw = '') {
+    public function select_lazy($queryRaw = '')
+    {
         if (empty($this->result) || $queryRaw !== $this->queryRaw) {
             $this->query($queryRaw, 'select');
         }
+
         return isset($this->pdoInstance[$this->database]) && $this->result ? $this->result->fetch($this->pdoInstance[$this->database]->FETCH_LAZY) : $this->result;
     }
 
-    protected function queryValidation($queryRaw, $type) {
+    protected function queryValidation($queryRaw, $type)
+    {
         if ($queryRaw === $this->queryRaw) {
             return $this->query;
         }
         $this->queryRaw = $queryRaw;
+
         return $this->query = $this->queryRaw; // remove thise once complete function
         /*        if (!preg_match("`?\d*[a-zA-Z][0-9a-zA-Z$_]*`?", $tableName)) {
           return;
@@ -119,7 +136,8 @@ class PHPDBConnect extends DBConnect {
           return $this->query; */
     }
 
-    public function consoleOut($outputIn, $typeIn = 'DB') {
+    public function consoleOut($outputIn, $typeIn = 'DB')
+    {
         global $screenOut;
         $output = is_array($outputIn) || is_object($outputIn) ? json_encode($outputIn) : $outputIn;
         $type = addslashes($typeIn);
@@ -129,10 +147,12 @@ class PHPDBConnect extends DBConnect {
             $output = addslashes($output);
             echo "<script>console.log(\"{$type}: {$output}\")</script>";
         }
+
         return true;
     }
 
-    public function sanitizeOutput($output) {
+    public function sanitizeOutput($output)
+    {
         if (is_array($output)) {
             $new_output = array();
             foreach ($output as $key => $value) {
@@ -142,9 +162,10 @@ class PHPDBConnect extends DBConnect {
                     $new_output[$key] = stripslashes(htmlentities(str_replace('\r', '', $value), ENT_HTML5, 'UTF-8', false));
                 }
             }
+
             return $new_output;
         }
+
         return stripslashes(htmlentities(str_replace('\r', '', $output), ENT_HTML5, 'UTF-8', false));
     }
-
 }

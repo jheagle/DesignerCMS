@@ -1,10 +1,10 @@
 <?php
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/global_include.php');
-require_once($MODELS['DataTypeClass']);
+require_once $_SERVER['DOCUMENT_ROOT'].'/global_include.php';
+require_once $MODELS['DataTypeClass'];
 
-class Field {
-
+class Field
+{
     const PRIMARY_KEY = 1;
     const NOT_NULL = 2;
     const UNIQUE = 4;
@@ -21,7 +21,8 @@ class Field {
     protected static $attributes;
     protected static $default;
 
-    public function __construct($name, $dataType, $default = '', $attributes = self::NOT_NULL) {
+    public function __construct($name, $dataType, $default = '', $attributes = self::NOT_NULL)
+    {
         $this->name = strtolower(str_replace(' ', '_', $name));
         $dataTypeClassName = ucwords(strtolower($dataType));
         $dataTypeClass = new $dataTypeClassName($default);
@@ -30,20 +31,23 @@ class Field {
         $this->default = $this->dataType->getValue();
     }
 
-    public function getValue() {
+    public function getValue()
+    {
         return $this->datatype->getValue();
     }
 
-    public function setValue($value) {
+    public function setValue($value)
+    {
         return $this->datatype->setValue($value);
     }
 
-    public function hasAttr($attr) {
-        return (($this->attributes & $attr) === $attr);
+    public function hasAttr($attr)
+    {
+        return ($this->attributes & $attr) === $attr;
     }
 
-    public function hasAttribute($attr) {
+    public function hasAttribute($attr)
+    {
         return self::hasAttr($attr);
     }
-
 }
