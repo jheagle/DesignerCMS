@@ -1,6 +1,9 @@
 <?php
 
-require_once $_SERVER['DOCUMENT_ROOT'].'/global_include.php';
+if (!isset($ROOT)) {
+    $ROOT = dirname(__DIR__);
+}
+require_once $ROOT.'/global_include.php';
 
 abstract class DBConnect
 {
@@ -14,7 +17,7 @@ abstract class DBConnect
     private $queryRaw;
     private $query;
 
-    protected function __construct($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = true, $production = false)
+    protected function __construct($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = false, $production = true)
     {
         if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password)) {
             global $RESOURCES;

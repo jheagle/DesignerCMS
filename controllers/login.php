@@ -1,15 +1,18 @@
 <?php
 
 if (!empty($_POST)) {
-    require_once($_SERVER['DOCUMENT_ROOT'] . '/global_include.php');
+    if (!isset($ROOT)) {
+        $ROOT = dirname(__DIR__);
+    }
+    require_once $ROOT.'/global_include.php';
 
     session_start();
     $message = '';
     $fail = 0;
     if (empty($_SESSION['username']) || trim($_SESSION['username']) === '') {
-        require_once ($MODELS['phpDBConnect']);
-        $table = "account";
-        $db = PHPDBConnect::instantiateDB('', '', '', '', false, false);
+        require_once $MODELS['phpDBConnect'];
+        $table = 'account';
+        $db = PHPDBConnect::instantiateDB('', '', '', '', $testing, $production);
         if ((!empty($_POST['username']) || trim($_POST['username']) !== '') && (!empty($_POST['password']) || trim($_POST['password']) !== '')) {
             $user = $db->sanitizeInput($_POST['username']);
             $pass = $db->sanitizeInput($_POST['password']);

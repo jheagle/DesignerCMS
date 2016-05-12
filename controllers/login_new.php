@@ -1,7 +1,10 @@
 <?php
 
 if (!empty($_POST)) {
-    require_once($_SERVER['DOCUMENT_ROOT'] . '/global_include.php');
+    if (!isset($ROOT)) {
+        $ROOT = dirname(__DIR__);
+    }
+    require_once $ROOT.'/global_include.php';
 
     session_start();
     $message = '';
@@ -11,9 +14,9 @@ if (!empty($_POST)) {
         if (isset($_SESSION['page'])) {
             unset($_SESSION['page']);
         }
-        require_once ($MODELS['phpDBConnect']);
-        $table = "access_tracking";
-        $db = PHPDBConnect::instantiateDB('', '', '', '', false, false);
+        require_once $MODELS['phpDBConnect'];
+        $table = 'access_tracking';
+        $db = PHPDBConnect::instantiateDB('', '', '', '', $testing, $production);
         if ((!empty($_POST['username']) || trim($_POST['username']) !== '') && (!empty($_POST['password']) || trim($_POST['password']) !== '')) {
             $user = $db->sanitizeInput($_POST['username']);
             $pass = $db->sanitizeInput($_POST['password']);

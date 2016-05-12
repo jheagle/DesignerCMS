@@ -1,8 +1,18 @@
 <?php
 
+if ($_SERVER['SERVER_ADDR'] === '127.0.0.1' && $_SERVER['REMOTE_ADDR'] === '127.0.0.1') {
+    header('Content-Type: application/json');
+    $testing = true;
+    $production = false;
+}
+
 $HOME = '';
 
 $globalDirs = array('account', 'admin', 'controllers', 'img', 'js', 'models', 'sudo', 'resources', 'css');
+
+if (empty($ROOT)) {
+    $ROOT = __DIR__;
+}
 
 if (!isset($reset)) {
     $reset = false;
@@ -11,7 +21,7 @@ if (!isset($reset)) {
 foreach ($globalDirs as $dir) {
     $dirParts = explode('/', $dir);
     $uppDir = strtoupper($dirParts[count($dirParts) - 1]);
-    $$uppDir = dirAssocArray($uppDir, "{$_SERVER['DOCUMENT_ROOT']}/{$dir}/", $reset);
+    $$uppDir = dirAssocArray($uppDir, "{$ROOT}/{$dir}/", $reset);
 }
 unset($globalDirs, $dirParts, $dir, $uppDir, $reset);
 

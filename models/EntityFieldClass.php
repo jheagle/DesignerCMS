@@ -1,6 +1,9 @@
 <?php
 
-require_once $_SERVER['DOCUMENT_ROOT'].'/global_include.php';
+if (!isset($ROOT)) {
+    $ROOT = dirname(__DIR__);
+}
+require_once $ROOT.'/global_include.php';
 require_once $MODELS['DataTypeClass'];
 
 // $field = new Field('column', 'BigInt', 0, 50, Field::ZERO_FILL | Field::UNSIGNED);

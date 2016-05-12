@@ -1,6 +1,9 @@
 <?php
 
-require_once $_SERVER['DOCUMENT_ROOT'].'/global_include.php';
+if (!isset($ROOT)) {
+    $ROOT = dirname(__DIR__);
+}
+require_once $ROOT.'/global_include.php';
 require_once $MODELS['EntityFieldClass'];
 
 abstract class Entity

@@ -1,9 +1,11 @@
 <?php
 
 header('Content-Type: application/json');
-
-require_once($_SERVER['DOCUMENT_ROOT'] . '/global_include.php');
-require_once($MODELS['ajaxDBConnect']);
+if (!isset($ROOT)) {
+    $ROOT = dirname(__DIR__);
+}
+require_once $ROOT.'/global_include.php';
+require_once $MODELS['ajaxDBConnect'];
 
 $db = AjaxDBConnect::instantiateDB('', '', '', '', true, false);
 
