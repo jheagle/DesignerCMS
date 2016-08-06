@@ -25,8 +25,9 @@ foreach ($globalDirs as $dir) {
 }
 unset($globalDirs, $dirParts, $dir, $uppDir, $reset);
 
-function dirAssocArray($directory, $path, $reset = false)
-{
+require_once $MODELS['core'];
+
+function dirAssocArray($directory, $path, $reset = false) {
     static $assocArray = array();
     if (!isset($assocArray[$directory]) || $reset) {
         $dirArray = scandir($path);
@@ -38,7 +39,7 @@ function dirAssocArray($directory, $path, $reset = false)
             $parts = explode('.', $file);
             unset($parts[count($parts) - 1]);
             $string = implode('.', $parts);
-            $assocArray[$directory][$string] = $path.$file;
+            $assocArray[$directory][$string] = $path . $file;
         }
     }
 

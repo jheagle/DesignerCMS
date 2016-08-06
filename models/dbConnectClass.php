@@ -3,10 +3,10 @@
 if (!isset($ROOT)) {
     $ROOT = dirname(__DIR__);
 }
-require_once $ROOT.'/global_include.php';
+require_once $ROOT . '/global_include.php';
 
-abstract class DBConnect
-{
+abstract class DBConnect implements Potential {
+
     protected static $instance;
     private static $pdoInstance;
     private $database;
@@ -17,8 +17,7 @@ abstract class DBConnect
     private $queryRaw;
     private $query;
 
-    protected function __construct($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = false, $production = true)
-    {
+    protected function __construct($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = false, $production = true) {
         if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password)) {
             global $RESOURCES;
             include_once $RESOURCES['dbInfo'];
@@ -46,15 +45,13 @@ abstract class DBConnect
         }
     }
 
-    public function __destruct()
-    {
+    public function __destruct() {
         if ($this->testing || !$this->production) {
             $this->consoleOut("Completed {$this->queries} Queries");
         }
     }
 
-    final public static function instantiateDB($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = true, $production = false)
-    {
+    final public static function instantiateDB($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = true, $production = false) {
         if (!is_array(self::$instance)) {
             self::$instance = array();
         }
@@ -66,12 +63,11 @@ abstract class DBConnect
         return self::$instance[$database];
     }
 
-    private function __clone()
-    {
+    private function __clone() {
+        
     }
 
-    protected function exec($queryRaw = '', $type = 'insert')
-    {
+    protected function exec($queryRaw = '', $type = 'insert') {
         $count = 0;
         $query = empty($queryRaw) ? $this->query : $this->queryValidation($queryRaw, $type);
         if (empty($query)) {
@@ -104,8 +100,7 @@ abstract class DBConnect
 
     abstract protected function delete($queryRaw);
 
-    protected function query($queryRaw = '', $type = 'select')
-    {
+    protected function query($queryRaw = '', $type = 'select') {
         $query = empty($queryRaw) ? $this->query : $this->queryValidation($queryRaw, $type);
         if (empty($query)) {
             return;
@@ -134,18 +129,15 @@ abstract class DBConnect
 
     abstract protected function consoleOut($outputIn, $typeIn);
 
-    public function lastInsertId($name = null)
-    {
+    public function lastInsertId($name = null) {
         return $this->pdoInstance[$this->database]->lastInsertId($name);
     }
 
-    public function rowCount()
-    {
+    public function rowCount() {
         return $this->pdoInstance[$this->database]->rowCount();
     }
 
-    public function sanitizeInput($input, $escape = true, &$type = null)
-    {
+    public function sanitizeInput($input, $escape = true, &$type = null) {
         if (is_array($input)) {
             $type = array();
             $new_input = array();
@@ -165,8 +157,7 @@ abstract class DBConnect
         return filterVarType($input, $escape, $type);
     }
 
-    public function filterVarType($input, $escape = true, &$type = null)
-    {
+    public function filterVarType($input, $escape = true, &$type = null) {
         $input = trim($val);
         $length = strlen($input);
         if ($length === strlen((int) $input)) {
@@ -202,19 +193,31 @@ abstract class DBConnect
 
     abstract public function sanitizeOutput($output);
 
-    public function camelToUnderscore($input)
-    {
+    public function camelToUnderscore($input) {
         return ltrim(strtolower(preg_replace('/[A-Z0-9]/', '_$0', $input)), '_');
     }
 
-    public function underscoreToCamel($input)
-    {
+    public function underscoreToCamel($input) {
         return str_replace(' ', '', ucwords(str_replace('_', ' ', $input)));
     }
+
+    public function __toString() {
+        $string = '';
+        foreach (get_object_vars($this) as $k => $v) {
+            if (empty($string)) {
+                $string = __CLASS__ . '( ';
+            } else {
+                $string .= ', ';
+            }
+            $string .= "{$k}: {$v}";
+        }
+        return $string . ' )';
+    }
+
 }
 
-class UnitTest
-{
+class UnitTest implements Potential {
+
     private static $instance;
     private static $breakpoints;
     private static $origFiles;
@@ -228,8 +231,7 @@ class UnitTest
     private $currLine;
     private $pause;
 
-    private function __construct(&$db, $filename = __FILE__)
-    {
+    private function __construct(&$db, $filename = __FILE__) {
         $this->db = $db;
         $this->filename = $filename;
         if (!is_array($this->origFiles) || !is_array($this->copyFiles)) {
@@ -243,13 +245,12 @@ class UnitTest
             } else {
                 $this->db->consoleOut("Created File Copy: [{$filename}]", 'PHP');
             }
-            header('Location: '.basename($this->copyFiles[$filename]));
+            header('Location: ' . basename($this->copyFiles[$filename]));
             die();
         }
     }
 
-    private function __destruct()
-    {
+    private function __destruct() {
         if (strpos($this->filename, 'utest') === true) {
             self::$instance = null;
             foreach ($this->copyFiles as &$file) {
@@ -260,8 +261,7 @@ class UnitTest
         }
     }
 
-    public static function instantiateTest(&$db, $filename = __FILE__)
-    {
+    public static function instantiateTest(&$db, $filename = __FILE__) {
         if (self::$instance == null) {
             self::$instance = new self($db, $filename);
         }
@@ -269,8 +269,7 @@ class UnitTest
         return self::$instance;
     }
 
-    public function __get($property)
-    {
+    public function __get($property) {
         if (!isset($this->{$property})) {
             return;
         }
@@ -290,8 +289,7 @@ class UnitTest
         return stripslashes(htmlentities(str_replace('\r', '', $this->{$property}), ENT_HTML5, 'UTF-8', false));
     }
 
-    public function set($property, $input)
-    {
+    public function set($property, $input) {
         if (!property_exists($this, $property)) {
             return;
         }
@@ -305,19 +303,32 @@ class UnitTest
         $this->{$property} = addslashes(html_entity_decode(trim($input), ENT_HTML5, 'UTF-8'));
     }
 
-    public function traceProcesses()
-    {
-        echo '<br/>CLASS: '.__CLASS__;
-        echo '<br/>DIR: '.__DIR__;
-        echo '<br/>FILE: '.__FILE__;
-        echo '<br/>FUNCTION: '.__FUNCTION__;
-        echo '<br/>LINE: '.__LINE__;
-        echo '<br/>METHOD: '.__METHOD__;
-        echo '<br/>NAMESPACE: '.__NAMESPACE__;
-        echo '<br/>TRAIT: '.__TRAIT__;
+    public function traceProcesses() {
+        echo '<br/>CLASS: ' . __CLASS__;
+        echo '<br/>DIR: ' . __DIR__;
+        echo '<br/>FILE: ' . __FILE__;
+        echo '<br/>FUNCTION: ' . __FUNCTION__;
+        echo '<br/>LINE: ' . __LINE__;
+        echo '<br/>METHOD: ' . __METHOD__;
+        echo '<br/>NAMESPACE: ' . __NAMESPACE__;
+        echo '<br/>TRAIT: ' . __TRAIT__;
     }
 
-    private function __clone()
-    {
+    private function __clone() {
+        
     }
+
+    public function __toString() {
+        $string = '';
+        foreach (get_object_vars($this) as $k => $v) {
+            if (empty($string)) {
+                $string = __CLASS__ . '( ';
+            } else {
+                $string .= ', ';
+            }
+            $string .= "{$k}: {$v}";
+        }
+        return $string . ' )';
+    }
+
 }

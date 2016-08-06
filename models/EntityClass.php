@@ -3,16 +3,29 @@
 if (!isset($ROOT)) {
     $ROOT = dirname(__DIR__);
 }
-require_once $ROOT.'/global_include.php';
+require_once $ROOT . '/global_include.php';
+require_once $MODELS['utilities'];
 require_once $MODELS['EntityFieldClass'];
 
-abstract class Entity
-{
+interface EntityObject extends Potential, Comparable {
+
+    public function createEntity();
+
+    public function getEntity();
+
+    public function updateEntity();
+
+    public function deleteEntity();
+
+    public function get_as_json();
+}
+
+abstract class Entity implements EntityObject {
+
     protected $db;
     protected $do_output;
 
-    public function __construct(&$db)
-    {
+    public function __construct(&$db) {
         $ob_vars = get_object_vars($this);
         $args = func_get_args();
         $count = count($args);
@@ -31,8 +44,7 @@ abstract class Entity
         }
     }
 
-    public function __get($property)
-    {
+    public function __get($property) {
         if (property_exists($this, $property) && isset($this->{$property})) {
             return true;
         }
@@ -40,8 +52,7 @@ abstract class Entity
         return false;
     }
 
-    public function __set($property, $value)
-    {
+    public function __set($property, $value) {
         if (property_exists($this, $property) && isset($this->{$property})) {
             return true;
         }
@@ -49,8 +60,7 @@ abstract class Entity
         return false;
     }
 
-    public function get($property)
-    {
+    public function get($property) {
         if (preg_match('/^(db|do_output)$/', $property)) {
             return false;
         }
@@ -65,8 +75,7 @@ abstract class Entity
         return false;
     }
 
-    public function set($property, $value)
-    {
+    public function set($property, $value) {
         if (preg_match('/^(db|do_output)$/', $property) || !property_exists($this, $property)) {
             return false;
         }
@@ -78,14 +87,14 @@ abstract class Entity
                 if ($val instanceof self) {
                     $this->{$property}[] = $val;
                 } else {
-                    $this->db->consoleOut("Invalid Entity Type for {$property} as ".json_encode($value), strtoupper(get_class($this)));
+                    $this->db->consoleOut("Invalid Entity Type for {$property} as " . json_encode($value), strtoupper(get_class($this)));
 
                     return false;
                 }
             }
         }
         if ($this->do_output) {
-            $this->db->consoleOut("Setting {$property} to ".json_encode($value), strtoupper(get_class($this)));
+            $this->db->consoleOut("Setting {$property} to " . json_encode($value), strtoupper(get_class($this)));
         }
         if ($value instanceof self) {
             $this->{$property} = array($value);
@@ -96,8 +105,7 @@ abstract class Entity
         return $this->{$property};
     }
 
-    public function createEntity()
-    {
+    public function createEntity() {
         $ob_vars = get_object_vars($this);
         $columns = $values = $children = array();
         $idProp = '';
@@ -145,8 +153,7 @@ abstract class Entity
         return $this;
     }
 
-    public function get_as_json($array = null)
-    {
+    public function get_as_json($array = null) {
         $ob_vars = is_array($array) ? $array : get_object_vars($this);
         if (isset($ob_vars['db'])) {
             unset($ob_vars['db'], $ob_vars['do_output']);
@@ -162,8 +169,7 @@ abstract class Entity
         return $ob_vars;
     }
 
-    public function get_all_contacts($summary = true)
-    {
+    public function get_all_contacts($summary = true) {
         $table = $this->db->camelToUnderscore(get_class($this));
         $contact_ids = array();
         while ($row = $this->db->select_assoc("SELECT `id` FROM `{$table}`")) {
@@ -179,8 +185,7 @@ abstract class Entity
         return $contact_list;
     }
 
-    public function get_contact()
-    {
+    public function get_contact() {
         $contact = new Contact($this->db);
         if (isset($this->id) && $this->id > 0) {
             $contact = $this->retrieve_contact_by_id($this->id, false);
@@ -201,8 +206,7 @@ abstract class Entity
         return $this;
     }
 
-    public function search_contact($name = '')
-    {
+    public function search_contact($name = '') {
         $contact_list = $this->retrieve_contacts_by_ids($this->search_contact_ids($name));
         if (is_array($contact_list)) {
             usort($contact_list, array($this, 'compare_contacts'));
@@ -211,8 +215,7 @@ abstract class Entity
         return $contact_list;
     }
 
-    private function search_contact_ids($nameIn = '', $only_contact = false)
-    {
+    private function search_contact_ids($nameIn = '', $only_contact = false) {
         $ob_vars = get_object_vars($this);
         $name = $this->db->sanitizeInput($nameIn);
         $contact_ids = $have_value = array();
@@ -238,8 +241,7 @@ abstract class Entity
         return $only_contact ? $contact_ids : $this->search_contact_id_by_contact_info('phone_number', $this->search_contact_id_by_contact_info('address', $contact_ids));
     }
 
-    private function search_contact_id_by_contact_info($type, $contact_ids = array(), $arrayIn = null)
-    {
+    private function search_contact_id_by_contact_info($type, $contact_ids = array(), $arrayIn = null) {
         $array = is_array($arrayIn) ? $arrayIn : $this->{$type};
         $ids = array();
         if (isset($array) && !empty($array)) {
@@ -256,8 +258,7 @@ abstract class Entity
         }
     }
 
-    private function retrieve_contacts_by_ids($contact_ids = array(), $summary = true)
-    {
+    private function retrieve_contacts_by_ids($contact_ids = array(), $summary = true) {
         if (empty($contact_ids)) {
             return;
         }
@@ -270,8 +271,7 @@ abstract class Entity
         return $contacts;
     }
 
-    private function retrieve_contact_by_id($idIn, $summary = true, $getMultiArray = false)
-    {
+    private function retrieve_contact_by_id($idIn, $summary = true, $getMultiArray = false) {
         $ob_vars = get_object_vars($this);
         $table = $this->db->camelToUnderscore(get_class($this));
         $id = isset($idIn) ? $idIn : $this->id;
@@ -311,8 +311,7 @@ abstract class Entity
         return $reflect->newInstanceArgs($values);
     }
 
-    public function update_contact()
-    {
+    public function update_contact() {
         if (!isset($this->id) || $this->id < 1 || empty($this->first_name) || empty($this->last_name) || empty($this->address) || empty($this->phone_number['work'])) {
             return;
         }
@@ -353,8 +352,7 @@ abstract class Entity
         return $this;
     }
 
-    public function delete_contact()
-    {
+    public function delete_contact() {
         if (!isset($this->id) || $this->id < 1) {
             return;
         }
@@ -376,8 +374,7 @@ abstract class Entity
         return $this;
     }
 
-    private function compare_contacts($a, $b)
-    {
+    private function compare_contacts($a, $b) {
         for ($i = 0; $i < 4; ++$i) {
             switch ($i) {
                 case 0:
@@ -399,26 +396,35 @@ abstract class Entity
 
         return $result;
     }
+
+    public function compareTo($entity) {
+        $result = 0;
+        foreach (get_object_vars($this) as $k => $v) {
+            $result = strcasecmp((string) $this->{$k}, (string) $entity->{$k});
+            if ($result !== 0) {
+                break;
+            }
+        }
+        return $result;
+    }
+
+    public function __toString() {
+        $string = '';
+        foreach (get_object_vars($this) as $k => $v) {
+            if (empty($string)) {
+                $string = __CLASS__ . '( ';
+            } else {
+                $string .= ', ';
+            }
+            $string .= "{$k}: {$v}";
+        }
+        return $string . ' )';
+    }
+
 }
 
-class AutoIncrement
-{
-}
+class ContactAddress {
 
-class RequiredField
-{
-}
-
-class PrimaryKey
-{
-}
-
-class ForeignKey
-{
-}
-
-class ContactAddress
-{
     private $db;
     private $id;
     private $contact_id;
@@ -428,8 +434,7 @@ class ContactAddress
     private $country;
     private $postal_code;
 
-    public function __construct(&$db)
-    {
+    public function __construct(&$db) {
         $ob_vars = get_object_vars($this);
         $args = func_get_args();
         $count = count($args);
@@ -449,15 +454,13 @@ class ContactAddress
         }
     }
 
-    public function __get($property)
-    {
+    public function __get($property) {
         if (isset($this->{$property}) && $property !== 'db') {
             return $this->db->sanitizeOutput($this->{$property});
         }
     }
 
-    public function set($property, $value)
-    {
+    public function set($property, $value) {
         if (property_exists($this, $property) && $property !== 'db') {
             if ($this->db->testing || !$this->db->production) {
                 $this->db->consoleOut("Setting {$property} to {$value}", 'ADDRESS');
@@ -466,8 +469,7 @@ class ContactAddress
         }
     }
 
-    public function create_contact_address()
-    {
+    public function create_contact_address() {
         if (!isset($this->contact_id) || $this->contact_id < 1 || empty($this->street) || empty($this->city) || empty($this->province) || empty($this->country) || empty($this->postal_code)) {
             return;
         }
@@ -488,8 +490,7 @@ class ContactAddress
         return $this;
     }
 
-    public function get_as_json($array = null)
-    {
+    public function get_as_json($array = null) {
         $ob_vars = is_array($array) ? $array : get_object_vars($this);
         if (isset($ob_vars['db'])) {
             unset($ob_vars['db']);
@@ -505,8 +506,7 @@ class ContactAddress
         return $ob_vars;
     }
 
-    public function get_all_contact_address($contact_ids_only = false)
-    {
+    public function get_all_contact_address($contact_ids_only = false) {
         $addresses = isset($this->id) && $this->id > 0 ? $this->retrieve_address_by_id() : $this->search_contact_address();
         if (!$contact_ids_only) {
             return $addresses;
@@ -521,8 +521,7 @@ class ContactAddress
         return $contact_ids;
     }
 
-    public function get_contact_address()
-    {
+    public function get_contact_address() {
         $address = isset($this->id) && $this->id > 0 ? $this->retrieve_address_by_id() : $this->search_contact_address();
 
         if ($address->id < 1) {
@@ -539,8 +538,7 @@ class ContactAddress
         return $this;
     }
 
-    private function search_contact_address()
-    {
+    private function search_contact_address() {
         $addresses = $need_value = $have_value = array();
         $ob_vars = get_object_vars($this);
 
@@ -557,7 +555,7 @@ class ContactAddress
         }
         $table = $this->db->camelToUnderscore(get_class($this));
         $have = implode(' AND ', $have_value);
-        $needs = empty($need_value) ? '' : ', '.implode(', ', $need_value);
+        $needs = empty($need_value) ? '' : ', ' . implode(', ', $need_value);
 
         while ($row = $this->db->select_assoc("SELECT `id`{$needs} FROM `{$table}` WHERE {$have}")) {
             $values = array();
@@ -571,8 +569,7 @@ class ContactAddress
         return $addresses;
     }
 
-    private function retrieve_address_by_id($idIn = null)
-    {
+    private function retrieve_address_by_id($idIn = null) {
         $ob_vars = get_object_vars($this);
         $table = $this->db->camelToUnderscore(get_class($this));
         $id = isset($idIn) ? $idIn : $this->id;
@@ -595,8 +592,7 @@ class ContactAddress
         return $reflect->newInstanceArgs($values);
     }
 
-    public function update_contact_address()
-    {
+    public function update_contact_address() {
         if (!isset($this->id) || $this->id < 0 || !isset($this->contact_id) || $this->contact_id < 1 || empty($this->street) || empty($this->city) || empty($this->country) || empty($this->postal_code)) {
             return;
         }
@@ -632,8 +628,7 @@ class ContactAddress
         return $this;
     }
 
-    public function delete_contact_address()
-    {
+    public function delete_contact_address() {
         if (!isset($this->id) || $this->id < 1) {
             return;
         }
@@ -643,18 +638,18 @@ class ContactAddress
 
         return $this;
     }
+
 }
 
-class ContactPhoneNumber
-{
+class ContactPhoneNumber {
+
     private $db;
     private $id;
     private $contact_id;
     private $phone_type;
     private $phone_number;
 
-    public function __construct(&$db)
-    {
+    public function __construct(&$db) {
         $ob_vars = get_object_vars($this);
         $args = func_get_args();
         $count = count($args);
@@ -674,15 +669,13 @@ class ContactPhoneNumber
         }
     }
 
-    public function __get($property)
-    {
+    public function __get($property) {
         if (isset($this->{$property}) && $property !== 'db') {
             return $this->db->sanitizeOutput($this->{$property});
         }
     }
 
-    public function set($property, $value)
-    {
+    public function set($property, $value) {
         if (property_exists($this, $property) && $property !== 'db') {
             if ($this->db->testing || !$this->db->production) {
                 $this->db->consoleOut("Setting {$property} to {$value}", 'PHONE');
@@ -691,8 +684,7 @@ class ContactPhoneNumber
         }
     }
 
-    public function create_contact_phone_number()
-    {
+    public function create_contact_phone_number() {
         if (!isset($this->contact_id) || $this->contact_id < 1 || empty($this->phone_type) || empty($this->phone_number)) {
             return;
         }
@@ -713,8 +705,7 @@ class ContactPhoneNumber
         return $this;
     }
 
-    public function get_as_json($array = null)
-    {
+    public function get_as_json($array = null) {
         $ob_vars = is_array($array) ? $array : get_object_vars($this);
         if (isset($ob_vars['db'])) {
             unset($ob_vars['db']);
@@ -730,8 +721,7 @@ class ContactPhoneNumber
         return $ob_vars;
     }
 
-    public function get_all_contact_phone_number($contact_ids_only = false)
-    {
+    public function get_all_contact_phone_number($contact_ids_only = false) {
         $phone_numbers = isset($this->id) && $this->id > 0 ? $this->retrieve_contact_phone_number_by_id() : $this->search_contact_phone_number();
 
         if (!$contact_ids_only) {
@@ -747,8 +737,7 @@ class ContactPhoneNumber
         return $contact_ids;
     }
 
-    public function get_contact_phone_number()
-    {
+    public function get_contact_phone_number() {
         $ob_vars = get_object_vars($this);
         $phone_number = isset($this->id) && $this->id > 0 ? $this->retrieve_phone_numbers_by_id() : end($this->search_contact_phone_number());
 
@@ -761,8 +750,7 @@ class ContactPhoneNumber
         return $this;
     }
 
-    private function search_contact_phone_number()
-    {
+    private function search_contact_phone_number() {
         $ob_vars = get_object_vars($this);
         $phone_numbers = $have_value = $need_value = array();
 
@@ -780,7 +768,7 @@ class ContactPhoneNumber
 
         $table = $this->db->camelToUnderscore(get_class($this));
         $have = implode(' AND ', $have_value);
-        $needs = empty($need_value) ? '' : ', '.implode(', ', $need_value);
+        $needs = empty($need_value) ? '' : ', ' . implode(', ', $need_value);
 
         while ($row = $this->db->select_assoc("SELECT `id`{$needs} FROM `{$table}` WHERE {$have}")) {
             $values = array();
@@ -794,8 +782,7 @@ class ContactPhoneNumber
         return $phone_numbers;
     }
 
-    private function retrieve_contact_phone_number_by_id($idIn = null)
-    {
+    private function retrieve_contact_phone_number_by_id($idIn = null) {
         $ob_vars = get_object_vars($this);
         $table = $this->db->camelToUnderscore(get_class($this));
         $id = isset($idIn) ? $idIn : $this->id;
@@ -815,8 +802,7 @@ class ContactPhoneNumber
         return $reflect->newInstanceArgs($values);
     }
 
-    public function update_contact_phone_number()
-    {
+    public function update_contact_phone_number() {
         if (!isset($this->id) && $this->id < 1 || !isset($this->contact_id) || $this->contact_id < 1 && empty($this->phone_type) || empty($this->phone_number)) {
             return;
         }
@@ -852,8 +838,7 @@ class ContactPhoneNumber
         return $this;
     }
 
-    public function delete_contact_phone_number()
-    {
+    public function delete_contact_phone_number() {
         if (!isset($this->id) || $this->id < 1) {
             return;
         }
@@ -864,4 +849,5 @@ class ContactPhoneNumber
 
         return $this;
     }
+
 }
