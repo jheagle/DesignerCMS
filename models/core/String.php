@@ -4,20 +4,20 @@ $currentFile = basename(__FILE__, '.php');
 if (!class_exists('DataType')) {
     exit("Core 'DataType' Undefined. '{$currentFile}' must not be called directly.");
 }
-foreach (array_keys($MODELS) as $filename) {
+foreach (array_keys($CORE) as $filename) {
     if (strstr($filename, "{$currentFile}_")) {
-        require_once $MODELS[$filename];
+        require_once $CORE[$filename];
         continue;
     }
 }
 
-class StringType extends DataType {
+class String_DT extends DataType {
 
     protected static $charSet;
 
     public function __construct($value, $charSet = 'UTF-8') {
         parent::__construct($value);
-        $this->charSet = $charSet;
+        self::$charSet = $charSet;
         self::setValue($this->value);
     }
 
@@ -26,12 +26,12 @@ class StringType extends DataType {
     }
 
     public function setValue($value) {
-        $this->value = mb_convert_encoding($value, $this->charSet);
+        $this->value = mb_convert_encoding($value, self::$charSet);
     }
 
 }
 
-class VarChar extends StringType {
+class VarChar_DT extends String_DT {
 
     protected $min;
     protected $max;
@@ -54,15 +54,15 @@ class VarChar extends StringType {
     }
 
     protected function setMax() {
-        if ($this->bits >= $this->systemMaxBits) {
-            $this->max = (int) ((1 << $this->systemMaxBits - 1) - 1);
+        if ($this->bits >= self::$systemMaxBits) {
+            $this->max = (int) ((1 << self::$systemMaxBits - 1) - 1);
         } else {
             $this->max = (int) ((1 << $this->bits) - 1);
         }
     }
 
     public function getLength() {
-        return $this->length;
+        return self::$length;
     }
 
     protected function setLength($length) {
@@ -71,7 +71,7 @@ class VarChar extends StringType {
         } elseif ($length > $this->max) {
             $length = (int) $this->max;
         }
-        $this->length = $length;
+        self::$length = $length;
     }
 
     public function getValue() {
@@ -79,13 +79,13 @@ class VarChar extends StringType {
     }
 
     public function setValue($value) {
-        $value = substr($value, 0, $this->length);
+        $value = substr($value, 0, self::$length);
         $this->value = $value;
     }
 
 }
 
-class Char extends VarChar {
+class Char_DT extends VarChar_DT {
 
     protected $bits = 8;
 

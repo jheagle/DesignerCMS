@@ -3,8 +3,7 @@
 if (!isset($ROOT)) {
     $ROOT = dirname(__DIR__);
 }
-require_once $ROOT . '/global_include.php';
-require_once $MODELS['DataTypeClass'];
+require_once $CORE['DataType'];
 
 class Field implements Potential {
 
@@ -25,15 +24,15 @@ class Field implements Potential {
     protected static $default;
 
     public function __construct($name = '', $dataType = 'String', $default = '', $length = null, $attributes = self::NOT_NULL) {
-        $this->name = strtolower(str_replace(' ', '_', $name));
+        self::$name = strtolower(str_replace(' ', '_', $name));
         $dataTypeClassName = ucwords(strtolower($dataType));
         $dataTypeClass = property_exists($dataTypeClassName, 'length') ? new $dataTypeClassName($default, $length) : new $dataTypeClassName($default);
-        $this->attributes = $attributes & self::PRIMARY_KEY || $attributes & self::UNIQUE ? $attributes | self::REQUIRED : $attributes;
+        self::$attributes = $attributes & self::PRIMARY_KEY || $attributes & self::UNIQUE ? $attributes | self::REQUIRED : $attributes;
         if ($this->hasAttr(self::UNSIGNED) && $dataTypeClass instanceof Number) {
             $dataTypeClass = property_exists($dataTypeClassName, 'length') ? new $dataTypeClassName($default, $length, false) : new $dataTypeClassName($default, false);
         }
         $this->dataType = $dataTypeClass;
-        $this->default = $this->dataType->getValue();
+        self::$default = $this->dataType->getValue();
     }
 
     public function getValue() {
@@ -50,7 +49,7 @@ class Field implements Potential {
     }
 
     public function hasAttr($attr) {
-        return ($this->attributes & $attr) === $attr;
+        return (self::$attributes & $attr) === $attr;
     }
 
     public function hasAttribute($attr) {

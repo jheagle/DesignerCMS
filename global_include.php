@@ -1,14 +1,14 @@
 <?php
 
 if ($_SERVER['SERVER_ADDR'] === '127.0.0.1' && $_SERVER['REMOTE_ADDR'] === '127.0.0.1') {
-    header('Content-Type: application/json');
+//    header('Content-Type: application/json'); This is my debuggin trick, but if I have xdebug then this ruins it
     $testing = true;
     $production = false;
 }
 
 $HOME = '';
 
-$globalDirs = array('account', 'admin', 'controllers', 'img', 'js', 'models', 'sudo', 'resources', 'css');
+$globalDirs = array('account', 'admin', 'controllers', 'img', 'js', 'models', 'sudo', 'resources', 'css', 'models/core', 'models/database', 'models/entity', 'models/utilities');
 
 if (empty($ROOT)) {
     $ROOT = __DIR__;
@@ -25,7 +25,7 @@ foreach ($globalDirs as $dir) {
 }
 unset($globalDirs, $dirParts, $dir, $uppDir, $reset);
 
-require_once $MODELS['core'];
+require_once $CORE['core'];
 
 function dirAssocArray($directory, $path, $reset = false) {
     static $assocArray = array();

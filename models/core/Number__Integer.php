@@ -5,7 +5,7 @@ if (!class_exists('DataType')) {
     exit("Core 'DataType' Undefined. '{$currentFile}' must not be called directly.");
 }
 
-class Int extends Number {
+class Int_DT extends Number_DT {
 
     protected $min;
     protected $max;
@@ -21,19 +21,19 @@ class Int extends Number {
     }
 
     protected function setMin() {
-        $this->min = (int) ($this->isSigned ? (~0) ^ (1 << $this->bits - 1) - 1 : 0);
+        $this->min = (int) (self::$isSigned ? (~0) ^ (1 << $this->bits - 1) - 1 : 0);
     }
 
     protected function setMax() {
-        if ($this->bits >= $this->systemMaxBits && !$this->isSigned) {
+        if ($this->bits >= self::$systemMaxBits && !self::$isSigned) {
             $this->max = (int) ((1 << $this->systemMaxBits - 1) - 1);
         } else {
-            $this->max = (int) ($this->isSigned ? (1 << $this->bits - 1) - 1 : (1 << $this->bits) - 1);
+            $this->max = (int) (self::$isSigned ? (1 << $this->bits - 1) - 1 : (1 << $this->bits) - 1);
         }
     }
 
     public function getLength() {
-        return $this->length;
+        return self::$length;
     }
 
     protected function setLength($length) {
@@ -42,7 +42,7 @@ class Int extends Number {
         } elseif ($length > strlen((string) $this->max)) {
             $length = (int) strlen((string) $this->max);
         }
-        $this->length = $length;
+        self::$length = $length;
     }
 
     public function getValue() {
@@ -50,7 +50,7 @@ class Int extends Number {
     }
 
     public function setValue($value) {
-        if ($value > $this->min && (int) ((float) $value) < $this->min && $this->bits >= $this->systemMaxBits && !$this->isSigned) {
+        if ($value > $this->min && (int) ((float) $value) < $this->min && $this->bits >= self::$systemMaxBits && !self::$isSigned) {
             return $this->value = (int) ((float) $value);
         }
 
@@ -65,7 +65,7 @@ class Int extends Number {
 
 }
 
-class BigInt extends Number {
+class BigInt_DT extends Number_DT {
 
     protected $min;
     protected $max;
@@ -77,22 +77,22 @@ class BigInt extends Number {
         parent::__construct($value, $isSigned);
         self::setMin();
         self::setMax();
-        $absoluteMax = $this->bits > $this->systemMaxBits ? '9223372036854775807' : $this->max;
-        $this->absoluteMax = $this->isSigned ? $absoluteMax : '18446744073709551616';
+        $absoluteMax = $this->bits > self::$systemMaxBits ? '9223372036854775807' : $this->max;
+        self::$absoluteMax = self::$isSigned ? $absoluteMax : '18446744073709551616';
         self::setlength($length);
         self::setValue($this->value);
     }
 
     protected function setMin() {
-        $this->min = (int) ($this->isSigned ? (~0) ^ (1 << $this->bits - 1) - 1 : 0);
+        $this->min = (int) (self::$isSigned ? (~0) ^ (1 << $this->bits - 1) - 1 : 0);
     }
 
     protected function setMax() {
-        $this->max = (int) ($this->bits > $this->systemMaxBits || !$this->isSigned ? ((1 << $this->systemMaxBits - 1) - 1) : (1 << $this->bits - 1) - 1);
+        $this->max = (int) ($this->bits > self::$systemMaxBits || !self::$isSigned ? ((1 << self::$systemMaxBits - 1) - 1) : (1 << $this->bits - 1) - 1);
     }
 
     public function getLength() {
-        return $this->length;
+        return self::$length;
     }
 
     protected function setLength($length) {
@@ -101,7 +101,7 @@ class BigInt extends Number {
         } elseif ($length > strlen((string) $this->absoluteMax)) {
             $length = (int) strlen((string) $this->absoluteMax);
         }
-        $this->length = $length;
+        self::$length = $length;
     }
 
     public function getValue() {
@@ -109,8 +109,8 @@ class BigInt extends Number {
     }
 
     public function setValue($value) {
-        if ($this->bits > $this->systemMaxBits && ($value > $this->max || $value < $this->min)) {
-            if ($value > $this->min && !$this->isSigned && (int) ((float) $value) < $this->min && $value <= ($this->max + (-1 ^ ~$this->max) + 1)) {
+        if ($this->bits > self::$systemMaxBits && ($value > $this->max || $value < $this->min)) {
+            if ($value > $this->min && !self::$isSigned && (int) ((float) $value) < $this->min && $value <= ($this->max + (-1 ^ ~$this->max) + 1)) {
                 return $this->value = (int) ((float) $value);
             }
 
@@ -143,7 +143,7 @@ class BigInt extends Number {
 
 }
 
-class MediumInt extends Int {
+class MediumInt_DT extends Int_DT {
 
     protected $bits = 24;
 
@@ -153,7 +153,7 @@ class MediumInt extends Int {
 
 }
 
-class SmallInt extends Int {
+class SmallInt_DT extends Int_DT {
 
     protected $bits = 16;
 
@@ -163,7 +163,7 @@ class SmallInt extends Int {
 
 }
 
-class TinyInt extends Int {
+class TinyInt_DT extends Int_DT {
 
     protected $bits = 8;
 

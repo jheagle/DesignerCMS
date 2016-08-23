@@ -3,9 +3,8 @@
 if (!isset($ROOT)) {
     $ROOT = dirname(__DIR__);
 }
-require_once $ROOT . '/global_include.php';
-require_once $MODELS['utilities'];
-require_once $MODELS['EntityFieldClass'];
+require_once $UTILITIES['utilities'];
+require_once $ENTITY['EntityField'];
 
 interface EntityObject extends Potential, Comparable {
 

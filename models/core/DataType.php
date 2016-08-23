@@ -1,14 +1,12 @@
 <?php
 
-// Hierarchal order matters here, do not change file load order
-require_once $MODELS['StringClass'];
-require_once $MODELS['NumberClass'];
+// Add add subtypes at bottom
 
 interface DataTypeObject extends Potential {
 
     public function getValue();
 
-    public function setValue();
+    public function setValue($value);
 }
 
 abstract class DataType implements DataTypeObject {
@@ -17,7 +15,7 @@ abstract class DataType implements DataTypeObject {
     protected static $systemMaxBits;
 
     public function __construct($value) {
-        $this->systemMaxBits = PHP_INT_SIZE << 3;
+        self::$systemMaxBits = PHP_INT_SIZE << 3;
         $this->value = $value;
     }
 
@@ -43,3 +41,7 @@ abstract class DataType implements DataTypeObject {
     }
 
 }
+
+// Hierarchal order matters here, do not change file load order
+require_once $CORE['String'];
+require_once $CORE['Number'];

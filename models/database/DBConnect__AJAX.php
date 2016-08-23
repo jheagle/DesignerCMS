@@ -1,6 +1,6 @@
 <?php
 
-require_once $MODELS['dbConnectClass'];
+require_once $DATABASE['DBConnect'];
 
 class AjaxDBConnect extends DBConnect {
 

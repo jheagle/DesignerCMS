@@ -4,22 +4,22 @@ $currentFile = basename(__FILE__, '.php');
 if (!class_exists('DataType')) {
     exit("Core 'DataType' Undefined. '{$currentFile}' must not be called directly.");
 }
-foreach (array_keys($MODELS) as $filename) {
+foreach (array_keys($CORE) as $filename) {
     if (strstr($filename, "{$currentFile}_")) {
-        require_once $MODELS[$filename];
+        require_once $CORE[$filename];
         continue;
     }
 }
 
-class Number extends StringType {
+class Number_DT extends String_DT {
 
     protected static $isSigned;
     protected static $filter;
 
     public function __construct($value = 0, $isSigned = true) {
         parent::__construct($value);
-        $this->isSigned = $isSigned;
-        $this->filter = $this->isSigned ? '/[^-0-9.]/' : '/[^0-9.]/';
+        self::$isSigned = $isSigned;
+        self::$filter = self::$isSigned ? '/[^-0-9.]/' : '/[^0-9.]/';
         self::setValue($this->value);
     }
 
@@ -28,7 +28,7 @@ class Number extends StringType {
     }
 
     public function setValue($value) {
-        $this->value = $this->systemMaxBits === 64 ? (float) preg_replace($this->filter, '', $value) : preg_replace($this->filter, '', $value);
+        $this->value = self::$systemMaxBits === 64 ? (float) preg_replace(self::$filter, '', $value) : preg_replace(self::$filter, '', $value);
     }
 
     public function isEven() {
@@ -207,7 +207,7 @@ class Number extends StringType {
 
     public function getAbsolute() {
         $value = $this->getValue();
-        $availBits = $this->systemMaxBits - 1;
+        $availBits = self::$systemMaxBits - 1;
 
         return ($value ^ ($value >> $availBits)) - ($value >> $availBits);
     }
