@@ -18,7 +18,7 @@ abstract class DBConnect implements Potential {
     private $query;
 
     protected function __construct($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = false, $production = true) {
-        if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password)) {
+        if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password) && $production) {
             global $RESOURCES;
             include_once $RESOURCES['dbInfo'];
         }
