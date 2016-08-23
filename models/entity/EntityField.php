@@ -3,16 +3,10 @@
 if (!isset($ROOT)) {
     $ROOT = dirname(__DIR__);
 }
-require_once $ROOT.'/global_include.php';
-require_once $MODELS['DataTypeClass'];
+require_once $CORE['DataType'];
 
-// $field = new Field('column', 'BigInt', 0, 50, Field::ZERO_FILL | Field::UNSIGNED);
-// $field->setValue('999999999999999999');
-// var_dump($field);
-// var_dump($field->getValue());
+class Field implements Potential {
 
-class Field
-{
     const PRIMARY_KEY = 1;
     const NOT_NULL = 2;
     const UNIQUE = 4;
@@ -29,41 +23,50 @@ class Field
     protected static $attributes;
     protected static $default;
 
-    public function __construct($name = '', $dataType = 'String', $default = '', $length = null, $attributes = self::NOT_NULL)
-    {
-        $this->name = strtolower(str_replace(' ', '_', $name));
+    public function __construct($name = '', $dataType = 'String', $default = '', $length = null, $attributes = self::NOT_NULL) {
+        self::$name = strtolower(str_replace(' ', '_', $name));
         $dataTypeClassName = ucwords(strtolower($dataType));
         $dataTypeClass = property_exists($dataTypeClassName, 'length') ? new $dataTypeClassName($default, $length) : new $dataTypeClassName($default);
-        $this->attributes = $attributes & self::PRIMARY_KEY || $attributes & self::UNIQUE ? $attributes | self::REQUIRED : $attributes;
+        self::$attributes = $attributes & self::PRIMARY_KEY || $attributes & self::UNIQUE ? $attributes | self::REQUIRED : $attributes;
         if ($this->hasAttr(self::UNSIGNED) && $dataTypeClass instanceof Number) {
             $dataTypeClass = property_exists($dataTypeClassName, 'length') ? new $dataTypeClassName($default, $length, false) : new $dataTypeClassName($default, false);
         }
         $this->dataType = $dataTypeClass;
-        $this->default = $this->dataType->getValue();
+        self::$default = $this->dataType->getValue();
     }
 
-    public function getValue()
-    {
+    public function getValue() {
         $value = $this->dataType->getValue();
         if ($this->dataType instanceof Number && property_exists(get_class($this->dataType), 'length') && $this->hasAttr(self::ZERO_FILL)) {
             $value = str_pad($value, $this->dataType->getLength(), '0', STR_PAD_LEFT);
         }
 
-        return  $value;
+        return $value;
     }
 
-    public function setValue($value)
-    {
+    public function setValue($value) {
         return $this->dataType->setValue($value);
     }
 
-    public function hasAttr($attr)
-    {
-        return ($this->attributes & $attr) === $attr;
+    public function hasAttr($attr) {
+        return (self::$attributes & $attr) === $attr;
     }
 
-    public function hasAttribute($attr)
-    {
+    public function hasAttribute($attr) {
         return self::hasAttr($attr);
     }
+
+    public function __toString() {
+        $string = '';
+        foreach (get_object_vars($this) as $k => $v) {
+            if (empty($string)) {
+                $string = __CLASS__ . '( ';
+            } else {
+                $string .= ', ';
+            }
+            $string .= "{$k}: {$v}";
+        }
+        return $string . ' )';
+    }
+
 }

@@ -1,56 +1,49 @@
 <?php
 
-//header("Content-type: application/json");
 $currentFile = basename(__FILE__, '.php');
 if (!class_exists('DataType')) {
     exit("Core 'DataType' Undefined. '{$currentFile}' must not be called directly.");
 }
-foreach (array_keys($MODELS) as $filename) {
+foreach (array_keys($CORE) as $filename) {
     if (strstr($filename, "{$currentFile}_")) {
-        require_once $MODELS[$filename];
+        require_once $CORE[$filename];
         continue;
     }
 }
-class Number extends String
-{
+
+class Number_DT extends String_DT {
+
     protected static $isSigned;
     protected static $filter;
 
-    public function __construct($value = 0, $isSigned = true)
-    {
+    public function __construct($value = 0, $isSigned = true) {
         parent::__construct($value);
-        $this->isSigned = $isSigned;
-        $this->filter = $this->isSigned ? '/[^-0-9.]/' : '/[^0-9.]/';
+        self::$isSigned = $isSigned;
+        self::$filter = self::$isSigned ? '/[^-0-9.]/' : '/[^0-9.]/';
         self::setValue($this->value);
     }
 
-    public function getValue()
-    {
+    public function getValue() {
         return $this->value;
     }
 
-    public function setValue($value)
-    {
-        $this->value = $this->systemMaxBits === 64 ? (float) preg_replace($this->filter, '', $value) : preg_replace($this->filter, '', $value);
+    public function setValue($value) {
+        $this->value = self::$systemMaxBits === 64 ? (float) preg_replace(self::$filter, '', $value) : preg_replace(self::$filter, '', $value);
     }
 
-    public function isEven()
-    {
+    public function isEven() {
         return !($this->value & 1);
     }
 
-    public function isPowerOfTwo($number)
-    {
+    public function isPowerOfTwo($number) {
         return $number && !($number & ($number - 1));
     }
 
-    public function isMersenne($number)
-    {
+    public function isMersenne($number) {
         return $number && !(($number + 1) & $number);
     }
 
-    public function logPowerOfTwo($number)
-    {
+    public function logPowerOfTwo($number) {
         $exponent = 0;
         while ($number >>= 1) {
             ++$exponent;
@@ -59,12 +52,11 @@ class Number extends String
         return $exponent;
     }
 
-    public function exponent($number)
-    {
+    public function exponent($number) {
+        
     }
 
-    public function modulo($number)
-    {
+    public function modulo($number) {
         if (is_a($number, 'Number')) {
             return $number->getValue() & ($number->getValue() - 1) || ($number->getValue() + 1) & $number->getValue() ? $this->getValue() % $number->getValue() : $this->getValue() & ($number->getValue() - 1);
         }
@@ -72,8 +64,7 @@ class Number extends String
         return $this->isPowerOfTwo($number) || $this->isMersenne($number) ? $this->getValue() % $number : $this->getValue() & ($number - 1);
     }
 
-    protected function internalAdd($x, $y)
-    {
+    protected function internalAdd($x, $y) {
         $a = 0;
         $b = 0;
         do {
@@ -86,13 +77,11 @@ class Number extends String
         return $b;
     }
 
-    protected function internalSubtract($x, $y)
-    {
+    protected function internalSubtract($x, $y) {
         return $this->internalAdd($x, $this->negate($y));
     }
 
-    protected function internalMultiply($x, $y)
-    {
+    protected function internalMultiply($x, $y) {
         $m = 1;
         $z = 0;
         if ($x < 0) {
@@ -111,8 +100,7 @@ class Number extends String
         return $z;
     }
 
-    protected function internalDivide($x, $y)
-    {
+    protected function internalDivide($x, $y) {
         $c = 0;
         $sign = 0;
 
@@ -139,8 +127,7 @@ class Number extends String
         return $c;
     }
 
-    public function add($number)
-    {
+    public function add($number) {
         if (is_a($number, 'Number')) {
             $number = $number->getValue();
         }
@@ -148,8 +135,7 @@ class Number extends String
         return $this->internalAdd($this->getValue(), $number);
     }
 
-    public function subtract($number)
-    {
+    public function subtract($number) {
         if (is_a($number, 'Number')) {
             $number = $number->getValue();
         }
@@ -157,8 +143,7 @@ class Number extends String
         return $this->internalSubtract($this->getValue(), $number);
     }
 
-    public function multiplyBy($number)
-    {
+    public function multiplyBy($number) {
         if (is_a($number, 'Number')) {
             $number = $number->getValue();
         }
@@ -166,8 +151,7 @@ class Number extends String
         return $this->internalMultiply($this->getValue(), $number);
     }
 
-    public function divideBy($number)
-    {
+    public function divideBy($number) {
         if (is_a($number, 'Number')) {
             $number = $number->getValue();
         }
@@ -175,6 +159,7 @@ class Number extends String
         return $this->modulo($number) ? $this->getValue() / $number : $this->internalDivide($this->getValue(), $number);
     }
 
+    //TODO: use this function logic with perfroming math on numbers stored in string (ex: BigInt)
 //    public function add($number) {
 //        $maxLength = strlen('' . (PHP_INT_MAX / 10) . '');
 //        if (is_a($number, 'Number')) {
@@ -190,8 +175,7 @@ class Number extends String
 //        return $result;
 //    }
 
-    public function isEqual($number)
-    {
+    public function isEqual($number) {
         if (is_a($number, 'Number')) {
             return $this->value === $number->getValue();
         }
@@ -221,16 +205,15 @@ class Number extends String
         return $this->getValue() === $dataType->getValue();
     }
 
-    public function getAbsolute()
-    {
+    public function getAbsolute() {
         $value = $this->getValue();
-        $availBits = $this->systemMaxBits - 1;
+        $availBits = self::$systemMaxBits - 1;
 
         return ($value ^ ($value >> $availBits)) - ($value >> $availBits);
     }
 
-    public function negate($number)
-    {
+    public function negate($number) {
         return $this->internalAdd(~$number, 1);
     }
+
 }

@@ -1,46 +1,40 @@
 <?php
 
-require_once $MODELS['dbConnectClass'];
+require_once $DATABASE['DBConnect'];
 
-class AjaxDBConnect extends DBConnect
-{
+class AjaxDBConnect extends DBConnect {
+
     private $jsonResult;
 
-    protected function __construct($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = true, $production = false)
-    {
+    protected function __construct($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = true, $production = false) {
         parent::__construct($hostname, $database, $username, $password, $testing, $production);
     }
 
-    public function insert($queryRaw = '')
-    {
+    public function insert($queryRaw = '') {
         $this->jsonResult = json_encode(parent::insert($queryRaw));
 
         return $this->jsonResult;
     }
 
-    public function update($queryRaw = '')
-    {
+    public function update($queryRaw = '') {
         $this->jsonResult = json_encode(parent::update($queryRaw));
 
         return $this->jsonResult;
     }
 
-    public function delete($queryRaw = '')
-    {
+    public function delete($queryRaw = '') {
         $this->jsonResult = json_encode(parent::delete($queryRaw));
 
         return $this->jsonResult;
     }
 
-    public function select($queryRaw = '')
-    {
+    public function select($queryRaw = '') {
         $this->jsonResult = json_encode(parent::select_assoc($queryRaw));
 
         return $this->jsonResult;
     }
 
-    public function requestValidation($request)
-    {
+    public function requestValidation($request) {
         $type = substr($request, 0, 6);
         $query = substr($request, 7);
         list($ex_type, $ex_query) = explode(':', $request, 2);
@@ -48,13 +42,11 @@ class AjaxDBConnect extends DBConnect
         return preg_match('/^(insert|update|delete|select)/', $request) && $type === $ex_type && $query === $ex_query;
     }
 
-    protected function queryValidation($queryRaw, $type)
-    {
+    protected function queryValidation($queryRaw, $type) {
         return parent::queryValidation($queryRaw, $type);
     }
 
-    public function consoleOut($outputIn, $typeIn = 'DB')
-    {
+    public function consoleOut($outputIn, $typeIn = 'DB') {
         $output = is_array($outputIn) || is_object($outputIn) ? json_encode($outputIn) : $outputIn;
         $type = addslashes($typeIn);
         if (!headers_sent()) {
@@ -63,8 +55,7 @@ class AjaxDBConnect extends DBConnect
         echo "{$type}: {$output}\r\n";
     }
 
-    public function sanitizeOutput($output)
-    {
+    public function sanitizeOutput($output) {
         if (is_array($output)) {
             $new_output = array();
             foreach ($output as $key => $value) {
@@ -80,4 +71,5 @@ class AjaxDBConnect extends DBConnect
 
         return stripslashes(htmlentities(str_replace('\r', '', $output), ENT_HTML5, 'UTF-8', false));
     }
+
 }
