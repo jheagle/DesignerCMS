@@ -36,7 +36,7 @@ class VarChar_DT extends String_DT {
     protected $min;
     protected $max;
     protected $bits = 16;
-    protected static $length;
+    protected $length;
 
     public function __construct($value, $length = null, $charSet = 'UTF-8') {
         parent::__construct($value, $charSet);
@@ -62,7 +62,7 @@ class VarChar_DT extends String_DT {
     }
 
     public function getLength() {
-        return self::$length;
+        return $this->length;
     }
 
     protected function setLength($length) {
@@ -71,7 +71,7 @@ class VarChar_DT extends String_DT {
         } elseif ($length > $this->max) {
             $length = (int) $this->max;
         }
-        self::$length = $length;
+        $this->length = $length;
     }
 
     public function getValue() {
@@ -79,7 +79,7 @@ class VarChar_DT extends String_DT {
     }
 
     public function setValue($value) {
-        $value = substr($value, 0, self::$length);
+        $value = substr($value, 0, $this->length);
         $this->value = $value;
     }
 

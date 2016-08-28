@@ -10,7 +10,7 @@ class Int_DT extends Number_DT {
     protected $min;
     protected $max;
     protected $bits = 32;
-    protected static $length;
+    protected $length;
 
     public function __construct($value = 0, $length = 0, $isSigned = true) {
         parent::__construct($value, $length, $isSigned);
@@ -21,19 +21,19 @@ class Int_DT extends Number_DT {
     }
 
     protected function setMin() {
-        $this->min = (int) (self::$isSigned ? (~0) ^ (1 << $this->bits - 1) - 1 : 0);
+        $this->min = (int) ($this->isSigned ? (~0) ^ (1 << $this->bits - 1) - 1 : 0);
     }
 
     protected function setMax() {
-        if ($this->bits >= self::$systemMaxBits && !self::$isSigned) {
-            $this->max = (int) ((1 << $this->systemMaxBits - 1) - 1);
+        if ($this->bits >= self::$systemMaxBits && !$this->isSigned) {
+            $this->max = (int) ((1 << self::$systemMaxBits - 1) - 1);
         } else {
-            $this->max = (int) (self::$isSigned ? (1 << $this->bits - 1) - 1 : (1 << $this->bits) - 1);
+            $this->max = (int) ($this->isSigned ? (1 << $this->bits - 1) - 1 : (1 << $this->bits) - 1);
         }
     }
 
     public function getLength() {
-        return self::$length;
+        return $this->length;
     }
 
     protected function setLength($length) {
@@ -42,7 +42,7 @@ class Int_DT extends Number_DT {
         } elseif ($length > strlen((string) $this->max)) {
             $length = (int) strlen((string) $this->max);
         }
-        self::$length = $length;
+        $this->length = $length;
     }
 
     public function getValue() {
@@ -50,7 +50,7 @@ class Int_DT extends Number_DT {
     }
 
     public function setValue($value) {
-        if ($value > $this->min && (int) ((float) $value) < $this->min && $this->bits >= self::$systemMaxBits && !self::$isSigned) {
+        if ($value > $this->min && (int) ((float) $value) < $this->min && $this->bits >= self::$systemMaxBits && !$this->isSigned) {
             return $this->value = (int) ((float) $value);
         }
 
@@ -70,29 +70,29 @@ class BigInt_DT extends Number_DT {
     protected $min;
     protected $max;
     protected $bits = 64;
-    protected static $length;
-    protected static $absoluteMax;
+    protected $length;
+    protected $absoluteMax;
 
     public function __construct($value = 0, $length = 0, $isSigned = true) {
         parent::__construct($value, $isSigned);
         self::setMin();
         self::setMax();
         $absoluteMax = $this->bits > self::$systemMaxBits ? '9223372036854775807' : $this->max;
-        self::$absoluteMax = self::$isSigned ? $absoluteMax : '18446744073709551616';
+        $this->absoluteMax = $this->isSigned ? $absoluteMax : '18446744073709551616';
         self::setlength($length);
         self::setValue($this->value);
     }
 
     protected function setMin() {
-        $this->min = (int) (self::$isSigned ? (~0) ^ (1 << $this->bits - 1) - 1 : 0);
+        $this->min = (int) ($this->isSigned ? (~0) ^ (1 << $this->bits - 1) - 1 : 0);
     }
 
     protected function setMax() {
-        $this->max = (int) ($this->bits > self::$systemMaxBits || !self::$isSigned ? ((1 << self::$systemMaxBits - 1) - 1) : (1 << $this->bits - 1) - 1);
+        $this->max = (int) ($this->bits > self::$systemMaxBits || !$this->isSigned ? ((1 << self::$systemMaxBits - 1) - 1) : (1 << $this->bits - 1) - 1);
     }
 
     public function getLength() {
-        return self::$length;
+        return $this->length;
     }
 
     protected function setLength($length) {
@@ -101,7 +101,7 @@ class BigInt_DT extends Number_DT {
         } elseif ($length > strlen((string) $this->absoluteMax)) {
             $length = (int) strlen((string) $this->absoluteMax);
         }
-        self::$length = $length;
+        $this->length = $length;
     }
 
     public function getValue() {
@@ -110,7 +110,7 @@ class BigInt_DT extends Number_DT {
 
     public function setValue($value) {
         if ($this->bits > self::$systemMaxBits && ($value > $this->max || $value < $this->min)) {
-            if ($value > $this->min && !self::$isSigned && (int) ((float) $value) < $this->min && $value <= ($this->max + (-1 ^ ~$this->max) + 1)) {
+            if ($value > $this->min && !$this->isSigned && (int) ((float) $value) < $this->min && $value <= ($this->max + (-1 ^ ~$this->max) + 1)) {
                 return $this->value = (int) ((float) $value);
             }
 
