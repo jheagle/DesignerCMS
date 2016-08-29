@@ -18,21 +18,21 @@ class Field implements Potential {
     const INDEX = 256;
     const FULLTEXT = 512;
 
-    protected static $name;
+    protected $name;
     protected $dataType;
-    protected static $attributes;
-    protected static $default;
+    protected $attributes;
+    protected $default;
 
     public function __construct($name = '', $dataType = 'String', $default = '', $length = null, $attributes = self::NOT_NULL) {
-        self::$name = strtolower(str_replace(' ', '_', $name));
+        $this->name = strtolower(str_replace(' ', '_', $name));
         $dataTypeClassName = ucwords(strtolower($dataType));
         $dataTypeClass = property_exists($dataTypeClassName, 'length') ? new $dataTypeClassName($default, $length) : new $dataTypeClassName($default);
-        self::$attributes = $attributes & self::PRIMARY_KEY || $attributes & self::UNIQUE ? $attributes | self::REQUIRED : $attributes;
-        if ($this->hasAttr(self::UNSIGNED) && $dataTypeClass instanceof Number) {
+        $this->attributes = $attributes & self::PRIMARY_KEY || $attributes & self::UNIQUE ? $attributes | self::REQUIRED : $attributes;
+        if ($this->hasAttr(self::UNSIGNED) && $dataTypeClass instanceof Number_DT) {
             $dataTypeClass = property_exists($dataTypeClassName, 'length') ? new $dataTypeClassName($default, $length, false) : new $dataTypeClassName($default, false);
         }
         $this->dataType = $dataTypeClass;
-        self::$default = $this->dataType->getValue();
+        $this->default = $this->dataType->getValue();
     }
 
     public function getValue() {
@@ -49,7 +49,7 @@ class Field implements Potential {
     }
 
     public function hasAttr($attr) {
-        return (self::$attributes & $attr) === $attr;
+        return ($this->attributes & $attr) === $attr;
     }
 
     public function hasAttribute($attr) {

@@ -4,7 +4,7 @@ if (!isset($ROOT)) {
     $ROOT = dirname(__DIR__);
 }
 require_once $UTILITIES['utilities'];
-require_once $ENTITY['EntityField'];
+require_once $ENTITY['Field'];
 
 interface EntityObject extends Potential, Comparable {
 

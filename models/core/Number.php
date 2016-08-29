@@ -125,7 +125,7 @@ class Number_DT extends String_DT {
             }
         }
         if ($sign) {
-            $c = $$this->negate($c);
+            $c = $this->negate($c);
         }
 
         return $c;
