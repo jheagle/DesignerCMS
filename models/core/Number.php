@@ -13,22 +13,26 @@ foreach (array_keys($CORE) as $filename) {
 
 class Number_DT extends String_DT {
 
-    protected static $isSigned;
-    protected static $filter;
+    protected $isSigned;
+    protected $filter;
 
     public function __construct($value = 0, $isSigned = true) {
         parent::__construct($value);
-        self::$isSigned = $isSigned;
-        self::$filter = self::$isSigned ? '/[^-0-9.]/' : '/[^0-9.]/';
+        $this->isSigned = $isSigned;
+        $this->filter = $this->isSigned ? '/[^-0-9.]/' : '/[^0-9.]/';
         self::setValue($this->value);
     }
 
     public function getValue() {
         return $this->value;
     }
+    
+    public function getSigned(){
+        return $this->isSigned;
+    }
 
     public function setValue($value) {
-        $this->value = self::$systemMaxBits === 64 ? (float) preg_replace(self::$filter, '', $value) : preg_replace(self::$filter, '', $value);
+        $this->value = self::$systemMaxBits === 64 ? (float) preg_replace($this->filter, '', $value) : preg_replace($this->filter, '', $value);
     }
 
     public function isEven() {
@@ -121,7 +125,7 @@ class Number_DT extends String_DT {
             }
         }
         if ($sign) {
-            $c = $$this->negate($c);
+            $c = $this->negate($c);
         }
 
         return $c;
