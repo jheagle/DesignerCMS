@@ -84,11 +84,21 @@ class BigInt_DT extends Number_DT {
     }
 
     protected function setMin() {
-        $this->min = (int) ($this->isSigned ? (~0) ^ (1 << $this->bits - 1) - 1 : 0);
+        if ($this->isSigned) {
+            $this->min = (int) ($this->bits > self::$systemMaxBits ? (~0) ^ (1 << $this->bits - 1) - 1 : ((1 << self::$systemMaxBits - 1) - 1));
+        }
+        else {
+            $this->min = 0;
+        }
     }
 
     protected function setMax() {
-        $this->max = (int) ($this->bits > self::$systemMaxBits || !$this->isSigned ? ((1 << self::$systemMaxBits - 1) - 1) : (1 << $this->bits - 1) - 1);
+        if ($this->bits > self::$systemMaxBits) {
+            $this->max = (int) ($this->isSigned ? (1 << $this->bits - 1) - 1 : ((1 << self::$systemMaxBits - 1) - 1));
+        }
+        else {
+            $this->max = (int) ((~0) ^ (1 << $this->bits - 1) - 1);
+        }
     }
 
     public function getLength() {
@@ -109,14 +119,15 @@ class BigInt_DT extends Number_DT {
     }
 
     public function setValue($value) {
-        if ($this->bits > self::$systemMaxBits && ($value > $this->max || $value < $this->min)) {
-            if ($value > $this->min && !$this->isSigned && (int) ((float) $value) < $this->min && $value <= ($this->max + (-1 ^ ~$this->max) + 1)) {
-                return $this->value = (int) ((float) $value);
-            }
+        if (($this->bits > self::$systemMaxBits || !$this->isSigned) && ($value > $this->max || $value < $this->min)) {
 
             if ($value < 99999999999999 && $value > -99999999999999) {
+                if ($value > $this->min && !$this->isSigned && (int) ((float) $value) < $this->min && $value <= ($this->max + (-1 ^ ~$this->max) + 1)) {
+                    return $this->value = (int) ((float) $value);
+                }
                 return $this->value = (float) $value;
             }
+            
             $charLength = strlen($this->absoluteMax);
             $part = (int) ($charLength / 2);
             $first = substr($this->absoluteMax, 0, $part);
