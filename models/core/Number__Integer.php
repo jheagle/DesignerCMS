@@ -121,7 +121,7 @@ class BigInt_DT extends Number_DT {
 
         if ($value < $this->min) {
             $value = (int) $this->min;
-        } elseif ($value > $this->max) {
+        } elseif ($value > $this->max && $this->bits <= self::$systemMaxBits) {
             $value = (int) $this->max;
         } else {            
             $charLength = strlen($this->absoluteMax);
