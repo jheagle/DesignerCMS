@@ -10,7 +10,6 @@ class Int_DT extends Number_DT {
     protected $min;
     protected $max;
     protected $bits = 32;
-    protected $length;
 
     public function __construct($value = 0, $length = 0, $isSigned = true) {
         parent::__construct($value, $length, $isSigned);
@@ -32,13 +31,9 @@ class Int_DT extends Number_DT {
         }
     }
 
-    public function getLength() {
-        return $this->length;
-    }
-
     protected function setLength($length) {
-        if ($length < $this->min) {
-            $length = (int) $this->min;
+        if ($length < 0) {
+            $length = 0;
         } elseif ($length > strlen((string) $this->max)) {
             $length = (int) strlen((string) $this->max);
         }
@@ -70,11 +65,10 @@ class BigInt_DT extends Number_DT {
     protected $min;
     protected $max;
     protected $bits = 64;
-    protected $length;
     protected $absoluteMax;
 
     public function __construct($value = 0, $length = 0, $isSigned = true) {
-        parent::__construct($value, $isSigned);
+        parent::__construct($value, $length, $isSigned);
         self::setMin();
         self::setMax();
         $absoluteMax = $this->bits > self::$systemMaxBits ? '9223372036854775807' : $this->max;
@@ -101,13 +95,9 @@ class BigInt_DT extends Number_DT {
         }
     }
 
-    public function getLength() {
-        return $this->length;
-    }
-
     protected function setLength($length) {
-        if ($length < $this->min) {
-            $length = (int) $this->min;
+        if ($length < 0) {
+            $length = 0;
         } elseif ($length > strlen((string) $this->absoluteMax)) {
             $length = (int) strlen((string) $this->absoluteMax);
         }
@@ -127,26 +117,35 @@ class BigInt_DT extends Number_DT {
                 }
                 return $this->value = (float) $value;
             }
-            
-            $charLength = strlen($this->absoluteMax);
-            $part = (int) ($charLength / 2);
-            $first = substr($this->absoluteMax, 0, $part);
-
-            $valLength = strlen((string) $value);
-            $start = $valLength - $part;
-            $valFirst = substr((string) $value, 0, $start);
-
-            if ($valFirst > $first) {
-                $value = $this->absoluteMax;
-            }
-
-            return $this->value = (string) $value;
         }
 
         if ($value < $this->min) {
             $value = (int) $this->min;
         } elseif ($value > $this->max) {
             $value = (int) $this->max;
+        } else {            
+            $charLength = strlen($this->absoluteMax);
+            $part = (int) ($charLength / 2);
+            $first = substr($this->absoluteMax, 0, $part);
+            $second = substr($this->absoluteMax, $part);
+
+            $valLength = strlen((string) $value);
+            $start = $valLength - $part;
+            $valFirst = substr((string) $value, 0, $start);
+            $valSecond = substr((string) $value, $start);
+
+            if ($valFirst > $first || ($valFirst === $first && $valSecond > $valSecond)) {
+                return $this->value = $this->absoluteMax;
+            }            
+
+            $maxValLength = strlen((string) $this->max);
+            $startMax = $maxValLength - $part;
+            $maxValFirst = substr((string) $this->max, 0, $startMax);
+            $maxValSecond = substr((string) $this->max, $startMax);
+
+            if ($valFirst > $maxValFirst || ($valFirst === $maxValFirst && $valSecond > $maxValSecond)) {
+                return $this->value = (string) $value;
+            }   
         }
 
         return $this->value = (int) $value;

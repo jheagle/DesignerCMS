@@ -36,12 +36,11 @@ class Field implements Potential {
     }
 
     public function getValue() {
-        $value = $this->dataType->getValue();
-        if ($this->dataType instanceof Number && property_exists(get_class($this->dataType), 'length') && $this->hasAttr(self::ZERO_FILL)) {
-            $value = str_pad($value, $this->dataType->getLength(), '0', STR_PAD_LEFT);
+        if ($this->dataType instanceof Number_DT && property_exists(get_class($this->dataType), 'length') && $this->hasAttr(self::ZERO_FILL)) {
+            return $this->dataType->getPaddedValue();
         }
 
-        return $value;
+        return $this->dataType->getValue();
     }
 
     public function setValue($value) {
