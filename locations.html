@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
         <meta name="viewport" content="width=device-width"/>
-        <title>Bright Optical | Find a Doctor</title>
+        <title>Title</title>
         <link rel="stylesheet" href="css/style.css"/>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
         <script>
@@ -15,7 +15,7 @@
     <body onload="load()">
         <div class="container">
             <div class="spacing">
-                <h3 class="search-title">MacuHealth Doctors</h3>
+                <h3 class="search-title">Search Locations</h3>
             </div>
             <div class="search-controls">
                 <img src="../search.png"/>
@@ -27,8 +27,8 @@
                     <option value="200">200km</option>
                     <option value="400">400km</option>
                 </select>
-                <input type="text" id="clinic" placeholder="Clinic / Doctor"/>
-                <input type="hidden" id="product" value="macuhealth"/>
+                <input type="text" id="Location" placeholder="Location Name"/>
+                <input type="hidden" id="product" value="other"/>
                 <input type="button" onclick="searchLocations()" value="Search"/>
             </div>
             <div class="map-locations">
@@ -116,20 +116,20 @@
             }
 
             function searchLocations() {
-                var clinic = document.getElementById("clinic").value, address = document.getElementById("addressInput").value;
+                var location = document.getElementById("location").value, address = document.getElementById("addressInput").value;
                 if (address != "") {
                     var geocoder = new google.maps.Geocoder();
                     geocoder.geocode({
                         address: address
                     }, function (results, status) {
                         if (status == google.maps.GeocoderStatus.OK) {
-                            searchWithAddress(results[0].geometry.location, clinic);
+                            searchWithAddress(results[0].geometry.location, location);
                         } else {
                             alert(address + ' not found');
                         }
                     });
-                } else if (clinic != "") {
-                    searchLocationsNear('../generatejson.php?clinic=' + clinic + '&product=' + product);
+                } else if (location != "") {
+                    searchLocationsNear('../generatejson.php?location=' + location + '&product=' + product);
                 }
             }
 
@@ -143,14 +143,14 @@
                 locationSelect.innerHTML = "";
                 var option = document.createElement("option");
                 option.value = "none";
-                option.innerHTML = "<p>There are no MacuHealth providers<br>that match this criteria.</p>";
+                option.innerHTML = "<p>There are no Locations<br>that match this criteria.</p>";
                 locationSelect.appendChild(option);
             }
 
-            function searchWithAddress(center, clinic) {
+            function searchWithAddress(center, location) {
                 var radius = document.getElementById('radiusSelect').value;
-                if (clinic != '') {
-                    searchLocationsNear('../generatejson.php?lat=' + center.lat() + '&lng=' + center.lng() + '&radius=' + radius + '&clinic=' + clinic + '&product=' + product);
+                if (location != '') {
+                    searchLocationsNear('../generatejson.php?lat=' + center.lat() + '&lng=' + center.lng() + '&radius=' + radius + '&location=' + location + '&product=' + product);
                 } else {
                     searchLocationsNear('../generatejson.php?lat=' + center.lat() + '&lng=' + center.lng() + '&radius=' + radius + '&product=' + product);
                 }
@@ -231,7 +231,7 @@
                 } else {
                     s = location.tel.substr(0, 3) + '-' + location.tel.substr(3, 4);
                 }
-                var html = '<div class="info-window"><h3>' + location.name + '</h3><h4>' + location.doctor + '</h4><p>' + location.address + '<br><a href="tel:' + location.tel + '">' + (typeof (location.tel) === "undefined" ? location.tel : s) + '</a><br><a href="' + location.link + '" target="_blank">' + location.link + '</a><br>' + location.info + '</p></div>';
+                var html = '<div class="info-window"><h3>' + location.name + '</h3><h4>' + location.contact + '</h4><p>' + location.address + '<br><a href="tel:' + location.tel + '">' + (typeof (location.tel) === "undefined" ? location.tel : s) + '</a><br><a href="' + location.link + '" target="_blank">' + location.link + '</a><br>' + location.info + '</p></div>';
                 var marker = new google.maps.Marker({
                     map: map,
                     position: latlng,
@@ -274,9 +274,9 @@
                 }
 
                 if (typeof (location.distance) === 'undefined') {
-                    options += '<div class="option" id="' + location.id + '"><h3>' + location.name + '</h3><h4>' + location.doctor + '</h4><p>' + location.address + '<br><a href="tel:' + location.tel + '">' + (typeof (location.tel) === "undefined" ? location.tel : s) + '</a><br><a href="' + location.link + '" target="_blank">' + location.link + '</a><br>' + location.info + '</p></div>';
+                    options += '<div class="option" id="' + location.id + '"><h3>' + location.name + '</h3><h4>' + location.contact + '</h4><p>' + location.address + '<br><a href="tel:' + location.tel + '">' + (typeof (location.tel) === "undefined" ? location.tel : s) + '</a><br><a href="' + location.link + '" target="_blank">' + location.link + '</a><br>' + location.info + '</p></div>';
                 } else {
-                    options += '<div class="option" id="' + location.id + '"><h3>(' + parseFloat(location.distance).toFixed(2) + 'km) ' + location.name + '</h3><h4>' + location.doctor + '</h4><p>' + location.address + '<br><a href="tel:' + location.tel + '">' + (typeof (location.tel) === "undefined" ? location.tel : s) + '</a><br><a href="' + location.link + '">' + location.link + '</a><br>' + location.info + '</p></div>';
+                    options += '<div class="option" id="' + location.id + '"><h3>(' + parseFloat(location.distance).toFixed(2) + 'km) ' + location.name + '</h3><h4>' + location.contact + '</h4><p>' + location.address + '<br><a href="tel:' + location.tel + '">' + (typeof (location.tel) === "undefined" ? location.tel : s) + '</a><br><a href="' + location.link + '">' + location.link + '</a><br>' + location.info + '</p></div>';
                 }
 
                 return options;
