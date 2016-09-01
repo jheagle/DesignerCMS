@@ -19,10 +19,10 @@
             <div class="top-bar">
                 <ul class="menu">
                     <li>
-                        <a href="../locations.html" target="_blank">Find a Doctor</a>
+                        <a href="../locations.html" target="_blank">Find a Location</a>
                     </li>
                     <li>
-                        <a href="../locations.html" target="_blank">Find a Doctor</a>
+                        <a href="../locations.html" target="_blank">Find a Location</a>
                     </li>
                     <li>
                         <a href="admin.html" class="no-click">Administer</a>
@@ -41,8 +41,7 @@
                         <select id="filters" multiple="multiple" disabled="disabled">
                             <optgroup label="Filter By">
                                 <option value="all" selected="selected">All</option>
-                                <option value="macuhealth">MacuHealth</option>
-                                <option value="cliradex">Cliradex</option>
+                                <option value="product">Product</option>
                             </optgroup>
                         </select>
                         <select id="locations" size="35"></select>
@@ -61,18 +60,14 @@
                         </div>
                         <div class="products">
                             <div>
-                                <label for="macuhealth">MacuHealth: </label>
-                                <input id="macuhealth" name="macuhealth" type="checkbox">
-                            </div>
-                            <div>
-                                <label for="cliradex">Cliradex: </label>
-                                <input id="cliradex" name="cliradex" type="checkbox">
+                                <label for="product">Product: </label>
+                                <input id="product" name="product" type="checkbox">
                             </div>
                         </div>
                         <div>
                             <div>
-                                <label for="doctor">Doctor: <em>Use commas(,) to seperate doctors.</em></label>
-                                <input id="doctor" name="doctor" type="text" placeholder="Doctor">
+                                <label for="contact">Contact: <em>Use commas(,) to seperate contacts.</em></label>
+                                <input id="contact" name="contact" type="text" placeholder="Contact">
                             </div>
                         </div>
                         <div>
@@ -141,7 +136,7 @@
                 $.getJSON('../controllers/loc-admin', function (data) {
                     locations = data;
                     $.each(data, function (j, location) {
-                        options += '<option value="' + location.id + '">' + location.name + '&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;' + location.doctor + '</option>';
+                        options += '<option value="' + location.id + '">' + location.name + '&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;' + location.contact + '</option>';
                     });
                     $('#locations').html(options);
                     $('.no-click').removeClass('no-click');
@@ -167,7 +162,7 @@
                     $.getJSON(searchUrl, function (data) {
                         locations = data;
                         $.each(data, function (j, location) {
-                            options += '<option value="' + location.id + '">' + location.name + '&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;' + location.doctor + '</option>';
+                            options += '<option value="' + location.id + '">' + location.name + '&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;' + location.contact + '</option>';
                         });
                         $('#locations').empty();
                         $('#locations').html(options);
@@ -211,13 +206,13 @@
 
                 $('#name').focus(function () {
                     if ($('#name').val() === "") {
-                        $('#name').val($('#doctor').val());
+                        $('#name').val($('#contact').val());
                     }
                 });
 
-                $('#doctor').focus(function () {
-                    if ($('#doctor').val() === "") {
-                        $('#doctor').val($('#name').val());
+                $('#contact').focus(function () {
+                    if ($('#contact').val() === "") {
+                        $('#contact').val($('#name').val());
                     }
                 });
 
@@ -225,18 +220,18 @@
             // close onload
 
             function verifyCreate() {
-                var id = $('#id').val(), duplicate = false, name = "", doctor = "", link = "", address = "", tel = "", lat = "", lng = "", loc = $();
+                var id = $('#id').val(), duplicate = false, name = "", contact = "", link = "", address = "", tel = "", lat = "", lng = "", loc = $();
                 $.each(locations, function (i, location) {
                     if ($('#name').val() === location.name && id !== location.id) {
-                        name = " Clinic Name";
+                        name = " Location Name";
                         loc = location;
                         duplicate = true;
                         return false;
                     }
                 });
                 $.each(locations, function (i, location) {
-                    if ($('#doctor').val() === location.doctor && id !== location.id) {
-                        doctor = " Doctor";
+                    if ($('#contact').val() === location.contact && id !== location.id) {
+                        contact = " Contact";
                         loc = location;
                         duplicate = true;
                         return false;
@@ -287,16 +282,16 @@
                 });
 
                 if (duplicate) {
-                    return confirm("WARNING: This may be a duplicate of " + loc.name + " (" + loc.id + ").\nDuplicate fields are" + name + doctor + link + address + tel + lat + lng + ".\nProceed Anyway?");
+                    return confirm("WARNING: This may be a duplicate of " + loc.name + " (" + loc.id + ").\nDuplicate fields are" + name + contact + link + address + tel + lat + lng + ".\nProceed Anyway?");
                 }
                 if ($('#id').val() === "") {
                     return true;
                 }
-                return confirm("Are you sure you want to modify this clinic?");
+                return confirm("Are you sure you want to modify this location?");
             }
 
             function verifyDelete() {
-                return confirm("Are you sure you want to delete this clinic?");
+                return confirm("Are you sure you want to delete this location?");
             }
 
             function setLocation(location) {
@@ -304,19 +299,14 @@
                 $('#name').val(location.name);
                 $('#lat').val(location.lat);
                 $('#lng').val(location.lng);
-                $('#doctor').val(location.doctor);
+                $('#contact').val(location.contact);
                 $('#address').val(location.address);
                 $('#tel').val(location.tel);
                 $('#link').val(location.link);
-                if (location.product.indexOf("macuhealth") >= 0) {
-                    $('#macuhealth').prop("checked", true);
+                if (location.product.indexOf("product") >= 0) {
+                    $('#product').prop("checked", true);
                 } else {
-                    $('#macuhealth').prop("checked", false);
-                }
-                if (location.product.indexOf("cliradex") >= 0) {
-                    $('#cliradex').prop("checked", true);
-                } else {
-                    $('#cliradex').prop("checked", false);
+                    $('#product').prop("checked", false);
                 }
                 $('#info').val(location.info);
             }
@@ -354,12 +344,11 @@
                 $('#name').val("");
                 $('#lat').val("");
                 $('#lng').val("");
-                $('#doctor').val("");
+                $('#contact').val("");
                 $('#address').val("");
                 $('#tel').val("");
                 $('#link').val("http://");
-                $('#macuhealth').prop("checked", false);
-                $('#cliradex').prop("checked", false);
+                $('#product').prop("checked", false);
                 $('#info').val("");
                 clearLocation();
                 $('#lat').attr("disabled", "disabled");
@@ -379,13 +368,13 @@
                 $('#delete').attr("disabled", "disabled");
                 if ($('#name').val() === "") {
                     alert("Name is Required");
-                } else if ($("#doctor").val() === "") {
-                    alert("Doctor is Required");
+                } else if ($("#contact").val() === "") {
+                    alert("Contact is Required");
                 } else if ($('#address').val() === "") {
                     alert("Address is Required");
                 } else if ($('#tel').val() === "") {
                     alert("Telephone number is Required");
-                } else if (!$('#macuhealth').prop("checked") && !$('#cliradex').prop("checked")) {
+                } else if (!$('#product').prop("checked")) {
                     alert("A product is required");
                 } else if ($('#lat').val() === "") {
                     alert("Latitude is Required");

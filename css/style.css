@@ -257,7 +257,7 @@ label em {
     margin-right: 5px;
 }
 
-.container input[type=text]#clinic, .container input[type=text]#doctor, .container input[type=button] {
+.container input[type=text]#location, .container input[type=text]#contact, .container input[type=button] {
     width: 17% !important;
     min-width: 155px;
 }
