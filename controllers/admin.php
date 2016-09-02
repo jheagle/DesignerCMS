@@ -42,11 +42,11 @@ if (empty($_SESSION['username'])) {
         mysql_close($connection);
         echo json_encode($json);
     } else {
-        $clinic_id = intval(sanitize($_POST["id"]));
+        $location_id = intval(sanitize($_POST["id"]));
         if (!isset($_POST["name"])) {
             header("location:../admin/");
         }
-        $clinic_name = sanitize($_POST["name"]);
+        $location_name = sanitize($_POST["name"]);
         if (!isset($_POST["lat"])) {
             header("location:../admin/");
         }
@@ -55,10 +55,10 @@ if (empty($_SESSION['username'])) {
             header("location:../admin/");
         }
         $longitude = floatval(sanitize($_POST["lng"]));
-        if (!isset($_POST["doctor"])) {
+        if (!isset($_POST["contact"])) {
             header("location:../admin/");
         }
-        $doctor = sanitize($_POST["doctor"]);
+        $contact = sanitize($_POST["contact"]);
         if (!isset($_POST["address"])) {
             header("location:../admin/");
         }
@@ -66,18 +66,16 @@ if (empty($_SESSION['username'])) {
         $telephone = isset($_POST["tel"]) ? sanitize(preg_replace('/\D+/', '', $_POST["tel"])) : '';
         $link = isset($_POST["link"]) ? sanitize($_POST["link"]) : '';
         $product = '';
-        if (isset($_POST["macuhealth"]) && isset($_POST["cliradex"])) {
-            $product = 'macuhealth, cliradex';
-        } else if (isset($_POST["macuhealth"])) {
-            $product = 'macuhealth';
-        } else if (isset($_POST["cliradex"])) {
-            $product = 'cliradex';
+        if (isset($_POST["product"])) {
+            $product = 'product';
+        } else if (isset($_POST["product"])) {
+            $product = 'product';
         }
         $info = isset($_POST["info"]) ? sanitize($_POST["info"]) : '';
         if (!empty($_POST["id"])) {
             if (isset($_POST['create'])) {
                 // Search the rows in the markers table
-                $query = sprintf("UPDATE %s SET name='%s', lat=%f, lng=%f, doctor='%s', address='%s', tel=%s, link='%s', product='%s', info='%s' WHERE id=%d", $table, $clinic_name, $latitude, $longitude, $doctor, $address, $telephone, $link, $product, $info, $clinic_id);
+                $query = sprintf("UPDATE %s SET name='%s', lat=%f, lng=%f, contact='%s', address='%s', tel=%s, link='%s', product='%s', info='%s' WHERE id=%d", $table, $location_name, $latitude, $longitude, $contact, $address, $telephone, $link, $product, $info, $location_id);
                 if (!mysql_query($query)) {
                     die("Invalid query: " . mysql_error() . "<br>" . $query);
                 }
@@ -86,7 +84,7 @@ if (empty($_SESSION['username'])) {
                 echo "A row has been modified";
             } elseif (isset($_POST['delete'])) {
                 // Search the rows in the markers table
-                $query = sprintf("DELETE FROM %s WHERE id=%d", $table, $clinic_id);
+                $query = sprintf("DELETE FROM %s WHERE id=%d", $table, $location_id);
                 if (!mysql_query($query)) {
                     die("Invalid query: " . mysql_error() . "<br>" . $query);
                 }
@@ -97,7 +95,7 @@ if (empty($_SESSION['username'])) {
         } else {
             if (isset($_POST['create'])) {
                 // Search the rows in the markers table
-                $query = sprintf("INSERT INTO %s (name, lat, lng, doctor, address, tel, link, product, info) VALUES ('%s', %f, %f, '%s', '%s', '%s', '%s', '%s', '%s')", $table, $clinic_name, $latitude, $longitude, $doctor, $address, $telephone, $link, $product, $info);
+                $query = sprintf("INSERT INTO %s (name, lat, lng, contact, address, tel, link, product, info) VALUES ('%s', %f, %f, '%s', '%s', '%s', '%s', '%s', '%s')", $table, $location_name, $latitude, $longitude, $contact, $address, $telephone, $link, $product, $info);
                 if (!mysql_query($query)) {
                     die("Invalid query: " . mysql_error() . "<br>" . $query);
                 }

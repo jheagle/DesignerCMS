@@ -13,14 +13,27 @@ foreach (array_keys($CORE) as $filename) {
 
 class Number_DT extends String_DT {
 
+    protected $length;
     protected $isSigned;
-    protected $filter;
 
-    public function __construct($value = 0, $isSigned = true) {
+    public function __construct($value = 0, $length = 0, $isSigned = true) {
         parent::__construct($value);
         $this->isSigned = $isSigned;
         $this->filter = $this->isSigned ? '/[^-0-9.]/' : '/[^0-9.]/';
         self::setValue($this->value);
+        self::setLength($length);
+    }
+
+    public function getLength() {
+        return $this->length;
+    }
+
+    protected function setLength($length) {
+        $this->length = $length;
+    }
+    
+    public function getPaddedValue(){      
+        return str_pad($this->value, $this->getLength(), '0', STR_PAD_LEFT);
     }
 
     public function getValue() {

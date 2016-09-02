@@ -16,7 +16,7 @@ var_dump($datatype->getValue());
 
 $value = 128;
 $testValue = 32;
-$integer = new Int_DT($value, false);
+$integer = new Int_DT($value, 0, false);
 var_dump($integer);
 var_dump($integer->getValue());
 var_dump($testValue);
