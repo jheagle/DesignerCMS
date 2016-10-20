@@ -28,6 +28,12 @@ class AjaxDBConnect extends DBConnect {
         return $this->jsonResult;
     }
 
+    public function alter($queryRaw = '') {
+        $this->jsonResult = json_encode(parent::alter($queryRaw));
+
+        return $this->jsonResult;
+    }
+
     public function select($queryRaw = '') {
         $this->jsonResult = json_encode(parent::select_assoc($queryRaw));
 
