@@ -6,8 +6,8 @@ class AjaxDBConnect extends DBConnect {
 
     private $jsonResult;
 
-    protected function __construct($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = true, $production = false) {
-        parent::__construct($hostname, $database, $username, $password, $testing, $production);
+    protected function __construct($settings) {
+        parent::__construct($settings);
     }
 
     public function insert($queryRaw = '') {

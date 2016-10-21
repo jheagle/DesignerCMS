@@ -4,9 +4,8 @@ require_once $DATABASE['DBConnect'];
 
 class PHPDBConnect extends DBConnect {
 
-    protected function __construct() {
-        $args = func_get_args();
-        call_user_func_array([$this, 'parent::__construct'], $args);
+    protected function __construct($settings) {
+        parent::__construct($settings);
     }
 
     public function insert($queryRaw = '') {
@@ -21,7 +20,7 @@ class PHPDBConnect extends DBConnect {
         return $this->exec($queryRaw, 'delete');
     }
 
-    public function alter($queryRaw = ''){
+    public function alter($queryRaw = '') {
         return $this->exec($queryRaw, 'alter');
     }
 
