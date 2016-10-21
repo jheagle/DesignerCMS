@@ -4,18 +4,9 @@ require_once $DATABASE['DBConnect'];
 
 class PHPDBConnect extends DBConnect {
 
-    protected static $instance;
-    private static $pdoInstance;
-    private $database;
-    public $production; // environment
-    public $testing; // mode (truly run a query or not)
-    private $queries;
-    private $result;
-    private $queryRaw;
-    private $query;
-
-    protected function __construct($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = true, $production = false) {
-        parent::__construct($hostname, $database, $username, $password, $testing, $production);
+    protected function __construct() {
+        $args = func_get_args();
+        call_user_func_array([$this, 'parent::__construct'], $args);
     }
 
     public function insert($queryRaw = '') {
@@ -30,6 +21,10 @@ class PHPDBConnect extends DBConnect {
         return $this->exec($queryRaw, 'delete');
     }
 
+    public function alter($queryRaw = ''){
+        return $this->exec($queryRaw, 'alter');
+    }
+
     public function select($queryRaw = '') {
         return $this->query($queryRaw, 'select');
     }
@@ -39,7 +34,7 @@ class PHPDBConnect extends DBConnect {
             $this->query($queryRaw, 'select');
         }
 
-        return isset($this->pdoInstance[$this->database]) && $this->result ? $this->result->fetch(PDO::FETCH_ASSOC) : $this->result;
+        return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(PDO::FETCH_ASSOC) : $this->result;
     }
 
     public function select_num($queryRaw = '') {
@@ -47,7 +42,7 @@ class PHPDBConnect extends DBConnect {
             $this->query($queryRaw, 'select');
         }
 
-        return isset($this->pdoInstance[$this->database]) && $this->result ? $this->result->fetch(PDO::FETCH_NUM) : $this->result;
+        return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(PDO::FETCH_NUM) : $this->result;
     }
 
     public function select_both($queryRaw = '') {
@@ -55,7 +50,7 @@ class PHPDBConnect extends DBConnect {
             $this->query($queryRaw, 'select');
         }
 
-        return isset($this->pdoInstance[$this->database]) && $this->result ? $this->result->fetch(PDO::FETCH_BOTH) : $this->result;
+        return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(PDO::FETCH_BOTH) : $this->result;
     }
 
     public function select_object($queryRaw = '') {
@@ -63,7 +58,7 @@ class PHPDBConnect extends DBConnect {
             $this->query($queryRaw, 'select');
         }
 
-        return isset($this->pdoInstance[$this->database]) && $this->result ? $this->result->fetch(PDO::FETCH_OBJECT) : $this->result;
+        return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(PDO::FETCH_OBJECT) : $this->result;
     }
 
     public function select_lazy($queryRaw = '') {
@@ -71,7 +66,7 @@ class PHPDBConnect extends DBConnect {
             $this->query($queryRaw, 'select');
         }
 
-        return isset($this->pdoInstance[$this->database]) && $this->result ? $this->result->fetch($this->pdoInstance[$this->database]->FETCH_LAZY) : $this->result;
+        return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(self::$pdoInstance[$this->database]->FETCH_LAZY) : $this->result;
     }
 
     protected function queryValidation($queryRaw, $type) {
@@ -133,6 +128,7 @@ class PHPDBConnect extends DBConnect {
             echo "{$type}: {$output}\r\n";
         } else {
             $output = addslashes($output);
+            $output = str_replace("\n", ' ', $output);
             echo "<script>console.log(\"{$type}: {$output}\")</script>";
         }
 

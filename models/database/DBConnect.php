@@ -8,16 +8,19 @@ require_once $ROOT . '/global_include.php';
 abstract class DBConnect implements Potential {
 
     protected static $instance;
-    private static $pdoInstance;
-    private $database;
+    protected static $pdoInstance;
+    protected $database;
     public $production; // environment
     public $testing; // mode (truly run a query or not)
-    private $queries;
-    private $result;
-    private $queryRaw;
-    private $query;
+    protected $queries;
+    protected $result;
+    protected $queryRaw;
+    protected $query;
 
-    protected function __construct($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = false, $production = true) {
+    protected function __construct() {
+        $args = func_get_args();
+        extract($args[0]);
+        unset($args);
         if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password) && $production) {
             global $RESOURCES;
             include_once $RESOURCES['dbInfo'];
@@ -26,12 +29,12 @@ abstract class DBConnect implements Potential {
         $this->testing = $testing;
         $this->production = $production;
         $this->queries = 0;
-        if (empty($this->pdoInstance) || !is_array($this->pdoInstance)) {
-            $this->pdoInstance = array();
+        if (empty(self::$pdoInstance) || !is_array(self::$pdoInstance)) {
+            self::$pdoInstance = array();
         }
         try {
-            if (empty($this->pdoInstance[$database])) {
-                $this->pdoInstance[$database] = new PDO("mysql:host={$hostname};dbname={$database}", $username, $password);
+            if (empty(self::$pdoInstance[$database])) {
+                self::$pdoInstance[$database] = new PDO("mysql:host={$hostname};dbname={$database}", $username, $password);
             }
             if ($testing || !$production) {
                 $this->consoleOut("Connected to database ({$database})");
@@ -51,20 +54,54 @@ abstract class DBConnect implements Potential {
         }
     }
 
-    final public static function instantiateDB($hostname = 'localhost', $database = '', $username = 'root', $password = '', $testing = true, $production = false) {
+    final public static function instantiateDB() {
+        $args = func_get_args();
+        $possible_args = [
+            'string' => [
+                'hostname' => 'localhost',
+                'database' => '',
+                'username' => 'root',
+                'password' => '',
+            ],
+            'boolean' => [
+                'testing' => false,
+                'production' => true
+            ],
+        ];
+        $settings = [];
+        foreach ($args as $val){
+            $type = gettype($val);
+            if (array_key_exists($type, $possible_args)){
+                $key = key($possible_args[$type]);
+                array_shift($possible_args[$type]);
+                $settings[$key] = $val;
+            }
+        }
+        foreach ($possible_args as $defaults){
+          $settings = array_merge($defaults, $settings);
+        }
+        
         if (!is_array(self::$instance)) {
             self::$instance = array();
         }
-        if (empty(self::$instance[$database])) {
+        if (empty(self::$instance[$settings['database']])) {
             $class = get_called_class();
-            self::$instance[$database] = new $class($hostname, $database, $username, $password, $testing, $production);
+            self::$instance[$settings['database']] = new $class($settings);
         }
 
-        return self::$instance[$database];
+        return self::$instance[$settings['database']];
     }
 
     private function __clone() {
         
+    }
+    
+    public function __call($name, $arguments){
+      return (!method_exists($this, $name) && method_exists(self::$pdoInstance[$this->database], $name))? call_user_func_array([self::$pdoInstance[$this->database], $name],$arguments): false;
+    }
+    
+    public static function __callStatic($name, $arguments){
+      return (!method_exists($this, $name) && method_exists(self::$pdoInstance[$this->database], $name))? call_user_func_array([self::$pdoInstance[$this->database], $name],$arguments): false;
     }
 
     protected function exec($queryRaw = '', $type = 'insert') {
@@ -78,8 +115,8 @@ abstract class DBConnect implements Potential {
                 $this->consoleOut($query);
             }
             //TODO: ADD LOG
-            if (!$this->testing && $this->pdoInstance[$this->database]) {
-                $count = $this->pdoInstance[$this->database]->exec($query);
+            if (!$this->testing && self::$pdoInstance[$this->database]) {
+                $count = self::$pdoInstance[$this->database]->exec($query);
             }
             //TODO: Create psuedo insert and record for testing mode
             $this->queries += $count;
@@ -100,14 +137,16 @@ abstract class DBConnect implements Potential {
 
     abstract protected function delete($queryRaw);
 
+    abstract protected function alter($queryRaw);
+
     protected function query($queryRaw = '', $type = 'select') {
         $query = empty($queryRaw) ? $this->query : $this->queryValidation($queryRaw, $type);
         if (empty($query)) {
             return;
         }
         try {
-            if ($queryRaw === $this->queryRaw && isset($this->pdoInstance[$this->database])) {
-                $this->result = $this->pdoInstance[$this->database]->query($this->query);
+            if ($queryRaw === $this->queryRaw && isset(self::$pdoInstance[$this->database])) {
+                $this->result = self::$pdoInstance[$this->database]->query($this->query);
             }
             if ($this->testing || !$this->production) {
                 $this->consoleOut($this->query);
@@ -130,11 +169,11 @@ abstract class DBConnect implements Potential {
     abstract protected function consoleOut($outputIn, $typeIn);
 
     public function lastInsertId($name = null) {
-        return $this->pdoInstance[$this->database]->lastInsertId($name);
+        return self::$pdoInstance[$this->database]->lastInsertId($name);
     }
 
     public function rowCount() {
-        return $this->pdoInstance[$this->database]->rowCount();
+        return self::$pdoInstance[$this->database]->rowCount();
     }
 
     public function sanitizeInput($input, $escape = true, &$type = null) {
