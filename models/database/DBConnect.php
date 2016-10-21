@@ -17,10 +17,8 @@ abstract class DBConnect implements Potential {
     protected $queryRaw;
     protected $query;
 
-    protected function __construct() {
-        $args = func_get_args();
-        extract($args[0]);
-        unset($args);
+    protected function __construct($settings) {
+        extract($settings);
         if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password) && $production) {
             global $RESOURCES;
             include_once $RESOURCES['dbInfo'];
@@ -56,7 +54,7 @@ abstract class DBConnect implements Potential {
 
     final public static function instantiateDB() {
         $args = func_get_args();
-        $possible_args = [
+        $default_args = [
             'string' => [
                 'hostname' => 'localhost',
                 'database' => '',
@@ -69,18 +67,21 @@ abstract class DBConnect implements Potential {
             ],
         ];
         $settings = [];
-        foreach ($args as $val){
+        if (count($args) === 1 and is_array($args[0])) {
+            $settings = array_shift($args);
+        }
+        foreach ($args as $arg => $val) {
             $type = gettype($val);
-            if (array_key_exists($type, $possible_args)){
-                $key = key($possible_args[$type]);
-                array_shift($possible_args[$type]);
+            if (array_key_exists($type, $default_args)) {
+                $key = key($default_args[$type]);
+                array_shift($default_args[$type]);
                 $settings[$key] = $val;
             }
         }
-        foreach ($possible_args as $defaults){
-          $settings = array_merge($defaults, $settings);
+        foreach ($default_args as $defaults) {
+            $settings = array_merge($defaults, $settings);
         }
-        
+
         if (!is_array(self::$instance)) {
             self::$instance = array();
         }
@@ -95,13 +96,13 @@ abstract class DBConnect implements Potential {
     private function __clone() {
         
     }
-    
-    public function __call($name, $arguments){
-      return (!method_exists($this, $name) && method_exists(self::$pdoInstance[$this->database], $name))? call_user_func_array([self::$pdoInstance[$this->database], $name],$arguments): false;
+
+    public function __call($name, $arguments) {
+        return (!method_exists($this, $name) && method_exists(self::$pdoInstance[$this->database], $name)) ? call_user_func_array([self::$pdoInstance[$this->database], $name], $arguments) : false;
     }
-    
-    public static function __callStatic($name, $arguments){
-      return (!method_exists($this, $name) && method_exists(self::$pdoInstance[$this->database], $name))? call_user_func_array([self::$pdoInstance[$this->database], $name],$arguments): false;
+
+    public static function __callStatic($name, $arguments) {
+        return (!method_exists($this, $name) && method_exists(self::$pdoInstance[$this->database], $name)) ? call_user_func_array([self::$pdoInstance[$this->database], $name], $arguments) : false;
     }
 
     protected function exec($queryRaw = '', $type = 'insert') {
