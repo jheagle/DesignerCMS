@@ -15,6 +15,7 @@ class Number_DT extends String_DT {
 
     protected $length;
     protected $isSigned;
+    protected $valueSplit;
 
     public function __construct($value = 0, $length = 0, $isSigned = true) {
         parent::__construct($value);
@@ -31,21 +32,41 @@ class Number_DT extends String_DT {
     protected function setLength($length) {
         $this->length = $length;
     }
-    
-    public function getPaddedValue(){      
+
+    public function getPaddedValue() {
         return str_pad($this->value, $this->getLength(), '0', STR_PAD_LEFT);
     }
 
     public function getValue() {
         return $this->value;
     }
-    
-    public function getSigned(){
-        return $this->isSigned;
-    }
 
     public function setValue($value) {
-        $this->value = self::$systemMaxBits === 64 ? (float) preg_replace($this->filter, '', $value) : preg_replace($this->filter, '', $value);
+        $this->valueSplit = [];
+        $valueFiltered = preg_replace($this->filter, '', $value);
+        $deciParts = explode('.', (string) $valueFiltered);
+        $maxLength = strlen((string) PHP_INT_MAX) - 1;
+        if (count($deciParts) > 1) {
+            $deciSplit = str_split(array_pop($deciParts), $maxLength);
+            $intNum = implode('', $deciParts);
+            $valLength = strlen($intNum);
+            for ($i = $valLength; $i > 0; $i -= $maxLength) {
+                $charCnt = $i > $maxLength ? $maxLength : $i;
+                $this->valueSplit[] = substr($intNum, $i - $charCnt, $charCnt);
+            }
+            $revCnt = 1 - count($deciSplit);
+            array_walk($deciSplit, function($value, $key) use(&$revCnt) {
+                $this->valueSplit[$revCnt--] = $value;
+            });
+        } else {
+            $this->valueSplit = str_split(implode('', $deciParts), $maxLength);
+        }
+
+        $this->value = count($this->valueSplit) < 2 ? (float) $valueFiltered : $valueFiltered;
+    }
+
+    public function getSigned() {
+        return $this->isSigned;
     }
 
     public function isEven() {
@@ -74,7 +95,7 @@ class Number_DT extends String_DT {
     }
 
     public function modulo($number) {
-        if (is_a($number, 'Number')) {
+        if (is_a($number, 'Number_DT')) {
             return $number->getValue() & ($number->getValue() - 1) || ($number->getValue() + 1) & $number->getValue() ? $this->getValue() % $number->getValue() : $this->getValue() & ($number->getValue() - 1);
         }
 
@@ -145,7 +166,7 @@ class Number_DT extends String_DT {
     }
 
     public function add($number) {
-        if (is_a($number, 'Number')) {
+        if (is_a($number, 'Number_DT')) {
             $number = $number->getValue();
         }
 
@@ -153,7 +174,7 @@ class Number_DT extends String_DT {
     }
 
     public function subtract($number) {
-        if (is_a($number, 'Number')) {
+        if (is_a($number, 'Number_DT')) {
             $number = $number->getValue();
         }
 
@@ -161,7 +182,7 @@ class Number_DT extends String_DT {
     }
 
     public function multiplyBy($number) {
-        if (is_a($number, 'Number')) {
+        if (is_a($number, 'Number_DT')) {
             $number = $number->getValue();
         }
 
@@ -169,7 +190,7 @@ class Number_DT extends String_DT {
     }
 
     public function divideBy($number) {
-        if (is_a($number, 'Number')) {
+        if (is_a($number, 'Number_DT')) {
             $number = $number->getValue();
         }
 
@@ -193,7 +214,7 @@ class Number_DT extends String_DT {
 //    }
 
     public function isEqual($number) {
-        if (is_a($number, 'Number')) {
+        if (is_a($number, 'Number_DT')) {
             return $this->value === $number->getValue();
         }
         if ($this->value === $number) {
@@ -208,10 +229,10 @@ class Number_DT extends String_DT {
         $dataType = new self($number, $isSigned);
         switch (gettype($number)) {
             case 'integer':
-                $dataType = new BigInt($number, $isSigned);
+                $dataType = new BigInt_DT($number, $isSigned);
                 break;
             case 'double':
-                $dataType = new Double($number, $isSigned);
+                $dataType = new Double_DT($number, $isSigned);
                 break;
             case 'string':
                 break;
