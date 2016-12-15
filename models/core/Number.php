@@ -43,14 +43,20 @@ class Number_DT extends String_DT {
 
     public function setValue($value) {
         $this->valueSplit = [];
-        $valueFiltered = preg_replace($this->filter, '', $value);
-        $deciParts = explode('.', (string) $valueFiltered);
-        $maxLength = strlen((string) PHP_INT_MAX) - 1;
+        $valueFiltered = preg_replace($this->filter, '', $value); // Apply the numeric filter to the incoming value
+        $deciParts = explode('.', (string) $valueFiltered); // Split on decimal points
+        $maxLength = strlen((string) PHP_INT_MAX) - 1; // capture the max int length - 1
+        // We wish to store numbers less than the length of max int in order to provide sufficient memory
+        // space for performing arithmetic.
         if (count($deciParts) > 1) {
-            $deciSplit = str_split(array_pop($deciParts), $maxLength);
-            $intNum = implode('', $deciParts);
-            $valLength = strlen($intNum);
-            for ($i = $valLength; $i > 0; $i -= $maxLength) {
+            $deciSplit = str_split(array_pop($deciParts), $maxLength); // Choose the final post-decimal value
+            // as the decimal portion and split based on max int
+            
+            $intNum = implode('', $deciParts); // merge the remaining values to preserve as pre-decimal value
+            
+            // we will seperate the pre-decimal value based on max int length - 1
+            // custom logic is used in order to store the fields so that the least significant part starts at 0 index
+            for ($i = strlen($intNum); $i > 0; $i -= $maxLength) {
                 $charCnt = $i > $maxLength ? $maxLength : $i;
                 $this->valueSplit[] = substr($intNum, $i - $charCnt, $charCnt);
             }
