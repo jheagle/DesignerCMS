@@ -13,16 +13,22 @@ foreach (array_keys($CORE) as $filename) {
 
 class Number_DT extends String_DT {
 
+    protected $primitiveType = 'float';
     protected $length;
     protected $isSigned;
+    protected $isNegative;
     protected $valueSplit;
 
-    public function __construct($value = 0, $length = 0, $isSigned = true) {
-        parent::__construct($value);
-        $this->isSigned = $isSigned;
-        $this->filter = $this->isSigned ? '/[^-0-9.]/' : '/[^0-9.]/';
+    public function __construct($value = 0, $settings = []) {
+        parent::__construct($value, $settings);
+        $settings = array_merge([
+            'length' => 0,
+            'isSigned' => true,
+            ], $settings);
+        $this->isSigned = $settings['isSigned'];
+        $this->filter = '/[^0-9.]/';
         self::setValue($this->value);
-        self::setLength($length);
+        self::setLength($settings['length']);
     }
 
     public function getLength() {
@@ -34,14 +40,19 @@ class Number_DT extends String_DT {
     }
 
     public function getPaddedValue() {
-        return str_pad($this->value, $this->getLength(), '0', STR_PAD_LEFT);
+        return str_pad($this->getPreservedValue(), $this->getLength(), '0', STR_PAD_LEFT);
     }
 
-    public function getValue() {
-        return $this->value;
+    protected function getPreservedValue() {
+        if (array_key_exists(-1, $this->valueSplit)) {
+            $tempSplitValue = $this->valueSplit;
+            $tempSplitValue[-1] = ".{$this->valueSplit[-1]}";
+            return implode('', $tempSplitValue);
+        }
+        return implode('', $this->valueSplit);
     }
 
-    public function setValue($value) {
+    protected function setPreservedValue($value) {
         $this->valueSplit = [];
         $valueFiltered = preg_replace($this->filter, '', $value); // Apply the numeric filter to the incoming value
         $deciParts = explode('.', (string) $valueFiltered); // Split on decimal points
@@ -51,24 +62,45 @@ class Number_DT extends String_DT {
         if (count($deciParts) > 1) {
             $deciSplit = str_split(array_pop($deciParts), $maxLength); // Choose the final post-decimal value
             // as the decimal portion and split based on max int
-            
+
             $intNum = implode('', $deciParts); // merge the remaining values to preserve as pre-decimal value
-            
             // we will seperate the pre-decimal value based on max int length - 1
             // custom logic is used in order to store the fields so that the least significant part starts at 0 index
             for ($i = strlen($intNum); $i > 0; $i -= $maxLength) {
                 $charCnt = $i > $maxLength ? $maxLength : $i;
-                $this->valueSplit[] = substr($intNum, $i - $charCnt, $charCnt);
+                $this->valueSplit[] = (int) substr($intNum, $i - $charCnt, $charCnt);
             }
-            $revCnt = 1 - count($deciSplit);
-            array_walk($deciSplit, function($value, $key) use(&$revCnt) {
-                $this->valueSplit[$revCnt--] = $value;
+
+            // Add the elements of decimal fields to the main split value array
+            // These fields will be indexed with negative values to show that they
+            // come after 0 (the 0 index being least significant integer value)
+            array_walk($deciSplit, function($value, $key) {
+                $this->valueSplit[~$key] = (int) $value;
             });
         } else {
-            $this->valueSplit = str_split(implode('', $deciParts), $maxLength);
+            $intNum = implode('', $deciParts); // merge the remaining values to preserve as pre-decimal value
+            // we will seperate the pre-decimal value based on max int length - 1
+            // custom logic is used in order to store the fields so that the least significant part starts at 0 index
+            for ($i = strlen($intNum); $i > 0; $i -= $maxLength) {
+                $charCnt = $i > $maxLength ? $maxLength : $i;
+                $this->valueSplit[] = (int) substr($intNum, $i - $charCnt, $charCnt);
+            }
         }
+        krsort($this->valueSplit); // we sort the indexes from highest to lowest (so negative values come last)
+        return $this->valueSplit;
+    }
 
-        $this->value = count($this->valueSplit) < 2 ? (float) $valueFiltered : $valueFiltered;
+    public function getValue() {
+        if ($this->isNegative) {
+            return is_string($this->value) ? '-' . $this->value : $this->negate($this->value);
+        }
+        return $this->value;
+    }
+
+    public function setValue($value) {
+        $this->isNegative = strstr($value, '-') && $this->isSigned;
+        $result = $this->setPreservedValue($value);
+        return $this->value = count($this->valueSplit) < 2 && !array_key_exists(-1, $this->valueSplit) ? (int) $this->getPreservedValue() : $this->getPreservedValue();
     }
 
     public function getSigned() {
@@ -219,36 +251,11 @@ class Number_DT extends String_DT {
 //        return $result;
 //    }
 
-    public function isEqual($number) {
-        if (is_a($number, 'Number_DT')) {
-            return $this->value === $number->getValue();
-        }
-        if ($this->value === $number) {
-            return true;
-        }
-        if ($this->getValue() === $number) {
-            return true;
-        }
-
-        $isSigned = preg_match('/^-/', "{$number}") ? true : false;
-
-        $dataType = new self($number, $isSigned);
-        switch (gettype($number)) {
-            case 'integer':
-                $dataType = new BigInt_DT($number, $isSigned);
-                break;
-            case 'double':
-                $dataType = new Double_DT($number, $isSigned);
-                break;
-            case 'string':
-                break;
-            default:
-                return false;
-        }
-
-        return $this->getValue() === $dataType->getValue();
-    }
-
+    /**
+     * Return the absolute value of the number being the distance from zero
+     * 
+     * @return type
+     */
     public function getAbsolute() {
         $value = $this->getValue();
         $availBits = self::$systemMaxBits - 1;
@@ -256,6 +263,12 @@ class Number_DT extends String_DT {
         return ($value ^ ($value >> $availBits)) - ($value >> $availBits);
     }
 
+    /**
+     * Get the inverse of this number (positive -> negative / negative -> positive)
+     * 
+     * @param type $number
+     * @return type
+     */
     public function negate($number) {
         return $this->internalAdd(~$number, 1);
     }

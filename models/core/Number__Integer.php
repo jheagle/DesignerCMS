@@ -5,94 +5,42 @@ if (!class_exists('DataType')) {
     exit("Core 'DataType' Undefined. '{$currentFile}' must not be called directly.");
 }
 
-class Int_DT extends Number_DT {
-
-    protected $min;
-    protected $max;
-    protected $bits = 32;
-
-    public function __construct($value = 0, $length = 0, $isSigned = true) {
-        parent::__construct($value, $length, $isSigned);
-        self::setMin();
-        self::setMax();
-        self::setlength($length);
-        self::setValue($this->value);
-    }
-
-    protected function setMin() {
-        $this->min = (int) ($this->isSigned ? (~0) ^ (1 << $this->bits - 1) - 1 : 0);
-    }
-
-    protected function setMax() {
-        if ($this->bits >= self::$systemMaxBits && !$this->isSigned) {
-            $this->max = (int) ((1 << self::$systemMaxBits - 1) - 1);
-        } else {
-            $this->max = (int) ($this->isSigned ? (1 << $this->bits - 1) - 1 : (1 << $this->bits) - 1);
-        }
-    }
-
-    protected function setLength($length) {
-        if ($length < 0) {
-            $length = 0;
-        } elseif ($length > strlen((string) $this->max)) {
-            $length = (int) strlen((string) $this->max);
-        }
-        $this->length = $length;
-    }
-
-    public function getValue() {
-        return $this->value < $this->min ? $this->max + ($this->value ^ ~$this->max) + 1 : $this->value;
-    }
-
-    public function setValue($value) {
-        if ($value > $this->min && (int) ((float) $value) < $this->min && $this->bits >= self::$systemMaxBits && !$this->isSigned) {
-            return $this->value = (int) ((float) $value);
-        }
-
-        if ($value < $this->min) {
-            $value = (int) $this->min;
-        } elseif ($value > $this->max) {
-            $value = (int) $this->max;
-        }
-
-        return $this->value = (int) $value;
-    }
-
-}
-
 class BigInt_DT extends Number_DT {
 
+    protected $primitiveType = 'int';
     protected $min;
     protected $max;
     protected $bits = 64;
     protected $absoluteMax;
 
-    public function __construct($value = 0, $length = 0, $isSigned = true) {
-        parent::__construct($value, $length, $isSigned);
+    public function __construct($value = 0, $settings = []) {
+        parent::__construct($value, $settings);
+        $settings = array_merge([
+            'length' => 0,
+            'isSigned' => true,
+            ], $settings);
         self::setMin();
         self::setMax();
-        $absoluteMax = $this->bits > self::$systemMaxBits ? '9223372036854775807' : $this->max;
-        $this->absoluteMax = $this->isSigned ? $absoluteMax : '18446744073709551616';
-        self::setlength($length);
+        self::setLength($settings['length']);
         self::setValue($this->value);
     }
 
     protected function setMin() {
         if ($this->isSigned) {
             $this->min = (int) ($this->bits > self::$systemMaxBits ? (~0) ^ (1 << $this->bits - 1) - 1 : ((1 << self::$systemMaxBits - 1) - 1));
-        }
-        else {
+        } else {
             $this->min = 0;
         }
     }
 
     protected function setMax() {
-        if ($this->bits > self::$systemMaxBits) {
-            $this->max = (int) ($this->isSigned ? (1 << $this->bits - 1) - 1 : ((1 << self::$systemMaxBits - 1) - 1));
+        if ($this->bits >= self::$systemMaxBits) {
+            $this->max = (int) ($this->isSigned ? (~0) ^ (1 << $this->bits - 1) - 1 : (~0) ^ (1 << $this->bits - 1) - 1);
+        } else {
+            $this->max = (int) ($this->isSigned ? PHP_INT_MAX : (1 << $this->bits) - 1);
         }
-        else {
-            $this->max = (int) ((~0) ^ (1 << $this->bits - 1) - 1);
-        }
+        $absoluteMax = $this->bits > self::$systemMaxBits ? '9223372036854775807' : $this->max;
+        $this->absoluteMax = $this->isSigned ? $absoluteMax : '18446744073709551616';
     }
 
     protected function setLength($length) {
@@ -105,10 +53,15 @@ class BigInt_DT extends Number_DT {
     }
 
     public function getValue() {
-        return $this->value < $this->min ? $this->max + ($this->value ^ ~$this->max) + 1 : $this->value;
+        return parent::getValue();
     }
 
     public function setValue($value) {
+        $this->isNegative = strstr($value, '-') && $this->isSigned;
+        $this->valueSplit = array_filter(parent::setPreservedValue($value), function($key) {
+            return $key >= 0;
+        }, ARRAY_FILTER_USE_KEY);
+        $value = count($this->valueSplit) < 2 && !array_key_exists(-1, $this->valueSplit) ? (int) $this->getPreservedValue() : $this->getPreservedValue();
         if (($this->bits > self::$systemMaxBits || !$this->isSigned) && ($value > $this->max || $value < $this->min)) {
 
             if ($value < 99999999999999 && $value > -99999999999999) {
@@ -123,7 +76,7 @@ class BigInt_DT extends Number_DT {
             $value = (int) $this->min;
         } elseif ($value > $this->max && $this->bits <= self::$systemMaxBits) {
             $value = (int) $this->max;
-        } else {            
+        } else {
             $charLength = strlen($this->absoluteMax);
             $part = (int) ($charLength / 2);
             $first = substr($this->absoluteMax, 0, $part);
@@ -136,7 +89,7 @@ class BigInt_DT extends Number_DT {
 
             if ($valFirst > $first || ($valFirst === $first && $valSecond > $valSecond)) {
                 return $this->value = $this->absoluteMax;
-            }            
+            }
 
             $maxValLength = strlen((string) $this->max);
             $startMax = $maxValLength - $part;
@@ -145,7 +98,7 @@ class BigInt_DT extends Number_DT {
 
             if ($valFirst > $maxValFirst || ($valFirst === $maxValFirst && $valSecond > $maxValSecond)) {
                 return $this->value = (string) $value;
-            }   
+            }
         }
 
         return $this->value = (int) $value;
@@ -153,32 +106,42 @@ class BigInt_DT extends Number_DT {
 
 }
 
-class MediumInt_DT extends Int_DT {
+class Int_DT extends BigInt_DT {
+
+    protected $bits = 32;
+
+    public function __construct($value = 0, $settings = []) {
+        parent::__construct($value, $settings);
+    }
+
+}
+
+class MediumInt_DT extends BigInt_DT {
 
     protected $bits = 24;
 
-    public function __construct($value = 0, $length = 0, $isSigned = true) {
-        parent::__construct($value, $length, $isSigned);
+    public function __construct($value = 0, $settings = []) {
+        parent::__construct($value, $settings);
     }
 
 }
 
-class SmallInt_DT extends Int_DT {
+class SmallInt_DT extends BigInt_DT {
 
     protected $bits = 16;
 
-    public function __construct($value = 0, $length = 0, $isSigned = true) {
-        parent::__construct($value, $length, $isSigned);
+    public function __construct($value = 0, $settings = []) {
+        parent::__construct($value, $settings);
     }
 
 }
 
-class TinyInt_DT extends Int_DT {
+class TinyInt_DT extends BigInt_DT {
 
     protected $bits = 8;
 
-    public function __construct($value = 0, $length = 0, $isSigned = true) {
-        parent::__construct($value, $length, $isSigned);
+    public function __construct($value = 0, $settings = []) {
+        parent::__construct($value, $settings);
     }
 
 }

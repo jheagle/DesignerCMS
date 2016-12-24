@@ -10,13 +10,13 @@ require_once $ENTITY['Entity'];
 $db = PHPDBConnect::instantiateDB('', '', '', '', $testing, $production);
 
 $value = 'Hello';
-$datatype = new VarChar_DT($value, 100);
+$datatype = new VarChar_DT($value, ['length' => 100]);
 var_dump($datatype);
 var_dump($datatype->getValue());
 
 $value = 128;
 $testValue = 32;
-$integer = new Int_DT($value, 0, false);
+$integer = new Int_DT($value, ['length' => 0, 'isSigned' => false]);
 var_dump($integer);
 var_dump($integer->getValue());
 var_dump($testValue);
@@ -34,7 +34,7 @@ echo 'True Divide: ' . ($integer->getValue() / $testValue) . "\n<br>";
 echo 'Bitwise Modulo: ' . $integer->modulo($testValue) . "\n<br>";
 echo 'True Modulo: ' . ($integer->getValue() % $testValue) . "\n<br>";
 
-$field = new Field('column', 'BigInt_DT', 0, 50, Field::ZERO_FILL | Field::UNSIGNED);
+$field = new Field('column', 'BigInt', 0, 50, Field::ZERO_FILL | Field::UNSIGNED);
 $field->setValue('999999999999999999');
 var_dump($field);
 var_dump($field->getValue());

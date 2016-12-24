@@ -13,11 +13,20 @@ foreach (array_keys($CORE) as $filename) {
 
 class String_DT extends DataType {
 
+    protected $primitiveType = 'string';
     protected static $charSet;
 
-    public function __construct($value, $charSet = 'UTF-8') {
-        parent::__construct($value);
-        self::$charSet = $charSet;
+    /**
+     * 
+     * @param type $value
+     * @param type $settings
+     */
+    public function __construct($value, $settings = []) {
+        parent::__construct($value, $settings);
+        $settings = array_merge([
+            'charSet' => 'UTF-8',
+            ], $settings);
+        self::$charSet = $settings['charSet'];
         self::setValue($this->value);
     }
 
@@ -38,14 +47,18 @@ class VarChar_DT extends String_DT {
     protected $bits = 16;
     protected $length;
 
-    public function __construct($value, $length = null, $charSet = 'UTF-8') {
-        parent::__construct($value, $charSet);
+    public function __construct($value, $settings = []) {
+        parent::__construct($value, $settings);
+        $settings = array_merge([
+            'length' => null,
+            'charSet' => 'UTF-8',
+            ], $settings);
         self::setMin();
         self::setMax();
-        if ($length === null) {
-            $length = $this->max;
+        if ($settings['length'] === null) {
+            $settings['length'] = $this->max;
         }
-        self::setlength($length);
+        self::setLength($settings['length']);
         self::setValue($this->value);
     }
 
@@ -89,8 +102,12 @@ class Char_DT extends VarChar_DT {
 
     protected $bits = 8;
 
-    public function __construct($value, $length = null, $charSet = 'UTF-8') {
-        parent::__construct($value, $length, $charSet);
+    public function __construct($value, $settings = []) {
+        parent::__construct($value, $settings);
+        $settings = array_merge([
+            'length' => null,
+            'charSet' => 'UTF-8',
+            ], $settings);
         self::setValue($this->value);
     }
 

@@ -25,13 +25,12 @@ class Field implements Potential {
 
     public function __construct($name = '', $dataType = 'String', $default = '', $length = null, $attributes = self::NOT_NULL) {
         $this->name = strtolower(str_replace(' ', '_', $name));
-        $dataTypeClassName = ucwords(strtolower($dataType));
-        $dataTypeClass = property_exists($dataTypeClassName, 'length') ? new $dataTypeClassName($default, $length) : new $dataTypeClassName($default);
         $this->attributes = $attributes & self::PRIMARY_KEY || $attributes & self::UNIQUE ? $attributes | self::REQUIRED : $attributes;
-        if ($this->hasAttr(self::UNSIGNED) && $dataTypeClass instanceof Number_DT) {
-            $dataTypeClass = property_exists($dataTypeClassName, 'length') ? new $dataTypeClassName($default, $length, false) : new $dataTypeClassName($default, false);
+        if ($this->hasAttr(self::ZERO_FILL)) {
+            $this->attributes |= self::UNSIGNED;
         }
-        $this->dataType = $dataTypeClass;
+        $dataTypeClassName = ucwords(strtolower($dataType)) . '_DT';
+        $this->dataType = new $dataTypeClassName($default, ['length' => $length, 'isSigned' => !$this->hasAttr(self::UNSIGNED)]);
         $this->default = $this->dataType->getValue();
     }
 
