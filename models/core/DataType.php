@@ -2,34 +2,42 @@
 
 // Add add subtypes at bottom
 
-interface DataTypeObject extends Potential {
+interface DataTypeObject extends Potential
+{
 
     public function getValue();
 
     public function setValue($value);
 }
 
-abstract class DataType implements DataTypeObject {
+abstract class DataType implements DataTypeObject
+{
 
     protected $value;
+
     protected $primitiveType = 'object';
+
     protected static $systemMaxBits;
 
-    public function __construct($value, $settings = []) {
+    public function __construct($value, $settings = [])
+    {
         $settings = array_merge([], $settings);
         self::$systemMaxBits = PHP_INT_SIZE << 3;
         $this->value = $value;
     }
 
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 
-    public function setValue($value) {
+    public function setValue($value)
+    {
         return $this->value = $value;
     }
 
-    public function isEqual($datatype) {
+    public function isEqual($datatype)
+    {
         if (is_a($datatype, 'DataType')) {
             return $this->getValue() === $number->getValue();
         }
@@ -37,21 +45,23 @@ abstract class DataType implements DataTypeObject {
         return $this->getValue() === $datatype;
     }
 
-    public function __toString() {
+    public function __toString()
+    {
         $string = '';
         foreach (get_object_vars($this) as $k => $v) {
             if (empty($string)) {
-                $string = __CLASS__ . '( ';
+                $string = __CLASS__.'( ';
             } else {
                 $string .= ', ';
             }
             if (is_array($v) || is_object($v)) {
-                $string .= "{$k}: " . count((array) $v);
+                $string .= "{$k}: ".count((array)$v);
                 continue;
             }
             $string .= "{$k}: {$v}";
         }
-        return $string . ' )';
+
+        return $string.' )';
     }
 
 }

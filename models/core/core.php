@@ -1,6 +1,7 @@
 <?php
 
-interface Potential {
+interface Potential
+{
 
     public function __toString();
 }

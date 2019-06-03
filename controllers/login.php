@@ -12,11 +12,18 @@ if (!empty($_POST)) {
     if (empty($_SESSION['username']) || trim($_SESSION['username']) === '') {
         require_once $MODELS['phpDBConnect'];
         $table = 'account';
-        $db = PHPDBConnect::instantiateDB('', '', '', '', $testing, $production);
-        if ((!empty($_POST['username']) || trim($_POST['username']) !== '') && (!empty($_POST['password']) || trim($_POST['password']) !== '')) {
+        $db = PHPDBConnect::instantiateDB('', '', '', '', $testing,
+          $production);
+        if ((!empty($_POST['username']) || trim(
+              $_POST['username']
+            ) !== '') && (!empty($_POST['password']) || trim(
+              $_POST['password']
+            ) !== '')) {
             $user = $db->sanitizeInput($_POST['username']);
             $pass = $db->sanitizeInput($_POST['password']);
-            $result = $db->select_assoc("SELECT id FROM {$table} WHERE username='{$user}' AND password=SHA2('{$pass}', 512)");
+            $result = $db->select_assoc(
+              "SELECT id FROM {$table} WHERE username='{$user}' AND password=SHA2('{$pass}', 512)"
+            );
             $count = count($result);
             if ($count === 1) {
                 $_SESSION['username'] = $user;
@@ -29,7 +36,11 @@ if (!empty($_POST)) {
             } else {
                 $fail = 1; // 'Incorrect Username or Password.'
             }
-        } elseif ((!empty($_POST['username']) || trim($_POST['username']) !== '') || (!empty($_POST['password']) || trim($_POST['password']) !== '')) {
+        } elseif ((!empty($_POST['username']) || trim(
+              $_POST['username']
+            ) !== '') || (!empty($_POST['password']) || trim(
+              $_POST['password']
+            ) !== '')) {
             $fail = 2; // 'Username and Password are both required.'
         } else {
             $fail = 3; // 'Please Enter Username and Password.'

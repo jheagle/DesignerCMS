@@ -373,7 +373,7 @@ label em {
 .info-window > a {
 }
 
-@media (min-width: 673px) {	
+@media (min-width: 673px) {
     .input-form {
         top: 90px;
     }
@@ -401,9 +401,11 @@ label em {
     .input-form {
         width: 58%;
     }
+
     .container-admin {
         top: 105px;
     }
+
     .container-admin .menu {
         padding: 10px;
     }

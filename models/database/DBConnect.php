@@ -3,21 +3,31 @@
 if (!isset($ROOT)) {
     $ROOT = dirname(__DIR__);
 }
-require_once $ROOT . '/global_include.php';
+require_once $ROOT.'/global_include.php';
 
-abstract class DBConnect implements Potential {
+abstract class DBConnect implements Potential
+{
 
     protected static $instance;
+
     protected static $pdoInstance;
+
     protected $database;
+
     public $production; // environment
+
     public $testing; // mode (truly run a query or not)
+
     protected $queries;
+
     protected $result;
+
     protected $queryRaw;
+
     protected $query;
 
-    protected function __construct($settings) {
+    protected function __construct($settings)
+    {
         extract($settings);
         if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password) && $production) {
             global $RESOURCES;
@@ -28,11 +38,15 @@ abstract class DBConnect implements Potential {
         $this->production = $production;
         $this->queries = 0;
         if (empty(self::$pdoInstance) || !is_array(self::$pdoInstance)) {
-            self::$pdoInstance = array();
+            self::$pdoInstance = [];
         }
         try {
             if (empty(self::$pdoInstance[$database])) {
-                self::$pdoInstance[$database] = new PDO("mysql:host={$hostname};dbname={$database}", $username, $password);
+                self::$pdoInstance[$database] = new PDO(
+                  "mysql:host={$hostname};dbname={$database}",
+                  $username,
+                  $password
+                );
             }
             if ($testing || !$production) {
                 $this->consoleOut("Connected to database ({$database})");
@@ -46,25 +60,27 @@ abstract class DBConnect implements Potential {
         }
     }
 
-    public function __destruct() {
+    public function __destruct()
+    {
         if ($this->testing || !$this->production) {
             $this->consoleOut("Completed {$this->queries} Queries");
         }
     }
 
-    final public static function instantiateDB() {
+    final public static function instantiateDB()
+    {
         $args = func_get_args();
         $default_args = [
-            'string' => [
-                'hostname' => 'localhost',
-                'database' => '',
-                'username' => 'root',
-                'password' => '',
-            ],
-            'boolean' => [
-                'testing' => false,
-                'production' => true
-            ],
+          'string' => [
+            'hostname' => 'localhost',
+            'database' => '',
+            'username' => 'root',
+            'password' => '',
+          ],
+          'boolean' => [
+            'testing' => false,
+            'production' => true,
+          ],
         ];
         $settings = [];
         if (count($args) === 1 and is_array($args[0])) {
@@ -83,7 +99,7 @@ abstract class DBConnect implements Potential {
         }
 
         if (!is_array(self::$instance)) {
-            self::$instance = array();
+            self::$instance = [];
         }
         if (empty(self::$instance[$settings['database']])) {
             $class = get_called_class();
@@ -93,21 +109,40 @@ abstract class DBConnect implements Potential {
         return self::$instance[$settings['database']];
     }
 
-    private function __clone() {
-        
+    private function __clone()
+    {
+
     }
 
-    public function __call($name, $arguments) {
-        return (!method_exists($this, $name) && method_exists(self::$pdoInstance[$this->database], $name)) ? call_user_func_array([self::$pdoInstance[$this->database], $name], $arguments) : false;
+    public function __call($name, $arguments)
+    {
+        return (!method_exists($this, $name) && method_exists(
+            self::$pdoInstance[$this->database],
+            $name
+          )) ? call_user_func_array(
+          [self::$pdoInstance[$this->database], $name],
+          $arguments
+        ) : false;
     }
 
-    public static function __callStatic($name, $arguments) {
-        return (!method_exists($this, $name) && method_exists(self::$pdoInstance[$this->database], $name)) ? call_user_func_array([self::$pdoInstance[$this->database], $name], $arguments) : false;
+    public static function __callStatic($name, $arguments)
+    {
+        return (!method_exists($this, $name) && method_exists(
+            self::$pdoInstance[$this->database],
+            $name
+          )) ? call_user_func_array(
+          [self::$pdoInstance[$this->database], $name],
+          $arguments
+        ) : false;
     }
 
-    protected function exec($queryRaw = '', $type = 'insert') {
+    protected function exec($queryRaw = '', $type = 'insert')
+    {
         $count = 0;
-        $query = empty($queryRaw) ? $this->query : $this->queryValidation($queryRaw, $type);
+        $query = empty($queryRaw) ? $this->query : $this->queryValidation(
+          $queryRaw,
+          $type
+        );
         if (empty($query)) {
             return;
         }
@@ -127,6 +162,7 @@ abstract class DBConnect implements Potential {
             if ($this->testing || !$this->production) {
                 $this->consoleOut($e->getMessage());
             }
+
             //TODO: ADD LOG
             return 0;
         }
@@ -140,14 +176,20 @@ abstract class DBConnect implements Potential {
 
     abstract protected function alter($queryRaw);
 
-    protected function query($queryRaw = '', $type = 'select') {
-        $query = empty($queryRaw) ? $this->query : $this->queryValidation($queryRaw, $type);
+    protected function query($queryRaw = '', $type = 'select')
+    {
+        $query = empty($queryRaw) ? $this->query : $this->queryValidation(
+          $queryRaw,
+          $type
+        );
         if (empty($query)) {
             return;
         }
         try {
             if ($queryRaw === $this->queryRaw && isset(self::$pdoInstance[$this->database])) {
-                $this->result = self::$pdoInstance[$this->database]->query($this->query);
+                $this->result = self::$pdoInstance[$this->database]->query(
+                  $this->query
+                );
             }
             if ($this->testing || !$this->production) {
                 $this->consoleOut($this->query);
@@ -158,6 +200,7 @@ abstract class DBConnect implements Potential {
             if ($this->testing || !$this->production) {
                 $this->consoleOut($e->getMessage());
             }
+
             //TODO: ADD LOG
             return 0;
         }
@@ -169,24 +212,35 @@ abstract class DBConnect implements Potential {
 
     abstract protected function consoleOut($outputIn, $typeIn);
 
-    public function lastInsertId($name = null) {
+    public function lastInsertId($name = null)
+    {
         return self::$pdoInstance[$this->database]->lastInsertId($name);
     }
 
-    public function rowCount() {
+    public function rowCount()
+    {
         return self::$pdoInstance[$this->database]->rowCount();
     }
 
-    public function sanitizeInput($input, $escape = true, &$type = null) {
+    public function sanitizeInput($input, $escape = true, &$type = null)
+    {
         if (is_array($input)) {
-            $type = array();
-            $new_input = array();
+            $type = [];
+            $new_input = [];
             foreach ($input as $key => $value) {
                 if (is_array($value)) {
-                    $new_input[$key] = $this->sanitizeInput($value, $escape, $type[$key]);
+                    $new_input[$key] = $this->sanitizeInput(
+                      $value,
+                      $escape,
+                      $type[$key]
+                    );
                 } else {
                     $value = html_entity_decode($value, ENT_HTML5, 'UTF-8');
-                    $new_input[$key] = filterVarType($value, $escape, $type[$key]);
+                    $new_input[$key] = filterVarType(
+                      $value,
+                      $escape,
+                      $type[$key]
+                    );
                 }
             }
 
@@ -197,14 +251,15 @@ abstract class DBConnect implements Potential {
         return filterVarType($input, $escape, $type);
     }
 
-    public function filterVarType($input, $escape = true, &$type = null) {
+    public function filterVarType($input, $escape = true, &$type = null)
+    {
         $input = trim($val);
         $length = strlen($input);
-        if ($length === strlen((int) $input)) {
-            $input = (int) $val;
+        if ($length === strlen((int)$input)) {
+            $input = (int)$val;
             $type = PDO::PARAM_INT;
-        } elseif ($length === strlen((float) $input)) {
-            $input = (float) $input;
+        } elseif ($length === strlen((float)$input)) {
+            $input = (float)$input;
             $type = PDO::PARAM_STR;
         } elseif (preg_match('/^(true|false)$/i', $input)) {
             $input = strtolower($input) === 'true';
@@ -212,9 +267,9 @@ abstract class DBConnect implements Potential {
         } elseif (json_decode($input)) {
             $val = json_decode($input);
             if (is_array($input)) {
-                $input = (array) sanitizeInput($input, $escape);
+                $input = (array)sanitizeInput($input, $escape);
             } elseif (is_object($input)) {
-                $input = (object) sanitizeInput((array) $input, $escape);
+                $input = (object)sanitizeInput((array)$input, $escape);
             }
             $type = PDO::PARAM_LOB;
             if ($input === null) {
@@ -233,75 +288,115 @@ abstract class DBConnect implements Potential {
 
     abstract public function sanitizeOutput($output);
 
-    public function camelToUnderscore($input) {
-        return ltrim(strtolower(preg_replace('/[A-Z0-9]/', '_$0', $input)), '_');
+    public function camelToUnderscore($input)
+    {
+        return ltrim(
+          strtolower(preg_replace('/[A-Z0-9]/', '_$0', $input)),
+          '_'
+        );
     }
 
-    public function underscoreToCamel($input) {
+    public function underscoreToCamel($input)
+    {
         return str_replace(' ', '', ucwords(str_replace('_', ' ', $input)));
     }
 
-    public function __toString() {
+    public function __toString()
+    {
         $string = '';
         foreach (get_object_vars($this) as $k => $v) {
             if (empty($string)) {
-                $string = __CLASS__ . '( ';
+                $string = __CLASS__.'( ';
             } else {
                 $string .= ', ';
             }
             $string .= "{$k}: {$v}";
         }
-        return $string . ' )';
+
+        return $string.' )';
     }
 
 }
 
-class UnitTest implements Potential {
+class UnitTest implements Potential
+{
 
     private static $instance;
+
     private static $breakpoints;
+
     private static $origFiles;
+
     private static $copyFiles;
+
     private $filename;
+
     private $db;
+
     private $currFunction;
+
     private $prevData;
+
     private $curreData;
+
     private $prevLine;
+
     private $currLine;
+
     private $pause;
 
-    private function __construct(&$db, $filename = __FILE__) {
+    private function __construct(&$db, $filename = __FILE__)
+    {
         $this->db = $db;
         $this->filename = $filename;
         if (!is_array($this->origFiles) || !is_array($this->copyFiles)) {
-            $this->origFiles = $this->copyFiles = array();
+            $this->origFiles = $this->copyFiles = [];
         }
         if (strpos($filename, 'utest') === false) {
             $this->origFiles[$filename] = $filename;
-            $this->copyFiles[$filename] = preg_replace('/\\.[^.\\s]{3,4}$/', '.utest.php', $filename);
-            if (!copy($this->origFiles[$filename], $this->copyFiles[$filename])) {
-                $this->db->consoleOut("~!Failed to Copy File: [{$filename}]!~", 'PHP');
+            $this->copyFiles[$filename] = preg_replace(
+              '/\\.[^.\\s]{3,4}$/',
+              '.utest.php',
+              $filename
+            );
+            if (!copy(
+              $this->origFiles[$filename],
+              $this->copyFiles[$filename]
+            )) {
+                $this->db->consoleOut(
+                  "~!Failed to Copy File: [{$filename}]!~",
+                  'PHP'
+                );
             } else {
-                $this->db->consoleOut("Created File Copy: [{$filename}]", 'PHP');
+                $this->db->consoleOut(
+                  "Created File Copy: [{$filename}]",
+                  'PHP'
+                );
             }
-            header('Location: ' . basename($this->copyFiles[$filename]));
+            header('Location: '.basename($this->copyFiles[$filename]));
             die();
         }
     }
 
-    private function __destruct() {
+    private function __destruct()
+    {
         if (strpos($this->filename, 'utest') === true) {
             self::$instance = null;
             foreach ($this->copyFiles as &$file) {
-                $this->db->consoleOut(unlink($file) ? "Removed File: [{$file}]" : "~!Failed to Remove File: [{$file}]!~", 'PHP');
+                $this->db->consoleOut(
+                  unlink(
+                    $file
+                  ) ? "Removed File: [{$file}]" : "~!Failed to Remove File: [{$file}]!~",
+                  'PHP'
+                );
                 unset($file);
             }
             $this->copyFile = null;
         }
     }
 
-    public static function instantiateTest(&$db, $filename = __FILE__) {
+    public static function instantiateTest(&$db, $filename = __FILE__)
+    {
         if (self::$instance == null) {
             self::$instance = new self($db, $filename);
         }
@@ -309,66 +404,90 @@ class UnitTest implements Potential {
         return self::$instance;
     }
 
-    public function __get($property) {
+    public function __get($property)
+    {
         if (!isset($this->{$property})) {
             return;
         }
         if (is_array($this->{$property})) {
-            $new_output = array();
+            $new_output = [];
             foreach ($this->{$property} as $key => $value) {
                 if (is_array($value)) {
                     $new_output[$key] = $this->{$property}[$key];
                 } else {
-                    $new_output[$key] = stripslashes(htmlentities(str_replace('\r', '', $value), ENT_HTML5, 'UTF-8', false));
+                    $new_output[$key] = stripslashes(
+                      htmlentities(
+                        str_replace('\r', '', $value),
+                        ENT_HTML5,
+                        'UTF-8',
+                        false
+                      )
+                    );
                 }
             }
 
             return $new_output;
         }
 
-        return stripslashes(htmlentities(str_replace('\r', '', $this->{$property}), ENT_HTML5, 'UTF-8', false));
+        return stripslashes(
+          htmlentities(
+            str_replace('\r', '', $this->{$property}),
+            ENT_HTML5,
+            'UTF-8',
+            false
+          )
+        );
     }
 
-    public function set($property, $input) {
+    public function set($property, $input)
+    {
         if (!property_exists($this, $property)) {
             return;
         }
         if (is_array($input)) {
-            $new_input = array();
+            $new_input = [];
             foreach ($input as $key => $value) {
-                $new_input[$key] = addslashes(html_entity_decode(trim($value), ENT_HTML5, 'UTF-8'));
+                $new_input[$key] = addslashes(
+                  html_entity_decode(trim($value), ENT_HTML5, 'UTF-8')
+                );
             }
             $this->{$property} = $new_input;
         }
-        $this->{$property} = addslashes(html_entity_decode(trim($input), ENT_HTML5, 'UTF-8'));
+        $this->{$property} = addslashes(
+          html_entity_decode(trim($input), ENT_HTML5, 'UTF-8')
+        );
     }
 
-    public function traceProcesses() {
-        echo '<br/>CLASS: ' . __CLASS__;
-        echo '<br/>DIR: ' . __DIR__;
-        echo '<br/>FILE: ' . __FILE__;
-        echo '<br/>FUNCTION: ' . __FUNCTION__;
-        echo '<br/>LINE: ' . __LINE__;
-        echo '<br/>METHOD: ' . __METHOD__;
-        echo '<br/>NAMESPACE: ' . __NAMESPACE__;
-        echo '<br/>TRAIT: ' . __TRAIT__;
+    public function traceProcesses()
+    {
+        echo '<br/>CLASS: '.__CLASS__;
+        echo '<br/>DIR: '.__DIR__;
+        echo '<br/>FILE: '.__FILE__;
+        echo '<br/>FUNCTION: '.__FUNCTION__;
+        echo '<br/>LINE: '.__LINE__;
+        echo '<br/>METHOD: '.__METHOD__;
+        echo '<br/>NAMESPACE: '.__NAMESPACE__;
+        echo '<br/>TRAIT: '.__TRAIT__;
     }
 
-    private function __clone() {
-        
+    private function __clone()
+    {
+
     }
 
-    public function __toString() {
+    public function __toString()
+    {
         $string = '';
         foreach (get_object_vars($this) as $k => $v) {
             if (empty($string)) {
-                $string = __CLASS__ . '( ';
+                $string = __CLASS__.'( ';
             } else {
                 $string .= ', ';
             }
             $string .= "{$k}: {$v}";
         }
-        return $string . ' )';
+
+        return $string.' )';
     }
 
 }

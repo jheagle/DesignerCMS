@@ -1,6 +1,7 @@
 <?php
 
-interface Comparable {
+interface Comparable
+{
 
     public function compareTo($p);
 }
