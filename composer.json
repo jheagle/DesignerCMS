@@ -1,10 +1,13 @@
 {
-    "name": "joshuaheagle/designer-cms",
-    "authors": [
-        {
-            "name": "Joshua Heagle",
-            "email": "joshuaheagle@gmail.com"
-        }
-    ],
-    "require": {}
+  "name": "joshuaheagle/designer-cms",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Joshua Heagle",
+      "email": "joshuaheagle@gmail.com"
+    }
+  ],
+  "require-dev": {
+    "twig/twig": "^2.0"
+  }
 }
