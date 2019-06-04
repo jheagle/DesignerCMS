@@ -1,15 +1,6 @@
 <?php
 
-$currentFile = basename(__FILE__, '.php');
-if (!class_exists('DataType')) {
-    exit("Core 'DataType' Undefined. '{$currentFile}' must not be called directly.");
-}
-foreach (array_keys($CORE) as $filename) {
-    if (strstr($filename, "{$currentFile}_")) {
-        require_once $CORE[$filename];
-        continue;
-    }
-}
+namespace DesignerCms\Models\Core;
 
 class String_DT extends DataType
 {
@@ -27,10 +18,10 @@ class String_DT extends DataType
     {
         parent::__construct($value, $settings);
         $settings = array_merge(
-          [
-            'charSet' => 'UTF-8',
-          ],
-          $settings
+            [
+                'charSet' => 'UTF-8',
+            ],
+            $settings
         );
         self::$charSet = $settings['charSet'];
         self::setValue($this->value);
@@ -63,11 +54,11 @@ class VarChar_DT extends String_DT
     {
         parent::__construct($value, $settings);
         $settings = array_merge(
-          [
-            'length' => null,
-            'charSet' => 'UTF-8',
-          ],
-          $settings
+            [
+                'length' => null,
+                'charSet' => 'UTF-8',
+            ],
+            $settings
         );
         self::setMin();
         self::setMax();
@@ -129,11 +120,11 @@ class Char_DT extends VarChar_DT
     {
         parent::__construct($value, $settings);
         $settings = array_merge(
-          [
-            'length' => null,
-            'charSet' => 'UTF-8',
-          ],
-          $settings
+            [
+                'length' => null,
+                'charSet' => 'UTF-8',
+            ],
+            $settings
         );
         self::setValue($this->value);
     }

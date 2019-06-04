@@ -1,11 +1,8 @@
 <?php
 
+use DesignerCms\Models\Database\AjaxDBConnect;
+
 header('Content-Type: application/json');
-if (!isset($ROOT)) {
-    $ROOT = dirname(__DIR__);
-}
-require_once $ROOT.'/global_include.php';
-require_once $MODELS['ajaxDBConnect'];
 
 $db = AjaxDBConnect::instantiateDB('', '', '', '', true, false);
 

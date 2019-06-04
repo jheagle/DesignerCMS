@@ -1,15 +1,6 @@
 <?php
 
-$currentFile = basename(__FILE__, '.php');
-if (!class_exists('DataType')) {
-    exit("Core 'DataType' Undefined. '{$currentFile}' must not be called directly.");
-}
-foreach (array_keys($CORE) as $filename) {
-    if (strstr($filename, "{$currentFile}_")) {
-        require_once $CORE[$filename];
-        continue;
-    }
-}
+namespace DesignerCms\Models\Core;
 
 class Number_DT extends String_DT
 {
@@ -28,11 +19,11 @@ class Number_DT extends String_DT
     {
         parent::__construct($value, $settings);
         $settings = array_merge(
-          [
-            'length' => 0,
-            'isSigned' => true,
-          ],
-          $settings
+            [
+                'length' => 0,
+                'isSigned' => true,
+            ],
+            $settings
         );
         $this->isSigned = $settings['isSigned'];
         $this->filter = '/[^0-9.]/';
@@ -53,10 +44,10 @@ class Number_DT extends String_DT
     public function getPaddedValue()
     {
         return str_pad(
-          $this->getPreservedValue(),
-          $this->getLength(),
-          '0',
-          STR_PAD_LEFT
+            $this->getPreservedValue(),
+            $this->getLength(),
+            '0',
+            STR_PAD_LEFT
         );
     }
 
@@ -76,62 +67,62 @@ class Number_DT extends String_DT
     {
         $this->valueSplit = [];
         $valueFiltered = preg_replace(
-          $this->filter,
-          '',
-          $value
+            $this->filter,
+            '',
+            $value
         ); // Apply the numeric filter to the incoming value
         $deciParts = explode(
-          '.',
-          (string)$valueFiltered
+            '.',
+            (string)$valueFiltered
         ); // Split on decimal points
         $maxLength = strlen(
-            (string)PHP_INT_MAX
-          ) - 1; // capture the max int length - 1
+                (string)PHP_INT_MAX
+            ) - 1; // capture the max int length - 1
         // We wish to store numbers less than the length of max int in order to provide sufficient memory
         // space for performing arithmetic.
         if (count($deciParts) > 1) {
             $deciSplit = str_split(
-              array_pop($deciParts),
-              $maxLength
+                array_pop($deciParts),
+                $maxLength
             ); // Choose the final post-decimal value
             // as the decimal portion and split based on max int
 
             $intNum = implode(
-              '',
-              $deciParts
+                '',
+                $deciParts
             ); // merge the remaining values to preserve as pre-decimal value
             // we will seperate the pre-decimal value based on max int length - 1
             // custom logic is used in order to store the fields so that the least significant part starts at 0 index
             for ($i = strlen($intNum); $i > 0; $i -= $maxLength) {
                 $charCnt = $i > $maxLength ? $maxLength : $i;
                 $this->valueSplit[] = (int)substr($intNum, $i - $charCnt,
-                  $charCnt);
+                    $charCnt);
             }
 
             // Add the elements of decimal fields to the main split value array
             // These fields will be indexed with negative values to show that they
             // come after 0 (the 0 index being least significant integer value)
             array_walk(
-              $deciSplit,
-              function ($value, $key) {
-                  $this->valueSplit[~$key] = (int)$value;
-              }
+                $deciSplit,
+                function ($value, $key) {
+                    $this->valueSplit[~$key] = (int)$value;
+                }
             );
         } else {
             $intNum = implode(
-              '',
-              $deciParts
+                '',
+                $deciParts
             ); // merge the remaining values to preserve as pre-decimal value
             // we will seperate the pre-decimal value based on max int length - 1
             // custom logic is used in order to store the fields so that the least significant part starts at 0 index
             for ($i = strlen($intNum); $i > 0; $i -= $maxLength) {
                 $charCnt = $i > $maxLength ? $maxLength : $i;
                 $this->valueSplit[] = (int)substr($intNum, $i - $charCnt,
-                  $charCnt);
+                    $charCnt);
             }
         }
         krsort(
-          $this->valueSplit
+            $this->valueSplit
         ); // we sort the indexes from highest to lowest (so negative values come last)
 
         return $this->valueSplit;
@@ -140,8 +131,8 @@ class Number_DT extends String_DT
     public function getValue()
     {
         if ($this->isNegative) {
-            return is_string($this->value) ? '-'.$this->value : $this->negate(
-              $this->value
+            return is_string($this->value) ? '-' . $this->value : $this->negate(
+                $this->value
             );
         }
 
@@ -154,8 +145,8 @@ class Number_DT extends String_DT
         $result = $this->setPreservedValue($value);
 
         return $this->value = count($this->valueSplit) < 2 && !array_key_exists(
-          -1,
-          $this->valueSplit
+            -1,
+            $this->valueSplit
         ) ? (int)$this->getPreservedValue() : $this->getPreservedValue();
     }
 
@@ -201,7 +192,7 @@ class Number_DT extends String_DT
         }
 
         return $this->isPowerOfTwo($number) || $this->isMersenne(
-          $number
+            $number
         ) ? $this->getValue() % $number : $this->getValue() & ($number - 1);
     }
 
@@ -306,7 +297,7 @@ class Number_DT extends String_DT
         }
 
         return $this->modulo($number) ? $this->getValue() / $number : $this->internalDivide($this->getValue(),
-          $number);
+            $number);
     }
 
     //TODO: use this function logic with perfroming math on numbers stored in string (ex: BigInt)

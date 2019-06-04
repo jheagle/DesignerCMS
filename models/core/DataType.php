@@ -1,5 +1,7 @@
 <?php
 
+namespace DesignerCms\Models\Core;
+
 // Add add subtypes at bottom
 
 interface DataTypeObject extends Potential
@@ -50,22 +52,18 @@ abstract class DataType implements DataTypeObject
         $string = '';
         foreach (get_object_vars($this) as $k => $v) {
             if (empty($string)) {
-                $string = __CLASS__.'( ';
+                $string = __CLASS__ . '( ';
             } else {
                 $string .= ', ';
             }
             if (is_array($v) || is_object($v)) {
-                $string .= "{$k}: ".count((array)$v);
+                $string .= "{$k}: " . count((array)$v);
                 continue;
             }
             $string .= "{$k}: {$v}";
         }
 
-        return $string.' )';
+        return $string . ' )';
     }
 
 }
-
-// Hierarchal order matters here, do not change file load order
-require_once $CORE['String'];
-require_once $CORE['Number'];

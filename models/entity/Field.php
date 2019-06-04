@@ -1,9 +1,9 @@
 <?php
 
-if (!isset($ROOT)) {
-    $ROOT = dirname(__DIR__);
-}
-require_once $CORE['DataType'];
+namespace DesignerCms\Models\Entity;
+
+use DesignerCms\Models\Core\Number_DT;
+use DesignerCms\Models\Core\Potential;
 
 class Field implements Potential
 {
@@ -37,21 +37,21 @@ class Field implements Potential
     protected $default;
 
     public function __construct(
-      $name = '',
-      $dataType = 'String',
-      $default = '',
-      $length = null,
-      $attributes = self::NOT_NULL
+        $name = '',
+        $dataType = 'String',
+        $default = '',
+        $length = null,
+        $attributes = self::NOT_NULL
     ) {
         $this->name = strtolower(str_replace(' ', '_', $name));
         $this->attributes = $attributes & self::PRIMARY_KEY || $attributes & self::UNIQUE ? $attributes | self::REQUIRED : $attributes;
         if ($this->hasAttr(self::ZERO_FILL)) {
             $this->attributes |= self::UNSIGNED;
         }
-        $dataTypeClassName = ucwords(strtolower($dataType)).'_DT';
+        $dataTypeClassName = '\DesignerCms\Models\Core\\' . ucwords(strtolower($dataType)) . '_DT';
         $this->dataType = new $dataTypeClassName(
-          $default,
-          ['length' => $length, 'isSigned' => !$this->hasAttr(self::UNSIGNED)]
+            $default,
+            ['length' => $length, 'isSigned' => !$this->hasAttr(self::UNSIGNED)]
         );
         $this->default = $this->dataType->getValue();
     }
@@ -59,9 +59,9 @@ class Field implements Potential
     public function getValue()
     {
         if ($this->dataType instanceof Number_DT && property_exists(
-            get_class($this->dataType),
-            'length'
-          ) && $this->hasAttr(self::ZERO_FILL)) {
+                get_class($this->dataType),
+                'length'
+            ) && $this->hasAttr(self::ZERO_FILL)) {
             return $this->dataType->getPaddedValue();
         }
 
@@ -88,14 +88,14 @@ class Field implements Potential
         $string = '';
         foreach (get_object_vars($this) as $k => $v) {
             if (empty($string)) {
-                $string = __CLASS__.'( ';
+                $string = __CLASS__ . '( ';
             } else {
                 $string .= ', ';
             }
             $string .= "{$k}: {$v}";
         }
 
-        return $string.' )';
+        return $string . ' )';
     }
 
 }

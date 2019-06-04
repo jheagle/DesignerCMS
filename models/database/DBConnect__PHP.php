@@ -1,6 +1,6 @@
 <?php
 
-require_once $DATABASE['DBConnect'];
+namespace DesignerCms\Models\Database;
 
 class PHPDBConnect extends DBConnect
 {
@@ -42,7 +42,7 @@ class PHPDBConnect extends DBConnect
         }
 
         return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
-          PDO::FETCH_ASSOC
+            PDO::FETCH_ASSOC
         ) : $this->result;
     }
 
@@ -53,7 +53,7 @@ class PHPDBConnect extends DBConnect
         }
 
         return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
-          PDO::FETCH_NUM
+            PDO::FETCH_NUM
         ) : $this->result;
     }
 
@@ -64,7 +64,7 @@ class PHPDBConnect extends DBConnect
         }
 
         return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
-          PDO::FETCH_BOTH
+            PDO::FETCH_BOTH
         ) : $this->result;
     }
 
@@ -75,7 +75,7 @@ class PHPDBConnect extends DBConnect
         }
 
         return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
-          PDO::FETCH_OBJECT
+            PDO::FETCH_OBJECT
         ) : $this->result;
     }
 
@@ -86,7 +86,7 @@ class PHPDBConnect extends DBConnect
         }
 
         return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
-          self::$pdoInstance[$this->database]->FETCH_LAZY
+            self::$pdoInstance[$this->database]->FETCH_LAZY
         ) : $this->result;
     }
 
@@ -146,7 +146,7 @@ class PHPDBConnect extends DBConnect
     {
         global $screenOut;
         $output = is_array($outputIn) || is_object($outputIn) ? json_encode(
-          $outputIn
+            $outputIn
         ) : $outputIn;
         $type = addslashes($typeIn);
         if (isset($screenOut) && $screenOut) {
@@ -169,12 +169,12 @@ class PHPDBConnect extends DBConnect
                     $new_output[$key] = $this->sanitizeOutput($value);
                 } else {
                     $new_output[$key] = stripslashes(
-                      htmlentities(
-                        str_replace('\r', '', $value),
-                        ENT_HTML5,
-                        'UTF-8',
-                        false
-                      )
+                        htmlentities(
+                            str_replace('\r', '', $value),
+                            ENT_HTML5,
+                            'UTF-8',
+                            false
+                        )
                     );
                 }
             }
@@ -183,8 +183,8 @@ class PHPDBConnect extends DBConnect
         }
 
         return stripslashes(
-          htmlentities(str_replace('\r', '', $output), ENT_HTML5, 'UTF-8',
-            false)
+            htmlentities(str_replace('\r', '', $output), ENT_HTML5, 'UTF-8',
+                false)
         );
     }
 

@@ -7,7 +7,26 @@
       "email": "joshuaheagle@gmail.com"
     }
   ],
+  "autoload": {
+    "psr-4": {
+      "DesignerCms\\Controllers\\": "controllers/",
+      "DesignerCms\\Models\\": "models/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "DesignerCms\\Tests\\": "tests/"
+    }
+  },
+  "require": {
+    "php": "^7.2",
+    "guzzlehttp/guzzle": "~6.0"
+  },
   "require-dev": {
+    "codedungeon/phpunit-result-printer": "^0.23",
+    "fzaninotto/faker": "^1.8",
+    "mockery/mockery": "^1.2",
+    "phpunit/phpunit": "^7",
     "twig/twig": "^2.0"
   }
 }

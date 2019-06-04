@@ -1,6 +1,6 @@
 <?php
 
-require_once $DATABASE['DBConnect'];
+namespace DesignerCms\Models\Database;
 
 class AjaxDBConnect extends DBConnect
 {
@@ -54,9 +54,9 @@ class AjaxDBConnect extends DBConnect
         list($ex_type, $ex_query) = explode(':', $request, 2);
 
         return preg_match(
-            '/^(insert|update|delete|select)/',
-            $request
-          ) && $type === $ex_type && $query === $ex_query;
+                '/^(insert|update|delete|select)/',
+                $request
+            ) && $type === $ex_type && $query === $ex_query;
     }
 
     protected function queryValidation($queryRaw, $type)
@@ -67,7 +67,7 @@ class AjaxDBConnect extends DBConnect
     public function consoleOut($outputIn, $typeIn = 'DB')
     {
         $output = is_array($outputIn) || is_object($outputIn) ? json_encode(
-          $outputIn
+            $outputIn
         ) : $outputIn;
         $type = addslashes($typeIn);
         if (!headers_sent()) {
@@ -85,12 +85,12 @@ class AjaxDBConnect extends DBConnect
                     $new_output[$key] = $this->sanitizeOutput($value);
                 } else {
                     $new_output[$key] = stripslashes(
-                      htmlentities(
-                        str_replace('\r', '', $value),
-                        ENT_HTML5,
-                        'UTF-8',
-                        false
-                      )
+                        htmlentities(
+                            str_replace('\r', '', $value),
+                            ENT_HTML5,
+                            'UTF-8',
+                            false
+                        )
                     );
                 }
             }
@@ -99,8 +99,8 @@ class AjaxDBConnect extends DBConnect
         }
 
         return stripslashes(
-          htmlentities(str_replace('\r', '', $output), ENT_HTML5, 'UTF-8',
-            false)
+            htmlentities(str_replace('\r', '', $output), ENT_HTML5, 'UTF-8',
+                false)
         );
     }
 

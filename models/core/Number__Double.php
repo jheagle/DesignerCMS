@@ -1,9 +1,6 @@
 <?php
 
-if (!class_exists('DataType')) {
-    $currentFile = basename(__FILE__, '.php');
-    exit("Core 'DataType' Undefined. '{$currentFile}' must not be called directly.");
-}
+namespace DesignerCms\Models\Core;
 
 class Decimal_DT extends Number_DT
 {
@@ -21,13 +18,13 @@ class Decimal_DT extends Number_DT
     {
         parent::__construct($value, $settings);
         $settings = array_merge(
-          [
-            'precision' => 65,
-            'scale' => 50,
-            'length' => 0,
-            'isSigned' => true,
-          ],
-          $settings
+            [
+                'precision' => 65,
+                'scale' => 50,
+                'length' => 0,
+                'isSigned' => true,
+            ],
+            $settings
         );
         self::setPrecision($settings['precision']);
         self::setScale($settings['scale']);
@@ -94,14 +91,14 @@ class Decimal_DT extends Number_DT
         $numParts[1] = substr($numParts[1], 0, $this->scale);
 
         $removeDigits = strlen($numParts[0]) + strlen(
-            $numParts[1]
-          ) - $this->precision;
+                $numParts[1]
+            ) - $this->precision;
         if ($removeDigits > 0) {
             $valueChange = true;
             $numParts[0] = substr($numParts[0], $removeDigits);
         }
 
-        return parent::setValue($prefix.implode('.', $numParts));
+        return parent::setValue($prefix . implode('.', $numParts));
     }
 
 }

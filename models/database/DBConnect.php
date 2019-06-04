@@ -1,9 +1,10 @@
 <?php
 
-if (!isset($ROOT)) {
-    $ROOT = dirname(__DIR__);
-}
-require_once $ROOT.'/global_include.php';
+namespace DesignerCms\Models\Database;
+
+use DesignerCms\Models\Core\Potential;
+use PDO;
+use PDOException;
 
 abstract class DBConnect implements Potential
 {
@@ -28,6 +29,24 @@ abstract class DBConnect implements Potential
 
     protected function __construct($settings)
     {
+        $localHosts = ['127.0.0.1', '::1'];
+        if (in_array($_SERVER['SERVER_ADDR'], $localHosts, true) && in_array(
+                $_SERVER['REMOTE_ADDR'],
+                $localHosts,
+                true
+            )) {
+            //    header('Content-Type: application/json'); This is my debuggin trick, but if I have xdebug then this ruins it
+            $testing = true;
+            $production = false;
+        }
+
+        if (!isset($username)) {
+            $username = 'root';
+        }
+
+        if (!isset($hostname)) {
+            $hostname = 'localhost';
+        }
         extract($settings);
         if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password) && $production) {
             global $RESOURCES;
@@ -43,9 +62,9 @@ abstract class DBConnect implements Potential
         try {
             if (empty(self::$pdoInstance[$database])) {
                 self::$pdoInstance[$database] = new PDO(
-                  "mysql:host={$hostname};dbname={$database}",
-                  $username,
-                  $password
+                    "mysql:host={$hostname};dbname={$database}",
+                    $username,
+                    $password
                 );
             }
             if ($testing || !$production) {
@@ -71,16 +90,16 @@ abstract class DBConnect implements Potential
     {
         $args = func_get_args();
         $default_args = [
-          'string' => [
-            'hostname' => 'localhost',
-            'database' => '',
-            'username' => 'root',
-            'password' => '',
-          ],
-          'boolean' => [
-            'testing' => false,
-            'production' => true,
-          ],
+            'string' => [
+                'hostname' => 'localhost',
+                'database' => '',
+                'username' => 'root',
+                'password' => '',
+            ],
+            'boolean' => [
+                'testing' => false,
+                'production' => true,
+            ],
         ];
         $settings = [];
         if (count($args) === 1 and is_array($args[0])) {
@@ -117,22 +136,22 @@ abstract class DBConnect implements Potential
     public function __call($name, $arguments)
     {
         return (!method_exists($this, $name) && method_exists(
-            self::$pdoInstance[$this->database],
-            $name
-          )) ? call_user_func_array(
-          [self::$pdoInstance[$this->database], $name],
-          $arguments
+                self::$pdoInstance[$this->database],
+                $name
+            )) ? call_user_func_array(
+            [self::$pdoInstance[$this->database], $name],
+            $arguments
         ) : false;
     }
 
     public static function __callStatic($name, $arguments)
     {
-        return (!method_exists($this, $name) && method_exists(
-            self::$pdoInstance[$this->database],
-            $name
-          )) ? call_user_func_array(
-          [self::$pdoInstance[$this->database], $name],
-          $arguments
+        return (!method_exists(DBConnect, $name) && method_exists(
+                self::$pdoInstance[static::database],
+                $name
+            )) ? call_user_func_array(
+            [self::$pdoInstance[static::database], $name],
+            $arguments
         ) : false;
     }
 
@@ -140,8 +159,8 @@ abstract class DBConnect implements Potential
     {
         $count = 0;
         $query = empty($queryRaw) ? $this->query : $this->queryValidation(
-          $queryRaw,
-          $type
+            $queryRaw,
+            $type
         );
         if (empty($query)) {
             return;
@@ -179,8 +198,8 @@ abstract class DBConnect implements Potential
     protected function query($queryRaw = '', $type = 'select')
     {
         $query = empty($queryRaw) ? $this->query : $this->queryValidation(
-          $queryRaw,
-          $type
+            $queryRaw,
+            $type
         );
         if (empty($query)) {
             return;
@@ -188,7 +207,7 @@ abstract class DBConnect implements Potential
         try {
             if ($queryRaw === $this->queryRaw && isset(self::$pdoInstance[$this->database])) {
                 $this->result = self::$pdoInstance[$this->database]->query(
-                  $this->query
+                    $this->query
                 );
             }
             if ($this->testing || !$this->production) {
@@ -230,16 +249,16 @@ abstract class DBConnect implements Potential
             foreach ($input as $key => $value) {
                 if (is_array($value)) {
                     $new_input[$key] = $this->sanitizeInput(
-                      $value,
-                      $escape,
-                      $type[$key]
+                        $value,
+                        $escape,
+                        $type[$key]
                     );
                 } else {
                     $value = html_entity_decode($value, ENT_HTML5, 'UTF-8');
                     $new_input[$key] = filterVarType(
-                      $value,
-                      $escape,
-                      $type[$key]
+                        $value,
+                        $escape,
+                        $type[$key]
                     );
                 }
             }
@@ -291,8 +310,8 @@ abstract class DBConnect implements Potential
     public function camelToUnderscore($input)
     {
         return ltrim(
-          strtolower(preg_replace('/[A-Z0-9]/', '_$0', $input)),
-          '_'
+            strtolower(preg_replace('/[A-Z0-9]/', '_$0', $input)),
+            '_'
         );
     }
 
@@ -306,14 +325,14 @@ abstract class DBConnect implements Potential
         $string = '';
         foreach (get_object_vars($this) as $k => $v) {
             if (empty($string)) {
-                $string = __CLASS__.'( ';
+                $string = __CLASS__ . '( ';
             } else {
                 $string .= ', ';
             }
             $string .= "{$k}: {$v}";
         }
 
-        return $string.' )';
+        return $string . ' )';
     }
 
 }
@@ -355,25 +374,25 @@ class UnitTest implements Potential
         if (strpos($filename, 'utest') === false) {
             $this->origFiles[$filename] = $filename;
             $this->copyFiles[$filename] = preg_replace(
-              '/\\.[^.\\s]{3,4}$/',
-              '.utest.php',
-              $filename
+                '/\\.[^.\\s]{3,4}$/',
+                '.utest.php',
+                $filename
             );
             if (!copy(
-              $this->origFiles[$filename],
-              $this->copyFiles[$filename]
+                $this->origFiles[$filename],
+                $this->copyFiles[$filename]
             )) {
                 $this->db->consoleOut(
-                  "~!Failed to Copy File: [{$filename}]!~",
-                  'PHP'
+                    "~!Failed to Copy File: [{$filename}]!~",
+                    'PHP'
                 );
             } else {
                 $this->db->consoleOut(
-                  "Created File Copy: [{$filename}]",
-                  'PHP'
+                    "Created File Copy: [{$filename}]",
+                    'PHP'
                 );
             }
-            header('Location: '.basename($this->copyFiles[$filename]));
+            header('Location: ' . basename($this->copyFiles[$filename]));
             die();
         }
     }
@@ -384,10 +403,10 @@ class UnitTest implements Potential
             self::$instance = null;
             foreach ($this->copyFiles as &$file) {
                 $this->db->consoleOut(
-                  unlink(
-                    $file
-                  ) ? "Removed File: [{$file}]" : "~!Failed to Remove File: [{$file}]!~",
-                  'PHP'
+                    unlink($file)
+                        ? "Removed File: [{$file}]"
+                        : "~!Failed to Remove File: [{$file}]!~",
+                    'PHP'
                 );
                 unset($file);
             }
@@ -416,12 +435,12 @@ class UnitTest implements Potential
                     $new_output[$key] = $this->{$property}[$key];
                 } else {
                     $new_output[$key] = stripslashes(
-                      htmlentities(
-                        str_replace('\r', '', $value),
-                        ENT_HTML5,
-                        'UTF-8',
-                        false
-                      )
+                        htmlentities(
+                            str_replace('\r', '', $value),
+                            ENT_HTML5,
+                            'UTF-8',
+                            false
+                        )
                     );
                 }
             }
@@ -430,12 +449,12 @@ class UnitTest implements Potential
         }
 
         return stripslashes(
-          htmlentities(
-            str_replace('\r', '', $this->{$property}),
-            ENT_HTML5,
-            'UTF-8',
-            false
-          )
+            htmlentities(
+                str_replace('\r', '', $this->{$property}),
+                ENT_HTML5,
+                'UTF-8',
+                false
+            )
         );
     }
 
@@ -448,26 +467,26 @@ class UnitTest implements Potential
             $new_input = [];
             foreach ($input as $key => $value) {
                 $new_input[$key] = addslashes(
-                  html_entity_decode(trim($value), ENT_HTML5, 'UTF-8')
+                    html_entity_decode(trim($value), ENT_HTML5, 'UTF-8')
                 );
             }
             $this->{$property} = $new_input;
         }
         $this->{$property} = addslashes(
-          html_entity_decode(trim($input), ENT_HTML5, 'UTF-8')
+            html_entity_decode(trim($input), ENT_HTML5, 'UTF-8')
         );
     }
 
     public function traceProcesses()
     {
-        echo '<br/>CLASS: '.__CLASS__;
-        echo '<br/>DIR: '.__DIR__;
-        echo '<br/>FILE: '.__FILE__;
-        echo '<br/>FUNCTION: '.__FUNCTION__;
-        echo '<br/>LINE: '.__LINE__;
-        echo '<br/>METHOD: '.__METHOD__;
-        echo '<br/>NAMESPACE: '.__NAMESPACE__;
-        echo '<br/>TRAIT: '.__TRAIT__;
+        echo '<br/>CLASS: ' . __CLASS__;
+        echo '<br/>DIR: ' . __DIR__;
+        echo '<br/>FILE: ' . __FILE__;
+        echo '<br/>FUNCTION: ' . __FUNCTION__;
+        echo '<br/>LINE: ' . __LINE__;
+        echo '<br/>METHOD: ' . __METHOD__;
+        echo '<br/>NAMESPACE: ' . __NAMESPACE__;
+        echo '<br/>TRAIT: ' . __TRAIT__;
     }
 
     private function __clone()
@@ -480,14 +499,14 @@ class UnitTest implements Potential
         $string = '';
         foreach (get_object_vars($this) as $k => $v) {
             if (empty($string)) {
-                $string = __CLASS__.'( ';
+                $string = __CLASS__ . '( ';
             } else {
                 $string .= ', ';
             }
             $string .= "{$k}: {$v}";
         }
 
-        return $string.' )';
+        return $string . ' )';
     }
 
 }

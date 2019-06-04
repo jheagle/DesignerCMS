@@ -1,9 +1,6 @@
 <?php
 
-if (!class_exists('DataType')) {
-    $currentFile = basename(__FILE__, '.php');
-    exit("Core 'DataType' Undefined. '{$currentFile}' must not be called directly.");
-}
+namespace DesignerCms\Models\Core;
 
 class BigInt_DT extends Number_DT
 {
@@ -22,11 +19,11 @@ class BigInt_DT extends Number_DT
     {
         parent::__construct($value, $settings);
         $settings = array_merge(
-          [
-            'length' => 0,
-            'isSigned' => true,
-          ],
-          $settings
+            [
+                'length' => 0,
+                'isSigned' => true,
+            ],
+            $settings
         );
         self::setMin();
         self::setMax();
@@ -73,15 +70,15 @@ class BigInt_DT extends Number_DT
     {
         $this->isNegative = strstr($value, '-') && $this->isSigned;
         $this->valueSplit = array_filter(
-          parent::setPreservedValue($value),
-          function ($key) {
-              return $key >= 0;
-          },
-          ARRAY_FILTER_USE_KEY
+            parent::setPreservedValue($value),
+            function ($key) {
+                return $key >= 0;
+            },
+            ARRAY_FILTER_USE_KEY
         );
         $value = count($this->valueSplit) < 2 && !array_key_exists(
-          -1,
-          $this->valueSplit
+            -1,
+            $this->valueSplit
         ) ? (int)$this->getPreservedValue() : $this->getPreservedValue();
         if (($this->bits > self::$systemMaxBits || !$this->isSigned) && ($value > $this->max || $value < $this->min)) {
 

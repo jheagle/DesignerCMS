@@ -1,11 +1,29 @@
 <?php
+require 'vendor/autoload.php';
 
-if (!isset($ROOT)) {
-    $ROOT = dirname(__DIR__);
+use DesignerCms\Models\Core\Int_DT;
+use DesignerCms\Models\Core\VarChar_DT;
+use DesignerCms\Models\Database\PHPDBConnect;
+use DesignerCms\Models\Entity\Field;
+
+$localHosts = ['127.0.0.1', '::1'];
+if (in_array($_SERVER['SERVER_ADDR'], $localHosts, true) && in_array(
+        $_SERVER['REMOTE_ADDR'],
+        $localHosts,
+        true
+    )) {
+    //    header('Content-Type: application/json'); This is my debuggin trick, but if I have xdebug then this ruins it
+    $testing = true;
+    $production = false;
 }
-require_once $ROOT . '/global_include.php';
-require_once $DATABASE['DBConnect__PHP'];
-require_once $ENTITY['Entity'];
+
+if (!isset($username)) {
+    $username = 'root';
+}
+
+if (!isset($hostname)) {
+    $hostname = 'localhost';
+}
 
 $db = PHPDBConnect::instantiateDB('', '', '', '', $testing, $production);
 

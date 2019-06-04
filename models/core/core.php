@@ -1,5 +1,7 @@
 <?php
 
+namespace DesignerCms\Models\Core;
+
 interface Potential
 {
 
