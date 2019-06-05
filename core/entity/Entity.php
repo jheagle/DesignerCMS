@@ -1,9 +1,9 @@
 <?php
 
-namespace DesignerCms\Models\Entity;
+namespace Core\Entity;
 
-use DesignerCms\Models\Core\Potential;
-use DesignerCms\Models\Utilities\Comparable;
+use Core\DataTypes\Potential;
+use Core\Utilities\Comparable;
 
 interface EntityObject extends Potential, Comparable
 {

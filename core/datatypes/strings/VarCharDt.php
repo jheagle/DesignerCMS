@@ -1,45 +1,13 @@
 <?php
 
-namespace DesignerCms\Models\Core;
+namespace Core\DataTypes\Strings;
 
-class String_DT extends DataType
-{
-
-    protected $primitiveType = 'string';
-
-    protected static $charSet;
-
-    /**
-     *
-     * @param type $value
-     * @param type $settings
-     */
-    public function __construct($value, $settings = [])
-    {
-        parent::__construct($value, $settings);
-        $settings = array_merge(
-            [
-                'charSet' => 'UTF-8',
-            ],
-            $settings
-        );
-        self::$charSet = $settings['charSet'];
-        self::setValue($this->value);
-    }
-
-    public function getValue()
-    {
-        return $this->value;
-    }
-
-    public function setValue($value)
-    {
-        $this->value = mb_convert_encoding($value, self::$charSet);
-    }
-
-}
-
-class VarChar_DT extends String_DT
+/**
+ * Class VarCharDt
+ *
+ * @package Core\DataTypes\Strings
+ */
+class VarCharDt extends StringDt
 {
 
     protected $min;
@@ -107,36 +75,6 @@ class VarChar_DT extends String_DT
     {
         $value = substr($value, 0, $this->length);
         $this->value = $value;
-    }
-
-}
-
-class Char_DT extends VarChar_DT
-{
-
-    protected $bits = 8;
-
-    public function __construct($value, $settings = [])
-    {
-        parent::__construct($value, $settings);
-        $settings = array_merge(
-            [
-                'length' => null,
-                'charSet' => 'UTF-8',
-            ],
-            $settings
-        );
-        self::setValue($this->value);
-    }
-
-    public function getValue()
-    {
-        return rtrim($this->value);
-    }
-
-    public function setValue($value)
-    {
-        $this->value = str_pad($value, $this->length, ' ', STR_PAD_RIGHT);
     }
 
 }

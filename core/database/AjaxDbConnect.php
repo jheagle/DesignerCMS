@@ -1,8 +1,8 @@
 <?php
 
-namespace DesignerCms\Models\Database;
+namespace Core\Database;
 
-class AjaxDBConnect extends DBConnect
+class AjaxDbConnect extends DbConnect
 {
 
     private $jsonResult;

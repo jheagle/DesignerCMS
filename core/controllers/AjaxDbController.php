@@ -1,10 +1,10 @@
 <?php
 
-use DesignerCms\Models\Database\AjaxDBConnect;
+use Core\Database\AjaxDbConnect;
 
 header('Content-Type: application/json');
 
-$db = AjaxDBConnect::instantiateDB('', '', '', '', true, false);
+$db = AjaxDbConnect::instantiateDB('', '', '', '', true, false);
 
 if (empty($_POST['DBQueries'])) {
     unset($db);

@@ -9,13 +9,26 @@
   ],
   "autoload": {
     "psr-4": {
-      "DesignerCms\\Controllers\\": "controllers/",
-      "DesignerCms\\Models\\": "models/"
+      "Core\\Controllers\\": "core/controllers/",
+      "Core\\Database\\": "core/database/",
+      "Core\\DataTypes\\": [
+        "core/datatypes/",
+        "core/datatypes/interfaces"
+      ],
+      "Core\\DataTypes\\Numbers\\": [
+        "core/datatypes/numbers/",
+        "core/datatypes/numbers/integers",
+        "core/datatypes/numbers/doubles"
+      ],
+      "Core\\DataTypes\\Strings\\": "core/datatypes/strings/",
+      "Core\\Entity\\": "core/entity/",
+      "Core\\Models\\": "core/models/",
+      "Core\\Utilities\\": "core/utilities/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "DesignerCms\\Tests\\": "tests/"
+      "Core\\Tests\\": "tests/"
     }
   },
   "require": {

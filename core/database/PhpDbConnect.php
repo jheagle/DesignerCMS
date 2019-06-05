@@ -1,8 +1,8 @@
 <?php
 
-namespace DesignerCms\Models\Database;
+namespace Core\Database;
 
-class PHPDBConnect extends DBConnect
+class PhpDbConnect extends DbConnect
 {
 
     protected function __construct($settings)

@@ -1,16 +1,6 @@
 <?php
 
-namespace DesignerCms\Models\Core;
-
-// Add add subtypes at bottom
-
-interface DataTypeObject extends Potential
-{
-
-    public function getValue();
-
-    public function setValue($value);
-}
+namespace Core\DataTypes;
 
 abstract class DataType implements DataTypeObject
 {
@@ -38,16 +28,21 @@ abstract class DataType implements DataTypeObject
         return $this->value = $value;
     }
 
-    public function isEqual($datatype)
+    /**
+     * @param mixed|DataType $datatype
+     *
+     * @return bool
+     */
+    public function isEqual($datatype): bool
     {
         if (is_a($datatype, 'DataType')) {
-            return $this->getValue() === $number->getValue();
+            return $this->getValue() === $datatype->getValue();
         }
 
         return $this->getValue() === $datatype;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         $string = '';
         foreach (get_object_vars($this) as $k => $v) {

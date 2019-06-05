@@ -1,6 +1,6 @@
 <?php
 
-namespace DesignerCms\Models\Utilities;
+namespace Core\Utilities;
 
 interface Comparable
 {

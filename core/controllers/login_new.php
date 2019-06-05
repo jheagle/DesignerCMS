@@ -4,7 +4,7 @@ if (!empty($_POST)) {
     if (!isset($ROOT)) {
         $ROOT = dirname(__DIR__);
     }
-    require_once $ROOT.'/global_include.php';
+    require_once $ROOT . '/global_include.php';
 
     session_start();
     $message = '';

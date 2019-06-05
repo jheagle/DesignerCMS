@@ -1,9 +1,10 @@
 <?php
 
-namespace DesignerCms\Models\Entity;
+namespace Core\Entity;
 
-use DesignerCms\Models\Core\Number_DT;
-use DesignerCms\Models\Core\Potential;
+use Core\DataTypes\DataType;
+use Core\DataTypes\Numbers\NumberDt;
+use Core\DataTypes\Potential;
 
 class Field implements Potential
 {
@@ -28,12 +29,16 @@ class Field implements Potential
 
     const FULLTEXT = 512;
 
+    /** @var string $name */
     protected $name;
 
-    protected $dataType;
+    /** @var null|DataType $dataType */
+    protected $dataType = null;
 
+    /** @var int $attributes */
     protected $attributes;
 
+    /** @var mixed $default */
     protected $default;
 
     public function __construct(
@@ -48,7 +53,7 @@ class Field implements Potential
         if ($this->hasAttr(self::ZERO_FILL)) {
             $this->attributes |= self::UNSIGNED;
         }
-        $dataTypeClassName = '\DesignerCms\Models\Core\\' . ucwords(strtolower($dataType)) . '_DT';
+        $dataTypeClassName = '\Core\DataTypes\Numbers\\' . $dataType . 'Dt';
         $this->dataType = new $dataTypeClassName(
             $default,
             ['length' => $length, 'isSigned' => !$this->hasAttr(self::UNSIGNED)]
@@ -58,7 +63,7 @@ class Field implements Potential
 
     public function getValue()
     {
-        if ($this->dataType instanceof Number_DT && property_exists(
+        if ($this->dataType instanceof NumberDt && property_exists(
                 get_class($this->dataType),
                 'length'
             ) && $this->hasAttr(self::ZERO_FILL)) {
@@ -83,7 +88,7 @@ class Field implements Potential
         return self::hasAttr($attr);
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         $string = '';
         foreach (get_object_vars($this) as $k => $v) {

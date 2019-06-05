@@ -1,8 +1,8 @@
 <?php
 
-namespace DesignerCms\Models\Core;
+namespace Core\DataTypes\Numbers;
 
-class BigInt_DT extends Number_DT
+class BigIntDt extends NumberDt
 {
 
     protected $primitiveType = 'int';
@@ -121,54 +121,6 @@ class BigInt_DT extends Number_DT
         }
 
         return $this->value = (int)$value;
-    }
-
-}
-
-class Int_DT extends BigInt_DT
-{
-
-    protected $bits = 32;
-
-    public function __construct($value = 0, $settings = [])
-    {
-        parent::__construct($value, $settings);
-    }
-
-}
-
-class MediumInt_DT extends BigInt_DT
-{
-
-    protected $bits = 24;
-
-    public function __construct($value = 0, $settings = [])
-    {
-        parent::__construct($value, $settings);
-    }
-
-}
-
-class SmallInt_DT extends BigInt_DT
-{
-
-    protected $bits = 16;
-
-    public function __construct($value = 0, $settings = [])
-    {
-        parent::__construct($value, $settings);
-    }
-
-}
-
-class TinyInt_DT extends BigInt_DT
-{
-
-    protected $bits = 8;
-
-    public function __construct($value = 0, $settings = [])
-    {
-        parent::__construct($value, $settings);
     }
 
 }

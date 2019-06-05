@@ -1,6 +1,6 @@
 <?php
 
-namespace DesignerCms\Tests;
+namespace Core\Tests;
 
 use Faker\Factory;
 use Mockery;

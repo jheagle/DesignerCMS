@@ -1,8 +1,15 @@
 <?php
 
-namespace DesignerCms\Models\Core;
+namespace Core\DataTypes\Numbers;
 
-class Number_DT extends String_DT
+use Core\DataTypes\Strings\StringDt;
+
+/**
+ * Class NumberDt
+ *
+ * @package Core\DataTypes
+ */
+class NumberDt extends StringDt
 {
 
     protected $primitiveType = 'float';
@@ -187,7 +194,7 @@ class Number_DT extends String_DT
 
     public function modulo($number)
     {
-        if (is_a($number, 'Number_DT')) {
+        if (is_a($number, 'NumberDt')) {
             return $number->getValue() & ($number->getValue() - 1) || ($number->getValue() + 1) & $number->getValue() ? $this->getValue() % $number->getValue() : $this->getValue() & ($number->getValue() - 1);
         }
 
@@ -265,7 +272,7 @@ class Number_DT extends String_DT
 
     public function add($number)
     {
-        if (is_a($number, 'Number_DT')) {
+        if (is_a($number, 'NumberDt')) {
             $number = $number->getValue();
         }
 
@@ -274,7 +281,7 @@ class Number_DT extends String_DT
 
     public function subtract($number)
     {
-        if (is_a($number, 'Number_DT')) {
+        if (is_a($number, 'NumberDt')) {
             $number = $number->getValue();
         }
 
@@ -283,7 +290,7 @@ class Number_DT extends String_DT
 
     public function multiplyBy($number)
     {
-        if (is_a($number, 'Number_DT')) {
+        if (is_a($number, 'NumberDt')) {
             $number = $number->getValue();
         }
 
@@ -292,7 +299,7 @@ class Number_DT extends String_DT
 
     public function divideBy($number)
     {
-        if (is_a($number, 'Number_DT')) {
+        if (is_a($number, 'NumberDt')) {
             $number = $number->getValue();
         }
 
@@ -319,7 +326,7 @@ class Number_DT extends String_DT
     /**
      * Return the absolute value of the number being the distance from zero
      *
-     * @return type
+     * @return int
      */
     public function getAbsolute()
     {
@@ -333,9 +340,9 @@ class Number_DT extends String_DT
      * Get the inverse of this number (positive -> negative / negative ->
      * positive)
      *
-     * @param type $number
+     * @param int $number
      *
-     * @return type
+     * @return int
      */
     public function negate($number)
     {

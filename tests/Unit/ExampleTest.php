@@ -1,8 +1,8 @@
 <?php
 
-namespace DesignerCms\Tests\Unit;
+namespace Core\Tests\Unit;
 
-use DesignerCms\Tests\TestCase;
+use Core\Tests\TestCase;
 
 class ExampleTest extends TestCase
 {

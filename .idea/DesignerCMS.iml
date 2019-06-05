@@ -2,9 +2,18 @@
 <module type="WEB_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/models" isTestSource="false" packagePrefix="DesignerCms\Models\" />
-      <sourceFolder url="file://$MODULE_DIR$/controllers" isTestSource="false" packagePrefix="DesignerCms\Controllers\" />
-      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" packagePrefix="DesignerCms\Tests\" />
+      <sourceFolder url="file://$MODULE_DIR$/core/controllers" isTestSource="false" packagePrefix="Core\Controllers\" />
+      <sourceFolder url="file://$MODULE_DIR$/core/datatypes" isTestSource="false" packagePrefix="Core\DataTypes\" />
+      <sourceFolder url="file://$MODULE_DIR$/core/datatypes/numbers/integers" isTestSource="false" packagePrefix="Core\DataTypes\Numbers\" />
+      <sourceFolder url="file://$MODULE_DIR$/core/database" isTestSource="false" packagePrefix="Core\Database\" />
+      <sourceFolder url="file://$MODULE_DIR$/core/models" isTestSource="false" packagePrefix="Core\Models\" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" packagePrefix="Core\Tests\" />
+      <sourceFolder url="file://$MODULE_DIR$/core/datatypes/strings" isTestSource="false" packagePrefix="Core\DataTypes\Strings\" />
+      <sourceFolder url="file://$MODULE_DIR$/core/datatypes/interfaces" isTestSource="false" packagePrefix="Core\DataTypes\" />
+      <sourceFolder url="file://$MODULE_DIR$/core/utilities" isTestSource="false" packagePrefix="Core\Utilities\" />
+      <sourceFolder url="file://$MODULE_DIR$/core/entity" isTestSource="false" packagePrefix="Core\Entity\" />
+      <sourceFolder url="file://$MODULE_DIR$/core/datatypes/numbers" isTestSource="false" packagePrefix="Core\DataTypes\Numbers\" />
+      <sourceFolder url="file://$MODULE_DIR$/core/datatypes/numbers/doubles" isTestSource="false" packagePrefix="Core\DataTypes\Numbers\" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/2bj/phanybar" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/codedungeon/php-cli-colors" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/codedungeon/phpunit-result-printer" />

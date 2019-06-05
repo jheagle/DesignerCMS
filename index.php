@@ -1,10 +1,10 @@
 <?php
 require 'vendor/autoload.php';
 
-use DesignerCms\Models\Core\Int_DT;
-use DesignerCms\Models\Core\VarChar_DT;
-use DesignerCms\Models\Database\PHPDBConnect;
-use DesignerCms\Models\Entity\Field;
+use Core\DataTypes\Numbers\IntDt;
+use Core\DataTypes\Strings\VarCharDt;
+use Core\Database\PhpDbConnect;
+use Core\Entity\Field;
 
 $localHosts = ['127.0.0.1', '::1'];
 if (in_array($_SERVER['SERVER_ADDR'], $localHosts, true) && in_array(
@@ -28,13 +28,13 @@ if (!isset($hostname)) {
 $db = PHPDBConnect::instantiateDB('', '', '', '', $testing, $production);
 
 $value = 'Hello';
-$datatype = new VarChar_DT($value, ['length' => 100]);
+$datatype = new VarCharDt($value, ['length' => 100]);
 var_dump($datatype);
 var_dump($datatype->getValue());
 
 $value = 128;
 $testValue = 32;
-$integer = new Int_DT($value, ['length' => 0, 'isSigned' => false]);
+$integer = new IntDt($value, ['length' => 0, 'isSigned' => false]);
 var_dump($integer);
 var_dump($integer->getValue());
 var_dump($testValue);

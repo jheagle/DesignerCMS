@@ -1,8 +1,13 @@
 <?php
 
-namespace DesignerCms\Models\Core;
+namespace Core\DataTypes\Numbers;
 
-class Decimal_DT extends Number_DT
+/**
+ * Class DecimalDt
+ *
+ * @package Core\DataTypes\Numbers
+ */
+class DecimalDt extends NumberDt
 {
 
     protected $precision;
@@ -11,10 +16,10 @@ class Decimal_DT extends Number_DT
 
     /**
      *
-     * @param type $value
-     * @param type $settings
+     * @param mixed|number $value
+     * @param array $settings
      */
-    public function __construct($value = 0, $settings = [])
+    public function __construct($value = 0, array $settings = [])
     {
         parent::__construct($value, $settings);
         $settings = array_merge(
@@ -33,9 +38,9 @@ class Decimal_DT extends Number_DT
 
     /**
      *
-     * @param type $precision
+     * @param int $precision
      */
-    protected function setPrecision($precision)
+    protected function setPrecision(int $precision)
     {
         if ($precision < 0) {
             $precision = 0;
@@ -47,9 +52,9 @@ class Decimal_DT extends Number_DT
 
     /**
      *
-     * @param type $scale
+     * @param int $scale
      */
-    protected function setScale($scale)
+    protected function setScale(int $scale)
     {
         if ($scale < 0) {
             $scale = 0;
@@ -63,7 +68,7 @@ class Decimal_DT extends Number_DT
 
     /**
      *
-     * @return type
+     * @return number
      */
     public function getValue()
     {
@@ -72,9 +77,9 @@ class Decimal_DT extends Number_DT
 
     /**
      *
-     * @param type $value
+     * @param number $value
      *
-     * @return type
+     * @return number
      */
     public function setValue($value)
     {
@@ -99,26 +104,6 @@ class Decimal_DT extends Number_DT
         }
 
         return parent::setValue($prefix . implode('.', $numParts));
-    }
-
-}
-
-class Double_DT extends Decimal_DT
-{
-
-    public function __construct($value = 0, $settings = [])
-    {
-        parent::__construct($value, $settings);
-    }
-
-}
-
-class Float_DT extends Decimal_DT
-{
-
-    public function __construct($value = 0, $settings = [])
-    {
-        parent::__construct($value, $settings);
     }
 
 }
