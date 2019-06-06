@@ -14,14 +14,13 @@ class CharDt extends VarCharDt
 
     public function __construct($value, $settings = [])
     {
-        parent::__construct($value, $settings);
-        $settings = array_merge(
+        parent::__construct($value, array_merge(
             [
                 'length' => null,
                 'charSet' => 'UTF-8',
             ],
             $settings
-        );
+        ));
         self::setValue($this->value);
     }
 

@@ -12,9 +12,9 @@ use Core\DataTypes\DataType;
 class StringDt extends DataType
 {
 
-    protected $primitiveType = 'string';
-
     protected static $charSet;
+
+    protected $primitiveType = 'string';
 
     /**
      *
@@ -23,14 +23,12 @@ class StringDt extends DataType
      */
     public function __construct($value, array $settings = [])
     {
-        parent::__construct($value, $settings);
-        $settings = array_merge(
+        parent::__construct($value, array_merge(
             [
                 'charSet' => 'UTF-8',
             ],
             $settings
-        );
-        self::$charSet = $settings['charSet'];
+        ));
         self::setValue($this->value);
     }
 

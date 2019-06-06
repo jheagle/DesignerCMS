@@ -2,19 +2,27 @@
 
 namespace Core\DataTypes;
 
+/**
+ * Class DataType
+ *
+ * @package Core\DataTypes
+ */
 abstract class DataType implements DataTypeObject
 {
 
+    /** @var mixed $value */
     protected $value;
 
+    /** @var string $primitiveType */
     protected $primitiveType = 'object';
 
+    /** @var int $systemMaxBits */
     protected static $systemMaxBits;
 
     public function __construct($value, $settings = [])
     {
-        $settings = array_merge([], $settings);
         self::$systemMaxBits = PHP_INT_SIZE << 3;
+        $this->applyPropertySettings($settings);
         $this->value = $value;
     }
 
@@ -61,4 +69,20 @@ abstract class DataType implements DataTypeObject
         return $string . ' )';
     }
 
+    private function applyPropertySettings(array $settings = [])
+    {
+        // Retrieve all the properties of this class so they can be populated lazily
+        foreach (get_class_vars(__CLASS__) as $classMemberName => $default) {
+            // Set this property to the incoming form data otherwise, use the default value
+            $newClassMemberValue = is_array($default)
+                ? $default + $settings[$classMemberName] ?? []
+                : $settings[$classMemberName] ?? $default;
+            if (isset(self::$$classMemberName)) {
+                // Set default static value
+                self::$$classMemberName = $newClassMemberValue;
+            } else {
+                $this->{$classMemberName} = $newClassMemberValue;
+            }
+        }
+    }
 }

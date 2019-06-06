@@ -2,44 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="656ded91-ef46-4a01-a89c-39b83439ef38" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/core/database/UnitTest.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/datatypes/interfaces/DataTypeObject.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/datatypes/interfaces/Potential.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/datatypes/numbers/doubles/DoubleDt.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/datatypes/numbers/doubles/FloatDt.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/datatypes/numbers/integers/IntDt.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/datatypes/numbers/integers/MediumIntDt.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/datatypes/numbers/integers/SmallIntDt.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/datatypes/numbers/integers/TinyIntDt.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/datatypes/strings/CharDt.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/datatypes/strings/StringDt.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/DesignerCMS.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/DesignerCMS.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/account/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/account/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/admin/loc-admin.html" beforeDir="false" afterPath="$PROJECT_DIR$/admin/loc-admin.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/account.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/controllers/account.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/controllers/admin.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/ajaxDBController.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/controllers/AjaxDbController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/loc-admin.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/controllers/loc-admin.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/controllers/login.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/login_new.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/controllers/login_new.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/login.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/core/DataType.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/DataType.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/core/Number.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/core/Number__Double.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/numbers/doubles/DecimalDt.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/core/Number__Integer.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/core/String.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/strings/VarCharDt.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/core/core.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/database/DBConnect.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/database/DbConnect.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/database/DBConnect__AJAX.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/database/AjaxDbConnect.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/database/DBConnect__PHP.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/database/PhpDbConnect.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/entity/Entity.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/entity/Entity.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/entity/Field.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/entity/Field.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/utilities/utilities.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/utilities/interfaces/Comparable.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/TestCase.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/TestCase.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/ExampleTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/ExampleTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/datatypes/DataType.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/DataType.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/datatypes/strings/CharDt.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/strings/CharDt.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/datatypes/strings/StringDt.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/strings/StringDt.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/datatypes/strings/VarCharDt.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/strings/VarCharDt.php" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -69,42 +38,30 @@
     <select />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="composer.json" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/composer.json">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="VarCharDt.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/datatypes/strings/VarCharDt.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="292">
-              <caret line="23" column="19" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="19" />
+            <state relative-caret-position="47">
+              <caret line="28" column="11" selection-start-line="28" selection-start-column="11" selection-end-line="28" selection-end-column="11" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DbConnect.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/database/DbConnect.php">
+      <file leaf-file-name="NumberDt.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="168">
-              <caret line="8" column="39" selection-start-line="8" selection-start-column="39" selection-end-line="8" selection-end-column="39" />
-              <folding>
-                <element signature="e#33#62#0#PHP" expanded="true" />
-              </folding>
+            <state relative-caret-position="379">
+              <caret line="34" column="11" selection-start-line="34" selection-start-column="11" selection-end-line="34" selection-end-column="11" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="StringDt.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/datatypes/strings/StringDt.php">
+      <file leaf-file-name="CharDt.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/datatypes/strings/CharDt.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="84">
-              <caret line="4" column="27" selection-start-line="4" selection-start-column="27" selection-end-line="4" selection-end-column="27" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DataType.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/datatypes/DataType.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="244">
-              <caret line="31" column="29" selection-start-line="31" selection-start-column="29" selection-end-line="31" selection-end-column="29" />
+            <state relative-caret-position="223">
+              <caret line="18" column="32" lean-forward="true" selection-start-line="18" selection-start-column="32" selection-end-line="18" selection-end-column="32" />
             </state>
           </provider>
         </entry>
@@ -112,29 +69,62 @@
       <file leaf-file-name="BigIntDt.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="707">
-              <caret line="125" column="1" selection-start-line="125" selection-start-column="1" selection-end-line="125" selection-end-column="1" />
+            <state relative-caret-position="222">
+              <caret line="25" column="11" selection-start-line="25" selection-start-column="11" selection-end-line="25" selection-end-column="11" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/index.php">
+      <file leaf-file-name="IntDt.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/integers/IntDt.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-749">
-              <caret line="3" column="27" selection-start-line="3" selection-start-column="27" selection-end-line="3" selection-end-column="27" />
+            <state relative-caret-position="315">
+              <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Field.php" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/core/entity/Field.php">
+      <file leaf-file-name="MediumIntDt.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/integers/MediumIntDt.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="280">
-              <caret line="55" column="45" selection-start-line="55" selection-start-column="45" selection-end-line="55" selection-end-column="45" />
-              <folding>
-                <element signature="e#31#59#0#PHP" expanded="true" />
-              </folding>
+            <state>
+              <caret column="5" selection-start-column="5" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SmallIntDt.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/integers/SmallIntDt.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="5" selection-start-column="5" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TinyIntDt.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/integers/TinyIntDt.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="5" selection-start-column="5" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="StringDt.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/datatypes/strings/StringDt.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="176">
+              <caret line="16" column="40" selection-start-line="16" selection-start-column="40" selection-end-line="16" selection-end-column="40" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DecimalDt.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/doubles/DecimalDt.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1771">
+              <caret line="7" column="34" selection-start-line="7" selection-start-column="34" selection-end-line="7" selection-end-column="34" />
             </state>
           </provider>
         </entry>
@@ -162,6 +152,8 @@
       <find>DesignerCms</find>
       <find>Core\Models</find>
       <find>_DT</find>
+      <find>filter</find>
+      <find>Preserved</find>
     </findStrings>
     <replaceStrings>
       <replace>[$1]</replace>
@@ -181,6 +173,8 @@
     <dirStrings>
       <dir>$PROJECT_DIR$/models/dataTypes/numbers</dir>
       <dir>$PROJECT_DIR$</dir>
+      <dir>$PROJECT_DIR$/core</dir>
+      <dir>$PROJECT_DIR$/core/datatypes</dir>
     </dirStrings>
   </component>
   <component name="Git.Settings">
@@ -189,8 +183,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/models/entity/Entity.php" />
-        <option value="$PROJECT_DIR$/controllers/ajaxDBController.php" />
         <option value="$PROJECT_DIR$/controllers/entityTester.php" />
         <option value="$PROJECT_DIR$/models/database/DBConnect.php" />
         <option value="$PROJECT_DIR$/models/core/Number.php" />
@@ -225,21 +217,23 @@
         <option value="$PROJECT_DIR$/core/database/DBConnect.php" />
         <option value="$PROJECT_DIR$/core/database/UnitTest.php" />
         <option value="$PROJECT_DIR$/core/database/DbConnect.php" />
-        <option value="$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php" />
         <option value="$PROJECT_DIR$/core/datatypes/numbers/doubles/Number__Double.php" />
         <option value="$PROJECT_DIR$/core/datatypes/numbers/doubles/DecimalDt.php" />
         <option value="$PROJECT_DIR$/core/datatypes/numbers/doubles/DoubleDt.php" />
         <option value="$PROJECT_DIR$/core/datatypes/numbers/doubles/FloatDt.php" />
-        <option value="$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php" />
         <option value="$PROJECT_DIR$/core/datatypes/numbers/integers/MediumIntDt.php" />
         <option value="$PROJECT_DIR$/core/datatypes/numbers/integers/SmallIntDt.php" />
         <option value="$PROJECT_DIR$/core/datatypes/numbers/integers/IntDt.php" />
         <option value="$PROJECT_DIR$/core/datatypes/numbers/integers/TinyIntDt.php" />
         <option value="$PROJECT_DIR$/index.php" />
-        <option value="$PROJECT_DIR$/core/datatypes/strings/StringDt.php" />
-        <option value="$PROJECT_DIR$/core/datatypes/DataType.php" />
         <option value="$PROJECT_DIR$/composer.json" />
         <option value="$PROJECT_DIR$/core/entity/Field.php" />
+        <option value="$PROJECT_DIR$/core/datatypes/strings/CharDt.php" />
+        <option value="$PROJECT_DIR$/core/datatypes/DataType.php" />
+        <option value="$PROJECT_DIR$/core/datatypes/strings/VarCharDt.php" />
+        <option value="$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php" />
+        <option value="$PROJECT_DIR$/core/datatypes/strings/StringDt.php" />
+        <option value="$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php" />
       </list>
     </option>
   </component>
@@ -318,6 +312,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -329,18 +324,6 @@
               <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
               <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="controllers" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="database" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
               <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
@@ -424,74 +407,10 @@
               <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
               <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
             </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="datatypes" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="datatypes" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="numbers" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="datatypes" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="numbers" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="doubles" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="datatypes" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="numbers" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="integers" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="entity" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -602,11 +521,13 @@
       <workItem from="1559525715256" duration="2634000" />
       <workItem from="1559598831332" duration="2986000" />
       <workItem from="1559647809607" duration="3437000" />
+      <workItem from="1559740558162" duration="617000" />
+      <workItem from="1559784191200" duration="7076000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="18305000" />
+    <option name="totallyTimeSpent" value="26169000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
@@ -615,41 +536,28 @@
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Run" order="2" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.32" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Terminal" order="7" visible="true" weight="0.31151515" />
       <window_info anchor="right" id="Remote Host" order="3" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24248926" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24606581" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="right" id="Remote Host" order="3" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23891273" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" />
-      <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
-      <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
-      <window_info anchor="bottom" id="Terminal" order="7" visible="true" weight="0.32969698" />
-      <window_info id="Favorites" order="2" side_tool="true" />
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Remote Host" order="3" />
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23891273" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -657,6 +565,7 @@
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Version Control" order="10" />
+      <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" id="Database" order="4" />
@@ -664,9 +573,8 @@
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="11" show_stripe_button="false" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info id="Favorites" order="2" side_tool="true" />
     </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -804,9 +712,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="273">
           <caret line="13" column="6" selection-start-line="13" selection-start-column="6" selection-end-line="13" selection-end-column="6" />
-          <folding>
-            <element signature="e#37#55#0#PHP" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -842,24 +747,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/datatypes/strings/CharDt.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="294">
-          <caret line="14" column="46" selection-start-line="14" selection-start-column="46" selection-end-line="14" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/utilities/interfaces/Comparable.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="42">
           <caret line="2" column="24" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/datatypes/interfaces/Potential.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="199">
-          <caret line="10" column="1" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
         </state>
       </provider>
     </entry>
@@ -884,20 +775,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/datatypes/interfaces/DataTypeObject.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="42">
-          <caret line="2" column="24" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7182">
-          <caret line="342" column="25" selection-start-line="342" selection-start-column="25" selection-end-line="342" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/doubles/FloatDt.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="336">
@@ -905,17 +782,86 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/doubles/DoubleDt.php">
+    <entry file="file://$PROJECT_DIR$/core/database/PhpDbConnect.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="378">
-          <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
+        <state relative-caret-position="126">
+          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/doubles/DecimalDt.php">
+    <entry file="file://$PROJECT_DIR$/core/entity/Entity.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="21">
+          <caret line="4" column="4" lean-forward="true" selection-start-line="4" selection-start-column="4" selection-end-line="4" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/entity/Field.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1197">
+          <caret line="57" column="21" selection-start-line="57" selection-start-column="21" selection-end-line="57" selection-end-column="21" />
+          <folding>
+            <element signature="e#31#59#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/index.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="63">
+          <caret line="3" column="27" selection-start-line="3" selection-start-column="27" selection-end-line="3" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/database/DbConnect.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="8" column="39" selection-start-line="8" selection-start-column="39" selection-end-line="8" selection-end-column="39" />
+          <folding>
+            <element signature="e#33#62#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/composer.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret line="23" column="19" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/datatypes/interfaces/Potential.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="147">
-          <caret line="7" column="34" selection-start-line="7" selection-start-column="34" selection-end-line="7" selection-end-column="34" />
+          <caret line="7" column="25" lean-forward="true" selection-start-line="7" selection-start-column="25" selection-end-line="7" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/datatypes/interfaces/DataTypeObject.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="231">
+          <caret line="11" column="7" lean-forward="true" selection-start-line="11" selection-start-column="7" selection-end-line="11" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/datatypes/DataType.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="394">
+          <caret line="24" column="48" selection-start-line="24" selection-start-column="48" selection-end-line="24" selection-end-column="48" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/datatypes/strings/CharDt.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="223">
+          <caret line="18" column="32" lean-forward="true" selection-start-line="18" selection-start-column="32" selection-end-line="18" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/integers/IntDt.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
         </state>
       </provider>
     </entry>
@@ -940,89 +886,45 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/integers/IntDt.php">
+    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/doubles/DoubleDt.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
+        <state relative-caret-position="378">
+          <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/doubles/DecimalDt.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1771">
+          <caret line="7" column="34" selection-start-line="7" selection-start-column="34" selection-end-line="7" selection-end-column="34" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/datatypes/strings/VarCharDt.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1680">
-          <caret line="80" selection-start-line="80" selection-end-line="80" />
+        <state relative-caret-position="47">
+          <caret line="28" column="11" selection-start-line="28" selection-start-column="11" selection-end-line="28" selection-end-column="11" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="707">
-          <caret line="125" column="1" selection-start-line="125" selection-start-column="1" selection-end-line="125" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/database/PhpDbConnect.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="6" lean-forward="true" selection-start-line="6" selection-end-line="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/database/DbConnect.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="8" column="39" selection-start-line="8" selection-start-column="39" selection-end-line="8" selection-end-column="39" />
-          <folding>
-            <element signature="e#33#62#0#PHP" expanded="true" />
-          </folding>
+        <state relative-caret-position="222">
+          <caret line="25" column="11" selection-start-line="25" selection-start-column="11" selection-end-line="25" selection-end-column="11" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/datatypes/strings/StringDt.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="4" column="27" selection-start-line="4" selection-start-column="27" selection-end-line="4" selection-end-column="27" />
+        <state relative-caret-position="176">
+          <caret line="16" column="40" selection-start-line="16" selection-start-column="40" selection-end-line="16" selection-end-column="40" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/entity/Entity.php">
+    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="21">
-          <caret line="4" column="4" lean-forward="true" selection-start-line="4" selection-start-column="4" selection-end-line="4" selection-end-column="4" />
-          <folding>
-            <element signature="e#31#60#0#PHP" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/datatypes/DataType.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="244">
-          <caret line="31" column="29" selection-start-line="31" selection-start-column="29" selection-end-line="31" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/composer.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="292">
-          <caret line="23" column="19" selection-start-line="23" selection-start-column="19" selection-end-line="23" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/index.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-749">
-          <caret line="3" column="27" selection-start-line="3" selection-start-column="27" selection-end-line="3" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/entity/Field.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="55" column="45" selection-start-line="55" selection-start-column="45" selection-end-line="55" selection-end-column="45" />
-          <folding>
-            <element signature="e#31#59#0#PHP" expanded="true" />
-          </folding>
+        <state relative-caret-position="379">
+          <caret line="34" column="11" selection-start-line="34" selection-start-column="11" selection-end-line="34" selection-end-column="11" />
         </state>
       </provider>
     </entry>

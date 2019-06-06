@@ -17,14 +17,13 @@ class BigIntDt extends NumberDt
 
     public function __construct($value = 0, $settings = [])
     {
-        parent::__construct($value, $settings);
-        $settings = array_merge(
+        parent::__construct($value, array_merge(
             [
                 'length' => 0,
                 'isSigned' => true,
             ],
             $settings
-        );
+        ));
         self::setMin();
         self::setMax();
         self::setLength($settings['length']);

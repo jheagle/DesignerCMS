@@ -22,20 +22,19 @@ class NumberDt extends StringDt
 
     protected $valueSplit;
 
+    protected $filter = '/[^\d.]/';
+
     public function __construct($value = 0, $settings = [])
     {
-        parent::__construct($value, $settings);
-        $settings = array_merge(
+        parent::__construct($value, array_merge(
             [
                 'length' => 0,
                 'isSigned' => true,
             ],
             $settings
-        );
-        $this->isSigned = $settings['isSigned'];
-        $this->filter = '/[^0-9.]/';
+        ));
         self::setValue($this->value);
-        self::setLength($settings['length']);
+        self::setLength($this->length);
     }
 
     public function getLength()
