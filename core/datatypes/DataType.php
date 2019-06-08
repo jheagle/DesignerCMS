@@ -26,11 +26,19 @@ abstract class DataType implements DataTypeObject
         $this->value = $value;
     }
 
+    /**
+     * @return mixed
+     */
     public function getValue()
     {
         return $this->value;
     }
 
+    /**
+     * @param mixed $value
+     *
+     * @return mixed
+     */
     public function setValue($value)
     {
         return $this->value = $value;
@@ -50,6 +58,9 @@ abstract class DataType implements DataTypeObject
         return $this->getValue() === $datatype;
     }
 
+    /**
+     * @return string
+     */
     public function __toString(): string
     {
         $string = '';
@@ -69,6 +80,9 @@ abstract class DataType implements DataTypeObject
         return $string . ' )';
     }
 
+    /**
+     * @param array $settings
+     */
     private function applyPropertySettings(array $settings = [])
     {
         // Retrieve all the properties of this class so they can be populated lazily

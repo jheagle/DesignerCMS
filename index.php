@@ -1,10 +1,22 @@
 <?php
 require 'vendor/autoload.php';
 
+use Core\Database\PhpDbConnect;
 use Core\DataTypes\Numbers\IntDt;
 use Core\DataTypes\Strings\VarCharDt;
-use Core\Database\PhpDbConnect;
 use Core\Entity\Field;
+use Core\Utilities\Functional\Pure;
+
+function curryTest($one, $two, $three):string
+{
+    return "$one-$two-$three";
+}
+var_dump(curryTest('one', 'two', 'three'));
+$newCurry1 = Pure::curry('curryTest')('one');
+var_dump($newCurry1);
+$newCurry2 = $newCurry1('two');
+var_dump($newCurry2);
+var_dump($newCurry2('three'));
 
 $localHosts = ['127.0.0.1', '::1'];
 if (in_array($_SERVER['SERVER_ADDR'], $localHosts, true) && in_array(
