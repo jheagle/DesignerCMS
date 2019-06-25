@@ -2,12 +2,14 @@
 
 namespace Core\Tests;
 
+use Core\Utilities\Functional\PureTrait;
 use Faker\Factory;
 use Mockery;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+    use PureTrait;
 
     /**
      * The callbacks that should be run after the application is created.
@@ -50,6 +52,8 @@ abstract class TestCase extends BaseTestCase
             call_user_func($callback);
         }
 
+        $this->setUpPureFunctions();
+
         $this->setUpHasRun = true;
     }
 
@@ -61,6 +65,27 @@ abstract class TestCase extends BaseTestCase
     protected function setUpFaker()
     {
         $this->faker = $this->makeFaker();
+    }
+
+    /**
+     *
+     */
+    protected function setUpPureFunctions()
+    {
+        foreach ($this->importFunctions() as $name => $callable) {
+            $this->$name = $callable;
+        }
+    }
+
+    /**
+     * @param $name
+     * @param $arguments
+     *
+     * @return bool|mixed
+     */
+    public function __call($name, $arguments)
+    {
+        return call_user_func($this->{$name}, ...$arguments);
     }
 
     /**

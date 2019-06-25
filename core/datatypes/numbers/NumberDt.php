@@ -11,9 +11,6 @@ use Core\DataTypes\Strings\StringDt;
  */
 class NumberDt extends StringDt
 {
-
-    protected $primitiveType = 'float';
-
     protected $length;
 
     protected $isSigned;
@@ -30,6 +27,7 @@ class NumberDt extends StringDt
             [
                 'length' => 0,
                 'isSigned' => true,
+                'primitiveType' => 'float'
             ],
             $settings
         ));

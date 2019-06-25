@@ -2,14 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="656ded91-ef46-4a01-a89c-39b83439ef38" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/core/utilities/functional/Pure.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/utilities/functional/functions/apply.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/utilities/functional/functions/curry.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Unit/datatypes/StringDt.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/utilities/functional/PureTrait.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/utilities/functional/functions/trace.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/utilities/functional/functions/tt.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Unit/datatypes/StringDtTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Unit/functional/PureTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/datatypes/DataType.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/DataType.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/datatypes/strings/StringDt.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/strings/StringDt.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/utilities/functional/Pure.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/utilities/functional/Pure.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/utilities/functional/functions/apply.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/utilities/functional/functions/apply.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/utilities/functional/functions/curry.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/utilities/functional/functions/curry.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/TestCase.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/TestCase.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/datatypes/StringDt.php" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -43,8 +51,8 @@
       <file leaf-file-name="DataType.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/datatypes/DataType.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="173">
-              <caret line="21" column="20" selection-start-line="21" selection-start-column="20" selection-end-line="21" selection-end-column="20" />
+            <state relative-caret-position="-232">
+              <caret line="66" column="49" selection-start-line="66" selection-start-column="49" selection-end-line="66" selection-end-column="49" />
             </state>
           </provider>
         </entry>
@@ -52,35 +60,8 @@
       <file leaf-file-name="StringDt.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/datatypes/strings/StringDt.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="483">
-              <caret line="23" column="38" selection-start-line="23" selection-start-column="32" selection-end-line="23" selection-end-column="38" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="StringDt.php" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/tests/Unit/datatypes/StringDt.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="5" selection-start-column="5" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="curry.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/curry.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-117">
-              <caret column="5" selection-start-column="5" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="apply.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/apply.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="5" lean-forward="true" selection-start-column="5" selection-end-column="5" />
+            <state relative-caret-position="315">
+              <caret line="15" selection-start-line="15" selection-end-line="15" />
             </state>
           </provider>
         </entry>
@@ -88,8 +69,50 @@
       <file leaf-file-name="Pure.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/utilities/functional/Pure.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="5" column="1" selection-start-line="5" selection-start-column="1" selection-end-line="5" selection-end-column="1" />
+            <state relative-caret-position="292">
+              <caret line="29" column="53" selection-start-line="29" selection-start-column="53" selection-end-line="29" selection-end-column="53" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PureTest.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/Unit/functional/PureTest.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-8">
+              <caret line="25" column="60" lean-forward="true" selection-start-line="25" selection-start-column="60" selection-end-line="25" selection-end-column="60" />
+              <folding>
+                <element signature="e#46#70#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TestCase.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/TestCase.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="365">
+              <caret line="76" column="9" selection-start-line="76" selection-start-column="9" selection-end-line="76" selection-end-column="9" />
+              <folding>
+                <element signature="e#30#70#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="curry.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/curry.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="416">
+              <caret line="44" lean-forward="true" selection-start-line="44" selection-end-line="44" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="tt.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/tt.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-135">
+              <caret line="9" column="6" selection-start-line="9" selection-start-column="6" selection-end-line="9" selection-end-column="6" />
             </state>
           </provider>
         </entry>
@@ -97,10 +120,31 @@
       <file leaf-file-name="index.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="262">
-              <caret line="14" column="17" lean-forward="true" selection-start-line="14" selection-start-column="17" selection-end-line="14" selection-end-column="17" />
+            <state relative-caret-position="342">
+              <caret line="19" column="29" lean-forward="true" selection-start-line="19" selection-start-column="29" selection-end-line="19" selection-end-column="29" />
               <folding>
                 <element signature="e#38#69#0#PHP" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PureTrait.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/utilities/functional/PureTrait.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="416">
+              <caret line="52" lean-forward="true" selection-start-line="52" selection-end-line="52" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="StringDtTest.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/Unit/datatypes/StringDtTest.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="416">
+              <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+              <folding>
+                <element signature="e#45#81#0#PHP" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -129,9 +173,12 @@
       <find>DesignerCms</find>
       <find>Core\Models</find>
       <find>_DT</find>
-      <find>filter</find>
       <find>Preserved</find>
       <find>$arguments</find>
+      <find>filter</find>
+      <find>Pure::</find>
+      <find>Pu</find>
+      <find>trace</find>
     </findStrings>
     <replaceStrings>
       <replace>[$1]</replace>
@@ -151,8 +198,9 @@
     <dirStrings>
       <dir>$PROJECT_DIR$/models/dataTypes/numbers</dir>
       <dir>$PROJECT_DIR$</dir>
-      <dir>$PROJECT_DIR$/core</dir>
       <dir>$PROJECT_DIR$/core/datatypes</dir>
+      <dir>$PROJECT_DIR$/core/controllers</dir>
+      <dir>$PROJECT_DIR$/core</dir>
     </dirStrings>
   </component>
   <component name="Git.Settings">
@@ -161,12 +209,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/models/core/Potential.php" />
-        <option value="$PROJECT_DIR$/models/core/DataType/DataTypeObject.php" />
-        <option value="$PROJECT_DIR$/models/DataType/DataTypeObject.php" />
-        <option value="$PROJECT_DIR$/models/DataType/Potential.php" />
-        <option value="$PROJECT_DIR$/models/DataTypes/Potential.php" />
-        <option value="$PROJECT_DIR$/interfaces/Potential.php" />
         <option value="$PROJECT_DIR$/interfaces/DataTypeObject.php" />
         <option value="$PROJECT_DIR$/interfaces/Comparable.php" />
         <option value="$PROJECT_DIR$/models/DataTypes/DataType.php" />
@@ -200,18 +242,24 @@
         <option value="$PROJECT_DIR$/core/entity/Field.php" />
         <option value="$PROJECT_DIR$/core/datatypes/strings/CharDt.php" />
         <option value="$PROJECT_DIR$/core/datatypes/strings/VarCharDt.php" />
-        <option value="$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php" />
-        <option value="$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php" />
-        <option value="$PROJECT_DIR$/core/datatypes/DataType.php" />
-        <option value="$PROJECT_DIR$/core/datatypes/strings/StringDt.php" />
         <option value="$PROJECT_DIR$/core/utilities/functional/curry.php" />
         <option value="$PROJECT_DIR$/core/utilities/functional/apply.php" />
         <option value="$PROJECT_DIR$/core/utilities/functional/Simplify.php" />
-        <option value="$PROJECT_DIR$/index.php" />
-        <option value="$PROJECT_DIR$/core/utilities/functional/functions/apply.php" />
-        <option value="$PROJECT_DIR$/core/utilities/functional/functions/curry.php" />
-        <option value="$PROJECT_DIR$/core/utilities/functional/Pure.php" />
+        <option value="$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php" />
+        <option value="$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php" />
         <option value="$PROJECT_DIR$/tests/Unit/datatypes/StringDt.php" />
+        <option value="$PROJECT_DIR$/core/utilities/functional/functions/trace.php" />
+        <option value="$PROJECT_DIR$/core/utilities/functional/Pure.php" />
+        <option value="$PROJECT_DIR$/core/utilities/functional/functions/apply.php" />
+        <option value="$PROJECT_DIR$/index.php" />
+        <option value="$PROJECT_DIR$/core/utilities/functional/functions/tt.php" />
+        <option value="$PROJECT_DIR$/tests/TestCase.php" />
+        <option value="$PROJECT_DIR$/core/datatypes/strings/StringDt.php" />
+        <option value="$PROJECT_DIR$/core/datatypes/DataType.php" />
+        <option value="$PROJECT_DIR$/tests/Unit/functional/PureTest.php" />
+        <option value="$PROJECT_DIR$/core/utilities/functional/PureTrait.php" />
+        <option value="$PROJECT_DIR$/tests/Unit/datatypes/StringDtTest.php" />
+        <option value="$PROJECT_DIR$/core/utilities/functional/functions/curry.php" />
       </list>
     </option>
   </component>
@@ -314,22 +362,7 @@
               <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="datatypes" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="interfaces" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="datatypes" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="numbers" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="datatypes" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="numbers" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="doubles" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
               <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
@@ -370,6 +403,14 @@
               <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="utilities" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="functional" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="functions" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
+              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="utilities" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="interfaces" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
@@ -398,47 +439,6 @@
             <path>
               <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
               <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="core" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="utilities" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="tests" type="2a2b976b:PhpTreeStructureProvider$1" />
-            </path>
-            <path>
-              <item name="DesignerCMS" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="bcb0276e:PhpExternalLibrariesNodePatcher$PatchedExternalLibrariesNode" />
-              <item name="PHP" type="5114b859:PhpExternalLibrariesNodePatcher$PatchedLibraryNode" />
-              <item name="DesignerCMS" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="tests" type="2a2b976b:PhpTreeStructureProvider$1" />
-              <item name="Unit" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
           </expand>
           <select />
@@ -557,12 +557,19 @@
       <workItem from="1559740558162" duration="617000" />
       <workItem from="1559784191200" duration="7195000" />
       <workItem from="1559826412414" duration="28000" />
-      <workItem from="1559958164082" duration="6757000" />
+      <workItem from="1559958164082" duration="6895000" />
+      <workItem from="1560043933662" duration="2458000" />
+      <workItem from="1560109144371" duration="5462000" />
+      <workItem from="1560262646280" duration="406000" />
+      <workItem from="1560313629068" duration="1242000" />
+      <workItem from="1560553471665" duration="8654000" />
+      <workItem from="1561374906157" duration="12459000" />
+      <workItem from="1561407839863" duration="7009000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="33073000" />
+    <option name="totallyTimeSpent" value="70901000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
@@ -575,7 +582,7 @@
       <window_info anchor="bottom" id="Version Control" order="7" />
       <window_info anchor="bottom" id="Terminal" order="7" visible="true" weight="0.31151515" />
       <window_info anchor="right" id="Remote Host" order="3" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2532189" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18955651" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -592,23 +599,23 @@
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" id="Remote Host" order="3" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23891273" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.18955651" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Version Control" order="10" />
-      <window_info anchor="bottom" id="Run" order="2" />
-      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Database Changes" order="11" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" id="Database" order="4" />
-      <window_info anchor="bottom" id="Terminal" order="8" visible="true" weight="0.32969698" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.31151515" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
-      <window_info anchor="bottom" id="Database Changes" order="11" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Version Control" order="10" />
+      <window_info anchor="bottom" id="Message" order="0" />
       <window_info id="Favorites" order="2" side_tool="true" />
     </layout-to-restore>
   </component>
@@ -618,29 +625,12 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
+  </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/core/datatypes/DataType.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="21">
-          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/controllers/entityTester.php" />
-    <entry file="file://$PROJECT_DIR$/core/datatypes/interfaces/Potential.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="5" selection-start-column="5" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="21">
-          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="21">
@@ -844,31 +834,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/integers/IntDt.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="25" column="11" selection-start-line="25" selection-start-column="11" selection-end-line="25" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/datatypes/strings/CharDt.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
           <caret line="18" column="32" selection-start-line="18" selection-start-column="32" selection-end-line="18" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="479">
-          <caret line="34" column="11" selection-start-line="34" selection-start-column="11" selection-end-line="34" selection-end-column="11" />
         </state>
       </provider>
     </entry>
@@ -893,79 +862,134 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/Unit/ExampleTest.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="6" column="17" lean-forward="true" selection-start-line="6" selection-start-column="17" selection-end-line="6" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/TestCase.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-208">
-          <caret line="4" column="4" lean-forward="true" selection-start-line="4" selection-start-column="4" selection-end-line="4" selection-end-column="4" />
-          <folding>
-            <element signature="e#30#48#0#PHP" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/global_include.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="491">
-          <caret line="52" column="25" selection-start-line="52" selection-start-column="25" selection-end-line="52" selection-end-column="25" />
+        <state relative-caret-position="736">
+          <caret line="55" column="16" selection-start-line="55" selection-start-column="16" selection-end-line="55" selection-end-column="49" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/apply.php">
+    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/integers/IntDt.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="5" lean-forward="true" selection-start-column="5" selection-end-column="5" />
+        <state relative-caret-position="315">
+          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/curry.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-117">
-          <caret column="5" selection-start-column="5" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/utilities/functional/Pure.php">
+    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="5" column="1" selection-start-line="5" selection-start-column="1" selection-end-line="5" selection-end-column="1" />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1533">
+          <caret line="73" column="19" selection-start-line="73" selection-start-column="19" selection-end-line="73" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Unit/ExampleTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="12" column="7" lean-forward="true" selection-start-line="12" selection-start-column="7" selection-end-line="12" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/trace.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="756">
+          <caret line="36" column="18" selection-start-line="36" selection-start-column="18" selection-end-line="36" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/index.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="262">
-          <caret line="14" column="17" lean-forward="true" selection-start-line="14" selection-start-column="17" selection-end-line="14" selection-end-column="17" />
+        <state relative-caret-position="342">
+          <caret line="19" column="29" lean-forward="true" selection-start-line="19" selection-start-column="29" selection-end-line="19" selection-end-column="29" />
           <folding>
             <element signature="e#38#69#0#PHP" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/apply.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="313">
+          <caret line="32" column="59" selection-start-line="32" selection-start-column="59" selection-end-line="32" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/tt.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-135">
+          <caret line="9" column="6" selection-start-line="9" selection-start-column="6" selection-end-line="9" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/TestCase.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="365">
+          <caret line="76" column="9" selection-start-line="76" selection-start-column="9" selection-end-line="76" selection-end-column="9" />
+          <folding>
+            <element signature="e#30#70#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/utilities/functional/Pure.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="292">
+          <caret line="29" column="53" selection-start-line="29" selection-start-column="53" selection-end-line="29" selection-end-column="53" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/core/datatypes/strings/StringDt.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="483">
-          <caret line="23" column="38" selection-start-line="23" selection-start-column="32" selection-end-line="23" selection-end-column="38" />
+        <state relative-caret-position="315">
+          <caret line="15" selection-start-line="15" selection-end-line="15" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/datatypes/DataType.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="173">
-          <caret line="21" column="20" selection-start-line="21" selection-start-column="20" selection-end-line="21" selection-end-column="20" />
+        <state relative-caret-position="-232">
+          <caret line="66" column="49" selection-start-line="66" selection-start-column="49" selection-end-line="66" selection-end-column="49" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/Unit/datatypes/StringDt.php">
+    <entry file="file://$PROJECT_DIR$/tests/Unit/functional/PureTest.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="5" selection-start-column="5" selection-end-column="5" />
+        <state relative-caret-position="-8">
+          <caret line="25" column="60" lean-forward="true" selection-start-line="25" selection-start-column="60" selection-end-line="25" selection-end-column="60" />
+          <folding>
+            <element signature="e#46#70#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/utilities/functional/PureTrait.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="416">
+          <caret line="52" lean-forward="true" selection-start-line="52" selection-end-line="52" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Unit/datatypes/StringDtTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="416">
+          <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+          <folding>
+            <element signature="e#45#81#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/curry.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="416">
+          <caret line="44" lean-forward="true" selection-start-line="44" selection-end-line="44" />
         </state>
       </provider>
     </entry>

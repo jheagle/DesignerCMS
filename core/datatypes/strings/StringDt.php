@@ -14,8 +14,6 @@ class StringDt extends DataType
 
     protected static $charSet;
 
-    protected $primitiveType = 'string';
-
     /**
      *
      * @param string $value
@@ -26,10 +24,19 @@ class StringDt extends DataType
         parent::__construct($value, array_merge(
             [
                 'charSet' => 'UTF-8',
+                'primitiveType' => 'string'
             ],
             $settings
         ));
         self::setValue($this->value);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCharSet()
+    {
+        return static::$charSet;
     }
 
     /**

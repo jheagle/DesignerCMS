@@ -7,16 +7,18 @@ use Core\DataTypes\Strings\VarCharDt;
 use Core\Entity\Field;
 use Core\Utilities\Functional\Pure;
 
+Pure::extractFunctions();
 function curryTest($one, $two, $three):string
 {
     return "$one-$two-$three";
 }
-var_dump(curryTest('one', 'two', 'three'));
+trace()(curryTest('one', 'two', 'three'));
 $newCurry1 = Pure::curry('curryTest')('one');
-var_dump($newCurry1);
+trace()($newCurry1);
 $newCurry2 = $newCurry1('two');
-var_dump($newCurry2);
-var_dump($newCurry2('three'));
+trace()($newCurry2);
+trace()($newCurry2('three'));
+
 
 $localHosts = ['127.0.0.1', '::1'];
 if (in_array($_SERVER['SERVER_ADDR'], $localHosts, true) && in_array(
@@ -41,18 +43,18 @@ $db = PHPDBConnect::instantiateDB('', '', '', '', $testing, $production);
 
 $value = 'Hello';
 $datatype = new VarCharDt($value, ['length' => 100]);
-var_dump($datatype);
-var_dump($datatype->getValue());
+trace()($datatype);
+trace()($datatype->getValue());
 
 $value = 128;
 $testValue = 32;
 $integer = new IntDt($value, ['length' => 0, 'isSigned' => false]);
-var_dump($integer);
-var_dump($integer->getValue());
-var_dump($testValue);
-var_dump($integer->isEven());
-var_dump($integer->getAbsolute());
-var_dump($integer->isEqual('4294967295'));
+trace()($integer);
+trace()($integer->getValue());
+trace()($testValue);
+trace()($integer->isEven());
+trace()($integer->getAbsolute());
+trace()($integer->isEqual('4294967295'));
 echo 'Bitwise Add: ' . $integer->add($testValue) . "\n<br>";
 echo 'True Add: ' . ($integer->getValue() + $testValue) . "\n<br>";
 echo 'Bitwise Subtract: ' . $integer->subtract($testValue) . "\n<br>";
@@ -66,5 +68,5 @@ echo 'True Modulo: ' . ($integer->getValue() % $testValue) . "\n<br>";
 
 $field = new Field('column', 'BigInt', 0, 50, Field::ZERO_FILL | Field::UNSIGNED);
 $field->setValue('999999999999999999');
-var_dump($field);
-var_dump($field->getValue());
+trace()($field);
+trace()($field->getValue());

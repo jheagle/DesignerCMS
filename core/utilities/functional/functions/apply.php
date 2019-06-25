@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Pass in a few methods to be run in sequence, returns a function expecting the data which will be altered by the
  * sequence.
@@ -7,8 +8,7 @@
  *
  * @return \Closure
  */
-function apply(...$fns)
-{
+$apply = static function (...$fns): callable {
     /**
      * Pass $data to each of the $fns provided along with any mutations it receives.
      *
@@ -24,8 +24,16 @@ function apply(...$fns)
          * function it may cancel executing subsequent apply functions
          */
         $cancelApply = false;
-        return array_reduce($fns, function ($d, callable $f) use ($data, &$cancelApply) {
-            return $cancelApply ? $d : $f($d, $cancelApply);
+        return array_reduce($fns, function ($data, callable $f) use (&$cancelApply) {
+            return $cancelApply ? $data : $f($data, $cancelApply);
         }, $data);
     };
+};
+
+if ($declareGlobal ?? false && !function_exists('apply')) {
+    $GLOBALS['apply'] = $apply;
+    function apply(...$args)
+    {
+        return $GLOBALS['apply'](...$args);
+    }
 }

@@ -4,7 +4,7 @@
  * the function or a new function with less arguments.
  *
  * @param callable|string $fn A string function name or function to be curried
- * @param string $class Optional class name for the function
+ * @param string|object $class Optional class name for the function
  *
  * @return callable
  */
@@ -33,4 +33,12 @@ function curry($fn, $class = __CLASS__): callable
                     return call_user_func_array(curry($fn, $class), array_merge($args, $a));
                 };
         };
+}
+
+$curry = function (...$args) {
+    return curry(...$args);
+};
+
+if ($declareGlobal ?? false && !array_key_exists('curry', $GLOBALS)) {
+    $GLOBALS['curry'] = $curry;
 }

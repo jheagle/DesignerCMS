@@ -4,9 +4,6 @@ namespace Core\DataTypes\Numbers;
 
 class BigIntDt extends NumberDt
 {
-
-    protected $primitiveType = 'int';
-
     protected $min;
 
     protected $max;
@@ -21,6 +18,7 @@ class BigIntDt extends NumberDt
             [
                 'length' => 0,
                 'isSigned' => true,
+                'primitiveType' => 'int'
             ],
             $settings
         ));

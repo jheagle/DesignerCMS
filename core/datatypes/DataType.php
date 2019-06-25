@@ -64,7 +64,7 @@ abstract class DataType implements DataTypeObject
     public function __toString(): string
     {
         $string = '';
-        foreach (get_object_vars($this) as $k => $v) {
+        foreach (get_class_vars(get_class($this)) as $k => $v) {
             if (empty($string)) {
                 $string = __CLASS__ . '( ';
             } else {
@@ -86,15 +86,16 @@ abstract class DataType implements DataTypeObject
     private function applyPropertySettings(array $settings = [])
     {
         // Retrieve all the properties of this class so they can be populated lazily
-        foreach (get_class_vars(__CLASS__) as $classMemberName => $default) {
+        foreach (get_class_vars(get_class($this)) as $classMemberName => $default) {
             // Set this property to the incoming form data otherwise, use the default value
             $newClassMemberValue = is_array($default)
                 ? $default + $settings[$classMemberName] ?? []
                 : $settings[$classMemberName] ?? $default;
-            if (isset(self::$$classMemberName)) {
-                // Set default static value
-                self::$$classMemberName = $newClassMemberValue;
-            } else {
+            try {
+                // Attempt to assign the property statically
+                $this::$$classMemberName = $newClassMemberValue;
+            } catch (\Error $e) {
+                // Failed, must not be statically accessible, assign as instance property
                 $this->{$classMemberName} = $newClassMemberValue;
             }
         }
