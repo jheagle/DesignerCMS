@@ -1,24 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="656ded91-ef46-4a01-a89c-39b83439ef38" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/core/utilities/functional/PureTrait.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/utilities/functional/functions/trace.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/utilities/functional/functions/tt.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Unit/datatypes/StringDtTest.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/Unit/functional/PureTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/datatypes/DataType.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/DataType.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/numbers/NumberDt.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/numbers/integers/BigIntDt.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/datatypes/strings/StringDt.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/datatypes/strings/StringDt.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/utilities/functional/Pure.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/utilities/functional/Pure.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/utilities/functional/functions/apply.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/utilities/functional/functions/apply.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/utilities/functional/functions/curry.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/utilities/functional/functions/curry.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/TestCase.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/TestCase.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/datatypes/StringDt.php" beforeDir="false" />
-    </list>
+    <list default="true" id="656ded91-ef46-4a01-a89c-39b83439ef38" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -564,25 +547,24 @@
       <workItem from="1560313629068" duration="1242000" />
       <workItem from="1560553471665" duration="8654000" />
       <workItem from="1561374906157" duration="12459000" />
-      <workItem from="1561407839863" duration="7009000" />
+      <workItem from="1561407839863" duration="7212000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="70901000" />
+    <option name="totallyTimeSpent" value="71104000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="7" visible="true" weight="0.31151515" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.31151515" />
       <window_info anchor="right" id="Remote Host" order="3" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18955651" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.18955651" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
