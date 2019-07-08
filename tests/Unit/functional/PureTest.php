@@ -20,10 +20,36 @@ class PureTest extends TestCase
     /**
      * @test
      */
-    public function usePureFunctions()
+    public function curryReturnsAFunctionFromMissingParameters()
     {
         // create a new test function
-        $curryTest = function ($one, $two, $three): string {
+        $curryTest = function (string $one, string $two, string $three): string {
+            return "$one-$two-$three";
+        };
+
+        $curryWithTwoParameters = Pure::curry($curryTest);
+        $curryWithTwoParameters = $curryWithTwoParameters('one', 'two');
+        $this->assertIsCallable($curryWithTwoParameters);
+
+        $curryWithNoParameters = Pure::curry($curryTest);
+        $this->assertIsCallable($curryWithNoParameters);
+
+        $curryWithOneParameter = $curryWithNoParameters('one');
+        $this->assertIsCallable($curryWithOneParameter);
+
+        $newCurryWithTwoParameter = $curryWithOneParameter('two');
+        $this->assertIsCallable($newCurryWithTwoParameter);
+
+        $this->assertEquals('one-two-three', $newCurryWithTwoParameter('three'));
+    }
+
+    /**
+     * @test
+     */
+    public function curryReturnsFunctionResultWithAllParameters()
+    {
+        // create a new test function
+        $curryTest = function (string $one, string $two, string $three): string {
             return "$one-$two-$three";
         };
 
@@ -39,7 +65,6 @@ class PureTest extends TestCase
         $newCurry2 = $newCurry1('two');
         $this->assertIsCallable($newCurry2);
         $this->assertEquals('one-two-three', $newCurry2('three'));
-        Pure::{Pure::RESET_FUNCTIONS}();
         $newCurry1 = Pure::curry($curryTest)('one');
         $this->assertIsCallable($newCurry1);
         $newCurry2 = $newCurry1('two');

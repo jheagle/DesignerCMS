@@ -6,33 +6,48 @@ namespace Core\Utilities\Functional;
  * Trait PureTrait
  *
  * @package Core\Utilities\Functional
- *
- * @method static callable apply(callable[] ...$fns)
- * @method static callable curry(string | callable $fn, string | object $class = __CLASS__)
- * @method static callable trace(string $label = '')
- * @method static callable tt(string $label = '')
  */
 trait PureTrait
 {
-    public static function extractFunctions()
+    protected $importedFunctions = [];
+
+    /**
+     * @return callable[]
+     */
+    protected function extractFunctions(): array
     {
-        return static::importFunctions(true);
+        return $this->importFunctions(true);
     }
 
-    private static function importFunctions(bool $declareGlobal = false)
+    /**
+     * @param bool $declareGlobal
+     *
+     * @return callable[]
+     */
+    protected function importFunctions(bool $declareGlobal = false): array
     {
         $path = __DIR__ . '/functions/';
-        return array_reduce(array_filter(scandir($path), function (string $file): string {
-            return !preg_match('/^(.){1,2}$/', $file);
-        }), function ($functions, string $function) use ($path, $declareGlobal): array {
-            $functionName = basename($path . $function, '.php');
-            $$functionName = $GLOBALS[$functionName] ?? $functionName;
-            if (static::functionDefined($function)) {
-                include_once $path . $function;
-            }
-            $functions[(string)$functionName] = $$functionName;
-            return $functions;
-        }, []);
+        $this->importedFunctions += array_reduce(
+            array_filter(
+                scandir($path),
+                function ($file) use ($path) {
+                    $functionName = basename($path . $file, '.php');
+                    return !(preg_match('/^(.){1,2}$/', $file) || $this->functionDefined($functionName));
+                }
+            ),
+            function (array $functions, string $function) use ($path, $declareGlobal): array {
+                $functionName = basename($path . $function, '.php');
+                $$functionName = $GLOBALS[$functionName] ?? $functionName;
+                include $path . $function;
+                if (is_string($$functionName)) {
+                    return $functions;
+                }
+                $functions[(string)$functionName] = $$functionName;
+                return $functions;
+            },
+            []
+        );
+        return $this->importedFunctions;
     }
 
     /**
@@ -40,12 +55,11 @@ trait PureTrait
      *
      * @return bool
      */
-    private static function functionDefined(string $name): bool
+    private function functionDefined(string $name): bool
     {
-        return !(
+        return (
             function_exists($name)
-            || method_exists(self::class, $name)
-            || $name === Pure::RESET_FUNCTIONS
+            || array_key_exists($name, $this->importedFunctions)
             || array_key_exists($name, $GLOBALS)
         );
     }

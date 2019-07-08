@@ -7,7 +7,7 @@ use Core\DataTypes\Strings\VarCharDt;
 use Core\Entity\Field;
 use Core\Utilities\Functional\Pure;
 
-Pure::extractFunctions();
+Pure::extractAll();
 function curryTest($one, $two, $three):string
 {
     return "$one-$two-$three";

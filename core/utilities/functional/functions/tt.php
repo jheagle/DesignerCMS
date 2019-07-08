@@ -7,7 +7,7 @@
  *
  * @return Closure
  */
-$tt = function (string $label = ''): callable {
+$tt = static function (string $label = ''): callable {
     /**
      * Pass any number of args to be printed and terminate with exit()
      *
