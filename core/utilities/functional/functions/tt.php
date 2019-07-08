@@ -13,22 +13,17 @@ $tt = static function (string $label = ''): callable {
      *
      * @param mixed[] ...$items
      *
-     * @return mixed[]
+     * @return void
      */
-    return function (...$items) use ($label): array {
+    return function (...$items) use ($label): void {
         echo $label ? "\n{$label}\n" : '';
-        foreach ($items as $item) {
-            if (is_string($item)) {
-                $count = strlen($item);
-                echo "string({$count}) \"{$item}\"\n";
-            } elseif (is_scalar($item)) {
-                $type = gettype($item);
-                echo "{$type} {$item}\n";
-            } else {
-                var_dump($item);
+        $lastIndex = count($items) - 1;
+        foreach ($items as $index => $item) {
+            if ($index >= $lastIndex) {
+                dd($item);
             }
+            dump($item);
         }
-        exit();
     };
 };
 

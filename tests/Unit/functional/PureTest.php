@@ -29,6 +29,7 @@ class PureTest extends TestCase
 
         $curryWithTwoParameters = Pure::curry($curryTest);
         $curryWithTwoParameters = $curryWithTwoParameters('one', 'two');
+        $this->tt('some test')($curryWithTwoParameters);
         $this->assertIsCallable($curryWithTwoParameters);
 
         $curryWithNoParameters = Pure::curry($curryTest);

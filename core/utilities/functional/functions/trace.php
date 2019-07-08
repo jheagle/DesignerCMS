@@ -18,15 +18,7 @@ $trace = static function (string $label = ''): callable {
     return function (...$items) use ($label): array {
         echo $label ? "\n{$label}\n" : '';
         return array_map(function ($item) {
-            if (is_string($item)) {
-                $count = strlen($item);
-                echo "string({$count}) \"{$item}\"\n";
-            } elseif (is_scalar($item)) {
-                $type = gettype($item);
-                echo "{$type} {$item}\n";
-            } else {
-                var_dump($item);
-            }
+            dump($item);
             return $item;
         }, $items);
     };

@@ -2,10 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="656ded91-ef46-4a01-a89c-39b83439ef38" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/DesignerCMS.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/DesignerCMS.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/utilities/functional/Pure.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/utilities/functional/Pure.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/utilities/functional/PureTrait.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/utilities/functional/PureTrait.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/utilities/functional/functions/curry.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/utilities/functional/functions/curry.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/utilities/functional/functions/trace.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/utilities/functional/functions/trace.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/utilities/functional/functions/tt.php" beforeDir="false" afterPath="$PROJECT_DIR$/core/utilities/functional/functions/tt.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/index.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/functional/PureTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/functional/PureTest.php" afterDir="false" />
@@ -51,8 +53,8 @@
       <file leaf-file-name="PureTest.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests/Unit/functional/PureTest.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="79">
-              <caret line="29" column="58" selection-start-line="29" selection-start-column="58" selection-end-line="29" selection-end-column="58" />
+            <state relative-caret-position="467">
+              <caret line="31" column="29" selection-start-line="31" selection-start-column="29" selection-end-line="31" selection-end-column="29" />
               <folding>
                 <element signature="e#46#70#0#PHP" expanded="true" />
               </folding>
@@ -60,20 +62,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DbConnect.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/database/DbConnect.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2625">
-              <caret line="127" column="15" selection-start-line="127" selection-start-column="15" selection-end-line="127" selection-end-column="30" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="index.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="189">
-              <caret line="9" column="16" selection-start-line="9" selection-start-column="16" selection-end-line="9" selection-end-column="16" />
+            <state relative-caret-position="415">
+              <caret line="33" column="40" selection-start-line="33" selection-start-column="40" selection-end-line="33" selection-end-column="40" />
               <folding>
                 <element signature="e#38#69#0#PHP" expanded="true" />
               </folding>
@@ -81,59 +74,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PureTrait.php" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/core/utilities/functional/PureTrait.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="214">
-              <caret line="27" column="5" selection-start-line="27" selection-start-column="5" selection-end-line="27" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TestCase.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/TestCase.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="402">
-              <caret line="78" lean-forward="true" selection-start-line="78" selection-end-line="78" />
-              <folding>
-                <element signature="e#30#70#0#PHP" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="apply.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/apply.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="43">
-              <caret line="10" column="9" selection-start-line="10" selection-start-column="9" selection-end-line="10" selection-end-column="16" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="curry.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/curry.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="819">
-              <caret line="39" column="9" selection-start-line="39" selection-start-column="9" selection-end-line="39" selection-end-column="16" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="tt.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/tt.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="660">
-              <caret line="32" column="2" lean-forward="true" selection-start-line="32" selection-start-column="2" selection-end-line="32" selection-end-column="2" />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="trace.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/trace.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="840">
-              <caret line="40" column="1" lean-forward="true" selection-start-line="40" selection-start-column="1" selection-end-line="40" selection-end-column="1" />
+            <state relative-caret-position="207">
+              <caret line="20" column="24" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="tt.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/tt.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="73">
+              <caret line="15" column="19" selection-start-line="15" selection-start-column="19" selection-end-line="15" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -169,6 +123,7 @@
       <find>trace</find>
       <find>$functions</find>
       <find>string</find>
+      <find>var_dump</find>
     </findStrings>
     <replaceStrings>
       <replace>[$1]</replace>
@@ -185,6 +140,7 @@
       <replace>Core</replace>
       <replace>Dt</replace>
       <replace>$importedFunctions</replace>
+      <replace>dump</replace>
     </replaceStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$/models/dataTypes/numbers</dir>
@@ -245,14 +201,14 @@
         <option value="$PROJECT_DIR$/core/datatypes/strings/StringDt.php" />
         <option value="$PROJECT_DIR$/core/datatypes/DataType.php" />
         <option value="$PROJECT_DIR$/tests/Unit/datatypes/StringDtTest.php" />
-        <option value="$PROJECT_DIR$/core/utilities/functional/functions/tt.php" />
         <option value="$PROJECT_DIR$/core/utilities/functional/functions/curry.php" />
         <option value="$PROJECT_DIR$/core/utilities/functional/functions/apply.php" />
-        <option value="$PROJECT_DIR$/tests/Unit/functional/PureTest.php" />
-        <option value="$PROJECT_DIR$/core/utilities/functional/functions/trace.php" />
         <option value="$PROJECT_DIR$/core/utilities/functional/Pure.php" />
         <option value="$PROJECT_DIR$/core/utilities/functional/PureTrait.php" />
         <option value="$PROJECT_DIR$/index.php" />
+        <option value="$PROJECT_DIR$/tests/Unit/functional/PureTest.php" />
+        <option value="$PROJECT_DIR$/core/utilities/functional/functions/trace.php" />
+        <option value="$PROJECT_DIR$/core/utilities/functional/functions/tt.php" />
       </list>
     </option>
   </component>
@@ -318,6 +274,8 @@
       <path value="$PROJECT_DIR$/vendor/psr/http-message" />
       <path value="$PROJECT_DIR$/vendor/ralouphie/getallheaders" />
       <path value="$PROJECT_DIR$/vendor/guzzlehttp/guzzle" />
+      <path value="$PROJECT_DIR$/vendor/symfony/var-dumper" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php72" />
     </include_path>
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
@@ -575,12 +533,12 @@
       <workItem from="1561494968838" duration="6592000" />
       <workItem from="1562066340144" duration="3492000" />
       <workItem from="1562099598462" duration="2063000" />
-      <workItem from="1562583891553" duration="2620000" />
+      <workItem from="1562583891553" duration="3714000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="85953000" />
+    <option name="totallyTimeSpent" value="87047000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="0" />
@@ -591,9 +549,9 @@
       <window_info anchor="bottom" id="Database Changes" order="8" show_stripe_button="false" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="7" weight="0.28242424" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.28242424" />
       <window_info anchor="right" id="Remote Host" order="3" />
-      <window_info content_ui="combo" id="Project" order="0" weight="0.20314735" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.20314735" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -936,54 +894,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/TestCase.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="402">
-          <caret line="78" lean-forward="true" selection-start-line="78" selection-end-line="78" />
-          <folding>
-            <element signature="e#30#70#0#PHP" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/Unit/functional/PureTest.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="79">
-          <caret line="29" column="58" selection-start-line="29" selection-start-column="58" selection-end-line="29" selection-end-column="58" />
-          <folding>
-            <element signature="e#46#70#0#PHP" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/utilities/functional/Pure.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="49">
           <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/index.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="9" column="16" selection-start-line="9" selection-start-column="16" selection-end-line="9" selection-end-column="16" />
-          <folding>
-            <element signature="e#38#69#0#PHP" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/tt.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="660">
-          <caret line="32" column="2" lean-forward="true" selection-start-line="32" selection-start-column="2" selection-end-line="32" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/trace.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="840">
-          <caret line="40" column="1" lean-forward="true" selection-start-line="40" selection-start-column="1" selection-end-line="40" selection-end-column="1" />
         </state>
       </provider>
     </entry>
@@ -996,8 +910,52 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/utilities/functional/PureTrait.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="214">
+        <state relative-caret-position="180">
           <caret line="27" column="5" selection-start-line="27" selection-start-column="5" selection-end-line="27" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/TestCase.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="56">
+          <caret line="54" column="33" selection-start-line="54" selection-start-column="15" selection-end-line="54" selection-end-column="33" />
+          <folding>
+            <element signature="e#30#70#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Unit/functional/PureTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="467">
+          <caret line="31" column="29" selection-start-line="31" selection-start-column="29" selection-end-line="31" selection-end-column="29" />
+          <folding>
+            <element signature="e#46#70#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/index.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="415">
+          <caret line="33" column="40" selection-start-line="33" selection-start-column="40" selection-end-line="33" selection-end-column="40" />
+          <folding>
+            <element signature="e#38#69#0#PHP" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/trace.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="207">
+          <caret line="20" column="24" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/utilities/functional/functions/tt.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="73">
+          <caret line="15" column="19" selection-start-line="15" selection-start-column="19" selection-end-line="15" selection-end-column="19" />
         </state>
       </provider>
     </entry>
