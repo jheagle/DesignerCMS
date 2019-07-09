@@ -16,7 +16,7 @@ $trace = static function (string $label = ''): callable {
      * @return mixed[]
      */
     return function (...$items) use ($label): array {
-        echo $label ? "\n{$label}\n" : '';
+        dump($label);
         return array_map(function ($item) {
             dump($item);
             return $item;
@@ -26,8 +26,8 @@ $trace = static function (string $label = ''): callable {
 
 if ($declareGlobal ?? false && !function_exists('trace')) {
     $GLOBALS['trace'] = $trace;
-    function trace(...$args)
+    function trace(string $label = '')
     {
-        return $GLOBALS['trace'](...$args);
+        return $GLOBALS['trace']($label);
     }
 }

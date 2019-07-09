@@ -40,12 +40,12 @@ function curryTest($one, $two, $three): string
     return "$one-$two-$three";
 }
 
-trace()(curryTest('one', 'two', 'three'));
+trace('curryTest with all parameters')(curryTest('one', 'two', 'three'));
 $newCurry1 = Pure::curry('curryTest')('one');
-trace()($newCurry1);
+trace('curryTest with one parameter')($newCurry1);
 $newCurry2 = $newCurry1('two');
-trace()($newCurry2);
-trace()($newCurry2('three'));
+trace('curryTest with two parameters')($newCurry2);
+trace('curryTest with all three parameters')($newCurry2('three'));
 
 
 $localHosts = ['127.0.0.1', '::1'];
@@ -71,30 +71,30 @@ $db = PHPDBConnect::instantiateDB('', '', '', '', $testing, $production);
 
 $value = 'Hello';
 $datatype = new VarCharDt($value, ['length' => 100]);
-trace()($datatype);
-trace()($datatype->getValue());
+trace('VarChar')($datatype);
+trace('VarChar: getValue')($datatype->getValue());
 
 $value = 128;
 $testValue = 32;
 $integer = new IntDt($value, ['length' => 0, 'isSigned' => false]);
-trace()($integer);
-trace()($integer->getValue());
-trace()($testValue);
-trace()($integer->isEven());
-trace()($integer->getAbsolute());
-trace()($integer->isEqual('4294967295'));
-echo 'Bitwise Add: ' . $integer->add($testValue) . "\n<br>";
-echo 'True Add: ' . ($integer->getValue() + $testValue) . "\n<br>";
-echo 'Bitwise Subtract: ' . $integer->subtract($testValue) . "\n<br>";
-echo 'True Subtract: ' . ($integer->getValue() - $testValue) . "\n<br>";
-echo 'Bitwise Mulitiply: ' . $integer->multiplyBy($testValue) . "\n<br>";
-echo 'True Multiple: ' . ($integer->getValue() * $testValue) . "\n<br>";
-echo 'Bitwise Divide: ' . $integer->divideBy($testValue) . "\n<br>";
-echo 'True Divide: ' . ($integer->getValue() / $testValue) . "\n<br>";
-echo 'Bitwise Modulo: ' . $integer->modulo($testValue) . "\n<br>";
-echo 'True Modulo: ' . ($integer->getValue() % $testValue) . "\n<br>";
+trace('Integer')($integer);
+trace('Integer: getValue')($integer->getValue());
+trace('Number 32')($testValue);
+trace('Integer: isEven')($integer->isEven());
+trace('Integer: getAbsolute')($integer->getAbsolute());
+trace('Integer: isEqual to 4294967295')($integer->isEqual('4294967295'));
+trace('Bitwise Add:')($integer->add($testValue));
+trace('True Add:')($integer->getValue() + $testValue);
+trace('Bitwise Subtract:')($integer->subtract($testValue));
+trace('True Subtract:')($integer->getValue() - $testValue);
+trace('Bitwise Mulitiply:')($integer->multiplyBy($testValue));
+trace('True Multiple:')($integer->getValue() * $testValue);
+trace('Bitwise Divide:')($integer->divideBy($testValue));
+trace('True Divide:')($integer->getValue() / $testValue);
+trace('Bitwise Modulo:')($integer->modulo($testValue));
+trace('True Modulo:')($integer->getValue() % $testValue);
 
 $field = new Field('column', 'BigInt', 0, 50, Field::ZERO_FILL | Field::UNSIGNED);
 $field->setValue('999999999999999999');
-trace()($field);
-trace()($field->getValue());
+trace('Field')($field);
+trace('Field: getValue')($field->getValue());

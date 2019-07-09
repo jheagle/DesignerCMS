@@ -7,6 +7,16 @@ use Faker\Factory;
 use Mockery;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
+/**
+ * Class TestCase
+ *
+ * @package Core\Tests
+ *
+ * @method callable apply(callable[] ...$fns)
+ * @method callable curry(string | callable $fn, string | object $class = __CLASS__)
+ * @method callable trace(string $label = '')
+ * @method callable tt(string $label = '')
+ */
 abstract class TestCase extends BaseTestCase
 {
     use PureTrait;

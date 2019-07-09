@@ -32,8 +32,8 @@ $apply = static function (...$fns): callable {
 
 if ($declareGlobal ?? false && !function_exists('apply')) {
     $GLOBALS['apply'] = $apply;
-    function apply(...$args)
+    function apply(...$fns): callable
     {
-        return $GLOBALS['apply'](...$args);
+        return $GLOBALS['apply'](...$fns);
     }
 }

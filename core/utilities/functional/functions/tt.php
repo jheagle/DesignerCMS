@@ -16,7 +16,7 @@ $tt = static function (string $label = ''): callable {
      * @return void
      */
     return function (...$items) use ($label): void {
-        echo $label ? "\n{$label}\n" : '';
+        dump($label);
         $lastIndex = count($items) - 1;
         foreach ($items as $index => $item) {
             if ($index >= $lastIndex) {
@@ -29,8 +29,8 @@ $tt = static function (string $label = ''): callable {
 
 if ($declareGlobal ?? false && !function_exists('tt')) {
     $GLOBALS['tt'] = $tt;
-    function tt(...$args)
+    function tt(string $label = ''): callable
     {
-        return $GLOBALS['tt'](...$args);
+        return $GLOBALS['tt']($label);
     }
 }

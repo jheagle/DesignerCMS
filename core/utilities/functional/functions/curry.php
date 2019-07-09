@@ -43,8 +43,8 @@ $curry = static function (...$args) {
 
 if ($declareGlobal ?? false && !function_exists('curry')) {
     $GLOBALS['curry'] = $curry;
-    function curry(...$args)
+    function curry($fn, $class = __CLASS__): callable
     {
-        return $GLOBALS['curry'](...$args);
+        return $GLOBALS['curry']($fn, $class);
     }
 }
