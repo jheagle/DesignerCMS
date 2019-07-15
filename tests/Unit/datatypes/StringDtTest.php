@@ -23,7 +23,7 @@ class StringDtTest extends TestCase
     {
         $string = new StringDt('some string to test');
         $this->trace('charset')($string->getCharSet());
-        $this->tt('instance')($string);
+        $this->trace('instance')($string);
         $this->assertTrue(true);
     }
 }
