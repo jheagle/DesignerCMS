@@ -12,7 +12,11 @@ use Core\DataTypes\DataType;
 class StringDt extends DataType
 {
 
-    protected static $charSet;
+    const CHARSET_UTF8 = 'UTF-8';
+    const CHARSETS = [
+        self::CHARSET_UTF8
+    ];
+    protected $charSet;
 
     /**
      *
@@ -23,8 +27,8 @@ class StringDt extends DataType
     {
         parent::__construct($value, array_merge(
             [
-                'charSet' => 'UTF-8',
-                'primitiveType' => 'string'
+                'charSet' => self::CHARSET_UTF8,
+                'primitiveType' => self::PRIMITIVE_STRING
             ],
             $settings
         ));
@@ -36,7 +40,7 @@ class StringDt extends DataType
      */
     public function getCharSet()
     {
-        return static::$charSet;
+        return $this->charSet;
     }
 
     /**
@@ -54,7 +58,6 @@ class StringDt extends DataType
      */
     public function setValue($value)
     {
-        $this->value = mb_convert_encoding($value, self::$charSet);
+        $this->value = mb_convert_encoding($value, $this->charSet);
     }
-
 }
