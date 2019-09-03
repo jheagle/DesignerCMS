@@ -62,11 +62,17 @@ abstract class DataType implements DataTypeObject
     /** @var int $systemMaxBits */
     protected static $systemMaxBits;
 
+    /**
+     * DataType constructor.
+     *
+     * @param $value
+     * @param array $settings
+     */
     public function __construct($value, $settings = [])
     {
         self::$systemMaxBits = PHP_INT_SIZE << 3;
-        $this->applyMemberSettings($settings);
-        $this->value = $value;
+        self::applyMemberSettings($settings);
+        $this->setValue($value);
     }
 
     /**
@@ -80,20 +86,14 @@ abstract class DataType implements DataTypeObject
     /**
      * @return mixed
      */
-    public function getValue()
-    {
-        return $this->value;
-    }
+    abstract public function getValue();
 
     /**
      * @param mixed $value
      *
      * @return mixed
      */
-    public function setValue($value)
-    {
-        return $this->value = $value;
-    }
+    abstract public function setValue($value);
 
     /**
      * @return string
@@ -117,21 +117,33 @@ abstract class DataType implements DataTypeObject
 
     /**
      * @return string
+     * @throws \ReflectionException
      */
     public function __toString(): string
     {
         return $this->getClassDescription();
     }
 
+    /**
+     * @return string
+     * @throws \ReflectionException
+     */
     final public function getClassDescription(): string
     {
         $classDescriptors = array_merge_recursive($this->getClassMembers(), $this->getClassMethods());
-        return "\n\n\e[1;32m" . get_class($this) . "\x20{\e[0m" . array_reduce(
+        $class = get_class($this);
+        $reflectClass = new \ReflectionClass($class);
+        $abstractFinal = $reflectClass->isAbstract() ? 'abstract ' : ($reflectClass->isFinal() ? 'final ' : '');
+        $interface = $reflectClass->isInterface() ? 'interface ' : '';
+        return "\n\n\e[1;32m{$abstractFinal}{$interface}{$class}\x20{\e[0m" . array_reduce(
                 array_keys($classDescriptors),
                 function (string $toString, string $class) use ($classDescriptors): string {
                     $classIndent = "\e[1;";
                     if ($class !== get_class($this)) {
-                        $toString .= "\n\n\x20\x20\e[0;32m{$class}\e[0m";
+                        $reflectClass = new \ReflectionClass($class);
+                        $abstractFinal = $reflectClass->isAbstract() ? 'abstract ' : ($reflectClass->isFinal() ? 'final ' : '');
+                        $interface = $reflectClass->isInterface() ? 'interface ' : '';
+                        $toString .= "\n\n\x20\x20\e[0;32m{$abstractFinal}{$interface}{$class}\e[0m";
                         $classIndent = "\x20\x20\e[0;";
                     }
                     $descriptorTypes = $classDescriptors[$class];
@@ -154,6 +166,9 @@ abstract class DataType implements DataTypeObject
             ) . "\n\e[1;32m}\e[0m\n";
     }
 
+    /**
+     * @return array
+     */
     private function getClassMembers(): array
     {
         $classVars = array_replace_recursive(get_class_vars(get_class($this)), get_object_vars($this));
@@ -183,6 +198,9 @@ abstract class DataType implements DataTypeObject
         }, []);
     }
 
+    /**
+     * @return array
+     */
     private function getClassMethods(): array
     {
         $classMethods = get_class_methods(get_class($this));
@@ -213,6 +231,11 @@ abstract class DataType implements DataTypeObject
         }, []);
     }
 
+    /**
+     * @param $memberKey
+     *
+     * @return mixed
+     */
     private function getMember($memberKey)
     {
         try {
@@ -224,6 +247,10 @@ abstract class DataType implements DataTypeObject
         }
     }
 
+    /**
+     * @param $memberKey
+     * @param $value
+     */
     private function setMember($memberKey, $value)
     {
         try {

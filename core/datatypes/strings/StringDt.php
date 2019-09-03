@@ -14,7 +14,7 @@ class StringDt extends DataType
 
     const CHARSET_UTF8 = 'UTF-8';
     const CHARSETS = [
-        self::CHARSET_UTF8
+        self::CHARSET_UTF8,
     ];
     protected $charSet;
 
@@ -28,11 +28,10 @@ class StringDt extends DataType
         parent::__construct($value, array_merge(
             [
                 'charSet' => self::CHARSET_UTF8,
-                'primitiveType' => self::PRIMITIVE_STRING
+                'primitiveType' => self::PRIMITIVE_STRING,
             ],
             $settings
         ));
-        self::setValue($this->value);
     }
 
     /**

@@ -36,7 +36,9 @@ class StringDtTest extends TestCase
         $this->assertEquals('hello', $anotherString->getValue());
     }
 
-    /** @test */
+    /** @test
+     * @throws \ReflectionException
+     */
     public function stringDtToStringMethodReturnsDescriptionOfClass()
     {
         $string = new StringDt();
@@ -44,7 +46,10 @@ class StringDtTest extends TestCase
         $classDescription = $string->getClassDescription();
         $this->assertStringContainsString('Core\DataTypes\Strings\StringDt {', $classDescription);
         $this->assertStringContainsString('charSet = "UTF-8"', $classDescription);
-        $this->assertStringContainsString('public __construct(string value = "", array settings = [])', $classDescription);
+        $this->assertStringContainsString(
+            'public __construct(string value = "", array settings = [])',
+            $classDescription
+        );
         $this->assertStringContainsString('public getCharSet()', $classDescription);
         $this->assertStringContainsString('public getValue()', $classDescription);
         $this->assertStringContainsString('public setValue(value)', $classDescription);
