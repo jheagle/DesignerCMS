@@ -1,9 +1,27 @@
 <?php
 
-require_once 'global_include.php';
-require_once $DATABASE['DBConnect__PHP'];
-require_once $ENTITY['Entity'];
+use Core\Database\PhpDbConnect;
 
+$localHosts = ['127.0.0.1', '::1'];
+if (in_array($_SERVER['SERVER_ADDR'], $localHosts, true) && in_array(
+        $_SERVER['REMOTE_ADDR'],
+        $localHosts,
+        true
+    )) {
+    //    header('Content-Type: application/json'); This is my debuggin trick, but if I have xdebug then this ruins it
+    $testing = true;
+    $production = false;
+}
+
+if (!isset($username)) {
+    $username = 'root';
+}
+
+if (!isset($hostname)) {
+    $hostname = 'localhost';
+}
+
+$db = PHPDBConnect::instantiateDB('', '', '', '', $testing, $production);
 $db = PHPDBConnect::instantiateDB($testing, $production);
 
 $selectTables = "SELECT CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) as name FROM information_schema.TABLES WHERE TABLE_SCHEMA <> 'mysql' AND ENGINE = 'MyISAM' AND TABLE_TYPE = 'BASE TABLE'";
