@@ -6,6 +6,11 @@ use Core\DataTypes\DataType;
 use Core\DataTypes\Numbers\NumberDt;
 use Core\DataTypes\Potential;
 
+/**
+ * Class Field
+ *
+ * @package Core\Entity
+ */
 class Field implements Potential
 {
 
@@ -41,6 +46,15 @@ class Field implements Potential
     /** @var mixed $default */
     protected $default;
 
+    /**
+     * Field constructor.
+     *
+     * @param string $name
+     * @param string $dataType
+     * @param string $default
+     * @param null $length
+     * @param int $attributes
+     */
     public function __construct(
         $name = '',
         $dataType = 'String',
@@ -61,6 +75,9 @@ class Field implements Potential
         $this->default = $this->dataType->getValue();
     }
 
+    /**
+     * @return int|mixed|string
+     */
     public function getValue()
     {
         if ($this->dataType instanceof NumberDt && property_exists(
@@ -73,21 +90,39 @@ class Field implements Potential
         return $this->dataType->getValue();
     }
 
+    /**
+     * @param $value
+     *
+     * @return mixed
+     */
     public function setValue($value)
     {
         return $this->dataType->setValue($value);
     }
 
+    /**
+     * @param $attr
+     *
+     * @return bool
+     */
     public function hasAttr($attr)
     {
         return ($this->attributes & $attr) === $attr;
     }
 
+    /**
+     * @param $attr
+     *
+     * @return bool
+     */
     public function hasAttribute($attr)
     {
         return self::hasAttr($attr);
     }
 
+    /**
+     * @return string
+     */
     public function __toString(): string
     {
         $string = '';
