@@ -46,11 +46,16 @@ class LazyAssignmentTest extends TestCase
             'staticProtectedMember' => 'updated static protected',
             'staticPrivateMember' => 'updated static private',
             'publicMember' => 'assigned public member',
-            'publicMemberWithDefault' => 'updated public',
             'protectedMember' => 'assigned protected member',
-            'protectedMemberWithDefault' => 'updated protected',
             'privateMember' => 'assigned private member',
-            'privateMemberWithDefault' => 'updated private',
+            'memberWithDefault' => 'updated public',
+            'memberWithArray' => ['thirdElement', 'fourthElement'],
+            'memberWithArrayAppend' => [2 => 'thirdElement', 3 => 'fourthElement'],
+            'memberWithMap' => [
+                'secondIndex' => 'updatedSecondElement',
+                'thirdIndex' => 'thirdElement',
+                'fourthIndex' => 'fourthElement',
+            ],
         ]);
         $getMember = $this->accessNonPublicMethod($updatedImplementor, 'getMember');
         // Constants cannot be changed
@@ -64,11 +69,22 @@ class LazyAssignmentTest extends TestCase
         $this->assertEquals('updated static protected', $getMember('staticProtectedMember'));
         $this->assertEquals('updated static private', $getMember('staticPrivateMember'));
         $this->assertEquals('assigned public member', $getMember('publicMember'));
-        $this->assertEquals('updated public', $getMember('publicMemberWithDefault'));
         $this->assertEquals('assigned protected member', $getMember('protectedMember'));
-        $this->assertEquals('updated protected', $getMember('protectedMemberWithDefault'));
         $this->assertEquals('assigned private member', $getMember('privateMember'));
-        $this->assertEquals('updated private', $getMember('privateMemberWithDefault'));
+        $this->assertEquals('updated public', $getMember('memberWithDefault'));
+        $this->assertEquals(['thirdElement', 'fourthElement'], $getMember('memberWithArray'));
+        $this->assertEquals([
+            'firstElement',
+            'secondElement',
+            'thirdElement',
+            'fourthElement',
+        ], $getMember('memberWithArrayAppend'));
+        $this->assertEquals([
+            'firstIndex' => 'firstElement',
+            'secondIndex' => 'updatedSecondElement',
+            'thirdIndex' => 'thirdElement',
+            'fourthIndex' => 'fourthElement',
+        ], $getMember('memberWithMap'));
     }
 
     private function buildLazyAssignmentClass()
@@ -86,17 +102,16 @@ class LazyAssignmentTest extends TestCase
                 'firstElement' => self::CONSTANT_MEMBER,
                 'secondElement' => 'anotherElement',
             ];
-            // TODO: Add in Final to see if it throws errors / exceptions
-            // TODO: Add in different types, not only strings, especially consider arrays, objects, and Resources
             static public $staticPublicMember = 'static public';
             static protected $staticProtectedMember = 'static protected';
             static private $staticPrivateMember = 'static private';
             public $publicMember;
-            public $publicMemberWithDefault = 'public';
             protected $protectedMember;
-            protected $protectedMemberWithDefault = 'protected';
             private $privateMember;
-            private $privateMemberWithDefault = 'private';
+            public $memberWithDefault = 'public';
+            public $memberWithArray = ['firstElement', 'secondElement'];
+            public $memberWithArrayAppend = ['firstElement', 'secondElement'];
+            public $memberWithMap = ['firstIndex' => 'firstElement', 'secondIndex' => 'secondElement'];
         };
     }
 }

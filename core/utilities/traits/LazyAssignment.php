@@ -21,7 +21,7 @@ trait LazyAssignment
         foreach ($classVars as $classMemberName => $default) {
             // Set this member to the incoming form data otherwise, use the default value
             $newClassMemberValue = is_array($default)
-                ? $default + $settings[$classMemberName] ?? []
+                ? array_replace_recursive($default, (array)($settings[$classMemberName] ?? []))
                 : $settings[$classMemberName] ?? $default;
             $this->setMember($classMemberName, $newClassMemberValue);
         }
