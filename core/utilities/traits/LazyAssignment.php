@@ -11,6 +11,8 @@ trait LazyAssignment
 {
     /**
      * @param array $settings
+     *
+     * @return $this
      */
     protected function applyMemberSettings(array $settings = [])
     {
@@ -23,6 +25,7 @@ trait LazyAssignment
                 : $settings[$classMemberName] ?? $default;
             $this->setMember($classMemberName, $newClassMemberValue);
         }
+        return $this;
     }
 
     /**
@@ -33,11 +36,15 @@ trait LazyAssignment
     protected function getMember($memberKey)
     {
         try {
-            // Attempt to retrieve the member statically
-            return $this::$$memberKey;
-        } catch (\Error $e) {
-            // Failed, must not be statically accessible, retrieve as instance member
-            return $this->{$memberKey};
+            return constant("self::{$memberKey}");
+        } catch (\Exception $e) {
+            try {
+                // Attempt to retrieve the member statically
+                return $this::$$memberKey;
+            } catch (\Error $e) {
+                // Failed, must not be statically accessible, retrieve as instance member
+                return $this->{$memberKey};
+            }
         }
     }
 
@@ -50,11 +57,15 @@ trait LazyAssignment
     protected function setMember($memberKey, $value)
     {
         try {
-            // Attempt to assign the member statically
-            $this::$$memberKey = $value;
-        } catch (\Error $e) {
-            // Failed, must not be statically accessible, assign as instance member
-            $this->{$memberKey} = $value;
+            return constant("self::{$memberKey}");
+        } catch (\Exception $e) {
+            try {
+                // Attempt to assign the member statically
+                $this::$$memberKey = $value;
+            } catch (\Error $e) {
+                // Failed, must not be statically accessible, assign as instance member
+                $this->{$memberKey} = $value;
+            }
         }
         return $value;
     }

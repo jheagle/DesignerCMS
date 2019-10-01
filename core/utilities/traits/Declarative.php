@@ -122,8 +122,11 @@ trait Declarative
             }
             return array_reduce(
                 array_keys($descriptor),
-                $this->generateDescriptorLineBuilder($descriptor, $descriptorIndent,
-                    "{$descriptorKey}\x20{$descriptorPrefix}"),
+                $this->generateDescriptorLineBuilder(
+                    $descriptor,
+                    $descriptorIndent,
+                    "{$descriptorKey}\x20{$descriptorPrefix}"
+                ),
                 $toString
             );
         };
