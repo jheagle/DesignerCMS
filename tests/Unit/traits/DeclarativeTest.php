@@ -9,6 +9,10 @@ use Core\Utilities\Traits\Declarative;
  * Class DeclarativeTest
  *
  * @package Core\Tests\Unit\Traits
+ *
+ * @group Unit
+ * @group Traits
+ * @group Declarative
  */
 class DeclarativeTest extends TestCase
 {
@@ -24,6 +28,7 @@ class DeclarativeTest extends TestCase
     {
         $implementor = $this->buildDeclarativeClass();
         $classDescription = $implementor->getClassDescription();
+        echo $implementor;
         $this->assertStringContainsString('class@anonymous', $classDescription);
         $this->assertStringContainsString('final public getClassDescription(): string', $classDescription);
         $this->assertStringContainsString(
@@ -60,6 +65,26 @@ class DeclarativeTest extends TestCase
         return new class
         {
             use Declarative;
+
+            const CONSTANT_MEMBER = 'constant';
+            const CONSTANT_ARRAY_MEMBER = [
+                self::CONSTANT_MEMBER,
+                'anotherElement',
+            ];
+            const CONSTANT_ASSOC_ARRAY_MEMBER = [
+                'firstElement' => self::CONSTANT_MEMBER,
+                'secondElement' => 'anotherElement',
+            ];
+            static public $staticPublicMember = 'static public';
+            static protected $staticProtectedMember = 'static protected';
+            static private $staticPrivateMember = 'static private';
+            public $publicMember;
+            protected $protectedMember;
+            private $privateMember;
+            public $memberWithDefault = 'public';
+            public $memberWithArray = ['firstElement', 'secondElement'];
+            public $memberWithArrayAppend = ['firstElement', 'secondElement'];
+            public $memberWithMap = ['firstIndex' => 'firstElement', 'secondIndex' => 'secondElement'];
 
             /**
              * @return string

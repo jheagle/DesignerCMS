@@ -169,14 +169,14 @@ trait Declarative
                 }
             }
             $memberValue = $classVars[$memberKey];
-            switch (gettype($memberValue)) {
-                case self::PRIMITIVE_ARRAY:
-                case self::PRIMITIVE_OBJECT:
-                    $memberValue = json_encode($memberValue);
-                    break;
-                case self::PRIMITIVE_STRING:
-                    $memberValue = '"' . $memberValue . '"';
-                    break;
+            if (is_string($memberValue)) {
+                $memberValue = '"' . $memberValue . '"';
+            }
+            if (is_array($memberValue) || is_object($memberValue)) {
+                $memberValue = json_encode($memberValue);
+            }
+            if (!is_null($memberValue)){
+                $memberValue = " = {$memberValue}";
             }
             $arrayPointer = &$members[$memberClass]['members'];
             if ($member->isPublic()) {
@@ -191,7 +191,7 @@ trait Declarative
             if ($member->isStatic()) {
                 $arrayPointer = &$arrayPointer['static'];
             }
-            $arrayPointer[$memberKey] = "{$memberKey} = {$memberValue}";
+            $arrayPointer[$memberKey] = "{$memberKey}{$memberValue}";
             return $members;
         };
     }
