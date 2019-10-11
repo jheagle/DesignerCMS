@@ -35,17 +35,23 @@ trait LazyAssignment
      */
     protected function getMember($memberKey)
     {
+        set_error_handler(function ($severity, $message, $file, $line) {
+            throw new \ErrorException($message, $severity, $severity, $file, $line);
+        });
+        $memberValue = null;
         try {
-            return constant("self::{$memberKey}");
+            $memberValue = constant("self::{$memberKey}");
         } catch (\Exception $e) {
             try {
                 // Attempt to retrieve the member statically
-                return $this::$$memberKey;
+                $memberValue = $this::$$memberKey;
             } catch (\Error $e) {
                 // Failed, must not be statically accessible, retrieve as instance member
-                return $this->{$memberKey};
+                $memberValue = $this->{$memberKey};
             }
         }
+        restore_error_handler();
+        return $memberValue;
     }
 
     /**
@@ -56,13 +62,21 @@ trait LazyAssignment
      */
     protected function setMember($memberKey, $value)
     {
+        set_error_handler(function ($severity, $message, $file, $line) {
+            throw new \ErrorException($message, $severity, $severity, $file, $line);
+        });
         try {
-            // Attempt to assign the member statically
-            $this::$$memberKey = $value;
-        } catch (\Error $e) {
-            // Failed, must not be statically accessible, assign as instance member
-            $this->{$memberKey} = $value;
+            $value = constant("self::{$memberKey}");
+        } catch (\Exception $e) {
+            try {
+                // Attempt to assign the member statically
+                $this::$$memberKey = $value;
+            } catch (\Error $e) {
+                // Failed, must not be statically accessible, assign as instance member
+                $this->{$memberKey} = $value;
+            }
         }
+        restore_error_handler();
         return $value;
     }
 }
