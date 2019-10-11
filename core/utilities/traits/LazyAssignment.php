@@ -57,15 +57,11 @@ trait LazyAssignment
     protected function setMember($memberKey, $value)
     {
         try {
-            return constant("self::{$memberKey}");
-        } catch (\Exception $e) {
-            try {
-                // Attempt to assign the member statically
-                $this::$$memberKey = $value;
-            } catch (\Error $e) {
-                // Failed, must not be statically accessible, assign as instance member
-                $this->{$memberKey} = $value;
-            }
+            // Attempt to assign the member statically
+            $this::$$memberKey = $value;
+        } catch (\Error $e) {
+            // Failed, must not be statically accessible, assign as instance member
+            $this->{$memberKey} = $value;
         }
         return $value;
     }
