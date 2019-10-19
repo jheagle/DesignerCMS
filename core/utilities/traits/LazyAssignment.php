@@ -40,7 +40,7 @@ trait LazyAssignment
         });
         $memberValue = null;
         try {
-            $memberValue = constant("self::{$memberKey}");
+            $memberValue = constant(get_class($this) . "::{$memberKey}");
         } catch (\Exception $e) {
             try {
                 // Attempt to retrieve the member statically

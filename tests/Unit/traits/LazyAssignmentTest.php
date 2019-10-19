@@ -42,6 +42,26 @@ class LazyAssignmentTest extends TestCase
                 'secondElement' => 'updatedAnotherElement',
                 'thirdElement' => 'finalUpdatedElement',
             ],
+            'PROTECTED_CONSTANT' => 'changedConstant',
+            'PROTECTED_CONSTANT_ARRAY' => [
+                'anotherChangedConstant',
+                'updatedAnotherElement',
+            ],
+            'PROTECTED_CONSTANT_ASSOC_ARRAY' => [
+                'firstElement' => 'anotherChangedConstant',
+                'secondElement' => 'updatedAnotherElement',
+                'thirdElement' => 'finalUpdatedElement',
+            ],
+            'PRIVATE_CONSTANT' => 'changedConstant',
+            'PRIVATE_CONSTANT_ARRAY' => [
+                'anotherChangedConstant',
+                'updatedAnotherElement',
+            ],
+            'PRIVATE_CONSTANT_ASSOC_ARRAY' => [
+                'firstElement' => 'anotherChangedConstant',
+                'secondElement' => 'updatedAnotherElement',
+                'thirdElement' => 'finalUpdatedElement',
+            ],
             'staticPublicMember' => 'updated static public',
             'staticProtectedMember' => 'updated static protected',
             'staticPrivateMember' => 'updated static private',
@@ -65,6 +85,18 @@ class LazyAssignmentTest extends TestCase
             'firstElement' => 'constant',
             'secondElement' => 'anotherElement',
         ], $getMember('CONSTANT_ASSOC_ARRAY_MEMBER'));
+        $this->assertEquals('protected constant', $getMember('PROTECTED_CONSTANT'));
+        $this->assertEquals(['protected constant', 'protectedElement'], $getMember('PROTECTED_CONSTANT_ARRAY'));
+        $this->assertEquals([
+            'firstElement' => 'protected constant',
+            'secondElement' => 'protectedElement',
+        ], $getMember('PROTECTED_CONSTANT_ASSOC_ARRAY'));
+        $this->assertEquals('private constant', $getMember('PRIVATE_CONSTANT'));
+        $this->assertEquals(['private constant', 'privateElement'], $getMember('PRIVATE_CONSTANT_ARRAY'));
+        $this->assertEquals([
+            'firstElement' => 'private constant',
+            'secondElement' => 'privateElement',
+        ], $getMember('PRIVATE_CONSTANT_ASSOC_ARRAY'));
         $this->assertEquals('updated static public', $getMember('staticPublicMember'));
         $this->assertEquals('updated static protected', $getMember('staticProtectedMember'));
         $this->assertEquals('updated static private', $getMember('staticPrivateMember'));
@@ -93,14 +125,32 @@ class LazyAssignmentTest extends TestCase
         {
             use LazyAssignment;
 
-            const CONSTANT_MEMBER = 'constant';
-            const CONSTANT_ARRAY_MEMBER = [
+            public const CONSTANT_MEMBER = 'constant';
+            public const CONSTANT_ARRAY_MEMBER = [
                 self::CONSTANT_MEMBER,
                 'anotherElement',
             ];
-            const CONSTANT_ASSOC_ARRAY_MEMBER = [
+            public const CONSTANT_ASSOC_ARRAY_MEMBER = [
                 'firstElement' => self::CONSTANT_MEMBER,
                 'secondElement' => 'anotherElement',
+            ];
+            protected const PROTECTED_CONSTANT = 'protected constant';
+            protected const PROTECTED_CONSTANT_ARRAY = [
+                self::PROTECTED_CONSTANT,
+                'protectedElement',
+            ];
+            protected const PROTECTED_CONSTANT_ASSOC_ARRAY = [
+                'firstElement' => self::PROTECTED_CONSTANT,
+                'secondElement' => 'protectedElement',
+            ];
+            private const PRIVATE_CONSTANT = 'private constant';
+            private const PRIVATE_CONSTANT_ARRAY = [
+                self::PRIVATE_CONSTANT,
+                'privateElement',
+            ];
+            private const PRIVATE_CONSTANT_ASSOC_ARRAY = [
+                'firstElement' => self::PRIVATE_CONSTANT,
+                'secondElement' => 'privateElement',
             ];
             static public $staticPublicMember = 'static public';
             static protected $staticProtectedMember = 'static protected';

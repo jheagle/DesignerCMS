@@ -2,8 +2,8 @@
 
 namespace Core\Tests\Unit\Traits;
 
+use Core\Tests\Mocks\DataTypeMock;
 use Core\Tests\TestCase;
-use Core\Utilities\Traits\Declarative;
 
 /**
  * Class DeclarativeTest
@@ -23,10 +23,12 @@ class DeclarativeTest extends TestCase
 
     /**
      * @test
+     *
+     * @throws \ReflectionException
      */
     public function toStringMethodReturnsDescriptionOfClass()
     {
-        $implementor = $this->buildDeclarativeClass();
+        $implementor = $this->buildDeclarativeClass(0);
         $classDescription = $implementor->getClassDescription();
         echo $implementor;
         $this->assertStringContainsString('class@anonymous', $classDescription);
@@ -60,12 +62,10 @@ class DeclarativeTest extends TestCase
         $this->assertStringContainsString('}', $classDescription);
     }
 
-    private function buildDeclarativeClass()
+    private function buildDeclarativeClass($value = null)
     {
-        return new class
+        return new class($value) extends DataTypeMock
         {
-            use Declarative;
-
             const CONSTANT_MEMBER = 'constant';
             const CONSTANT_ARRAY_MEMBER = [
                 self::CONSTANT_MEMBER,
