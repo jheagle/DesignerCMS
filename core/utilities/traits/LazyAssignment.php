@@ -66,7 +66,7 @@ trait LazyAssignment
             throw new \ErrorException($message, $severity, $severity, $file, $line);
         });
         try {
-            $value = constant("self::{$memberKey}");
+            $value = constant(get_class($this) . "::{$memberKey}");
         } catch (\Exception $e) {
             try {
                 // Attempt to assign the member statically
