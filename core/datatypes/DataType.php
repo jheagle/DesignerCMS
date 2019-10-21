@@ -73,7 +73,7 @@ abstract class DataType implements DataTypeObject
      * @param $value
      * @param array $settings
      */
-    public function __construct($value, array $settings = [])
+    public function __construct($value = null, array $settings = [])
     {
         self::$systemMaxBits = PHP_INT_SIZE << 3;
         self::applyMemberSettings($settings);

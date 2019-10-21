@@ -24,21 +24,18 @@ class DataTypeTest extends TestCase
     }
 
     /** @test */
-    public function createADataTypeInstanceHasCorrectProperties()
+    public function createdDataTypeInstanceHasCorrectProperties()
     {
-        $dataType = new DataTypeMock('');
-        $this->assertEquals('', $dataType->getValue());
+        $dataType = new DataTypeMock();
         $this->assertEquals(PHP_INT_SIZE << 3, $dataType->getSystemMaxBits());
-
-        $anotherString = new DataTypeMock('hello');
-        $this->assertEquals('hello', $anotherString->getValue());
+        $this->assertNull($dataType->getValue());
     }
 
     /** @test */
-    public function stringDtEqualsToStringOrSelf()
+    public function mockDtEqualsToNullOrSelf()
     {
-        $dataType = new DataTypeMock('');
-        $this->assertTrue($dataType->isEqual(''));
+        $dataType = new DataTypeMock();
+        $this->assertTrue($dataType->isEqual(null));
         $this->assertTrue($dataType->isEqual($dataType));
     }
 }

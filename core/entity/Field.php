@@ -63,15 +63,20 @@ class Field implements Potential
         $attributes = self::NOT_NULL
     ) {
         $this->name = strtolower(str_replace(' ', '_', $name));
-        $this->attributes = $attributes & self::PRIMARY_KEY || $attributes & self::UNIQUE ? $attributes | self::REQUIRED : $attributes;
+        // Set Required attribute if this field is Unique or a Primary Key
+        $this->attributes = $attributes & self::PRIMARY_KEY || $attributes & self::UNIQUE
+            ? $attributes | self::REQUIRED
+            : $attributes;
         if ($this->hasAttr(self::ZERO_FILL)) {
+            // Only Unsigned numbers can have Zero Fill attribute
             $this->attributes |= self::UNSIGNED;
         }
-        $dataTypeClassName = '\Core\DataTypes\Numbers\\' . $dataType . 'Dt';
-        $this->dataType = new $dataTypeClassName(
-            $default,
-            ['length' => $length, 'isSigned' => !$this->hasAttr(self::UNSIGNED)]
-        );
+        // TODO: Implement a way of applying DataType-specific settings
+        //        $dataTypeClassName = '\Core\DataTypes\Numbers\\' . $dataType . 'Dt';
+        //        $this->dataType = new $dataTypeClassName(
+        //            $default,
+        //            ['length' => $length, 'isSigned' => !$this->hasAttr(self::UNSIGNED)]
+        //        );
         $this->default = $this->dataType->getValue();
     }
 
