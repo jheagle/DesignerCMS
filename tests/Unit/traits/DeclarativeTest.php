@@ -30,9 +30,84 @@ class DeclarativeTest extends TestCase
     {
         $implementor = $this->buildDeclarativeClass(0);
         $classDescription = $implementor->getClassDescription();
-        echo $implementor;
+
+        /*
+         * class@anonymous/Users/joshuaheagle/Sites/DesignerCMS/tests/Unit/traits/DeclarativeTest.php0x10b4f18b4 {
+         *
+         *   static public staticPublicMember = "static public"
+         *   public memberWithArray = ["firstElement","secondElement"]
+         *   public memberWithArrayAppend = ["firstElement","secondElement"]
+         *   public memberWithDefault = "public"
+         *   public memberWithMap = {"firstIndex":"firstElement","secondIndex":"secondElement"}
+         *   public publicMember
+         *   static protected staticProtectedMember = "static protected"
+         *   protected protectedMember
+         *
+         *   public __construct(value, array settings = [])
+         *   public __toString(): string
+         */
         $this->assertStringContainsString('class@anonymous', $classDescription);
+
+        $this->assertStringContainsString('static public staticPublicMember = "static public"', $classDescription);
+        $this->assertStringContainsString(
+            'public memberWithArray = ["firstElement","secondElement"]',
+            $classDescription
+        );
+        $this->assertStringContainsString(
+            'public memberWithArrayAppend = ["firstElement","secondElement"]',
+            $classDescription
+        );
+        $this->assertStringContainsString('public memberWithDefault = "public"', $classDescription);
+        $this->assertStringContainsString(
+            'public memberWithMap = {"firstIndex":"firstElement","secondIndex":"secondElement"}',
+            $classDescription
+        );
+        $this->assertStringContainsString('public publicMember', $classDescription);
+        $this->assertStringContainsString(
+            'static protected staticProtectedMember = "static protected"',
+            $classDescription
+        );
+        $this->assertStringContainsString('protected protectedMember', $classDescription);
+
+        $this->assertStringContainsString('public __construct(value, array settings = [])', $classDescription);
+        $this->assertStringContainsString('public __toString(): string', $classDescription);
+
+        /*
+         *   abstract Core\DataTypes\DataType
+         *
+         *     static protected systemMaxBits = 64
+         *     protected primitiveType = "object"
+         *     protected value = 0
+         *
+         *     final public getClassDescription(): string
+         *     public getPrimitiveType(): string
+         *     public getSystemMaxBits(): int
+         *     public isEqual(datatype): bool
+         *     protected applyMemberSettings(array settings = [])
+         *     protected getMember(memberKey)
+         *     protected setMember(memberKey, value)
+         *     private buildMethodDeclaration(array methods, string methodName): array
+         *     private buildParameterDeclaration(string paramString, ReflectionParameter param): string
+         *     private generateDescriptorLineBuilder(array descriptors, string descriptorIndent, string descriptorPrefix = ""): callable
+         *     private generateDescriptorLinesBuilder(array descriptorTypes, string classIndent): callable
+         *     private generateDescriptorLinesForClassBuilder(array classDescriptors): callable
+         *     private generateMemberDeclarationBuilder(array classVars): callable
+         *     private getClassMembers(): array
+         *     private getClassMethods(): array
+         */
+        $this->assertStringContainsString('abstract Core\DataTypes\DataType', $classDescription);
+
+        $this->assertStringContainsString('static protected systemMaxBits = 64', $classDescription);
+        $this->assertStringContainsString('protected primitiveType = "object"', $classDescription);
+        $this->assertStringContainsString('protected value = 0', $classDescription);
+
         $this->assertStringContainsString('final public getClassDescription(): string', $classDescription);
+        $this->assertStringContainsString('public getPrimitiveType(): string', $classDescription);
+        $this->assertStringContainsString('public getSystemMaxBits(): int', $classDescription);
+        $this->assertStringContainsString('public isEqual(datatype): bool', $classDescription);
+        $this->assertStringContainsString('protected applyMemberSettings(array settings = [])', $classDescription);
+        $this->assertStringContainsString('protected getMember(memberKey)', $classDescription);
+        $this->assertStringContainsString('protected setMember(memberKey, value)', $classDescription);
         $this->assertStringContainsString(
             'private buildMethodDeclaration(array methods, string methodName): array',
             $classDescription
@@ -59,6 +134,20 @@ class DeclarativeTest extends TestCase
         );
         $this->assertStringContainsString('private getClassMembers(): array', $classDescription);
         $this->assertStringContainsString('private getClassMethods(): array', $classDescription);
+
+        /*
+         *   Core\Tests\Mocks\DataTypeMock
+         *
+         *     public getValue()
+         *     public setValue(value)
+         *
+         * }
+         */
+        $this->assertStringContainsString('Core\Tests\Mocks\DataTypeMock', $classDescription);
+
+        $this->assertStringContainsString('public getValue()', $classDescription);
+        $this->assertStringContainsString('public setValue(value)', $classDescription);
+
         $this->assertStringContainsString('}', $classDescription);
     }
 
@@ -85,6 +174,17 @@ class DeclarativeTest extends TestCase
             public $memberWithArray = ['firstElement', 'secondElement'];
             public $memberWithArrayAppend = ['firstElement', 'secondElement'];
             public $memberWithMap = ['firstIndex' => 'firstElement', 'secondIndex' => 'secondElement'];
+
+            /**
+             *  constructor.
+             *
+             * @param $value
+             * @param array $settings
+             */
+            public function __construct($value, array $settings = [])
+            {
+                parent::__construct($value, $settings);
+            }
 
             /**
              * @return string

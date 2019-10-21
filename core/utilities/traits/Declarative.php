@@ -26,7 +26,7 @@ trait Declarative
                 array_keys($classDescriptors),
                 self::generateDescriptorLinesForClassBuilder($classDescriptors),
                 ''
-            ) . "\n\e[1;32m}\e[0m\n";
+            ) . "\n\n\e[1;32m}\e[0m\n";
     }
 
     /**
