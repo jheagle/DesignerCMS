@@ -23,8 +23,14 @@ class StringDtTest extends TestCase
         parent::setUp();
     }
 
-    /** @test */
-    public function createAStringDtInstanceHasCorrectProperties()
+    /**
+     * Given a newly created StringDt
+     * When value is or is not provided
+     * Then the four members should match default values
+     *
+     * @test
+     */
+    public function createdStringDtInstanceHasCorrectProperties()
     {
         $string = new StringDt();
         $this->assertEquals(StringDt::CHARSET_UTF8, $string->getCharSet());
@@ -36,7 +42,13 @@ class StringDtTest extends TestCase
         $this->assertEquals('hello', $anotherString->getValue());
     }
 
-    /** @test */
+    /**
+     * Given a StringDt instance
+     * When checking equality
+     * Then the isEqual method will return true for a string matching the set value and for the same StringDt instance
+     *
+     * @test
+     */
     public function stringDtEqualsToStringOrSelf()
     {
         $string = new StringDt();

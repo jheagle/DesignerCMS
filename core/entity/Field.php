@@ -72,11 +72,11 @@ class Field implements Potential
             $this->attributes |= self::UNSIGNED;
         }
         // TODO: Implement a way of applying DataType-specific settings
-        //        $dataTypeClassName = '\Core\DataTypes\Numbers\\' . $dataType . 'Dt';
-        //        $this->dataType = new $dataTypeClassName(
-        //            $default,
-        //            ['length' => $length, 'isSigned' => !$this->hasAttr(self::UNSIGNED)]
-        //        );
+        $dataTypeClassName = '\Core\DataTypes\Numbers\\' . $dataType . 'Dt';
+        $this->dataType = new $dataTypeClassName(
+            $default,
+            ['length' => $length, 'isSigned' => !$this->hasAttr(self::UNSIGNED)]
+        );
         $this->default = $this->dataType->getValue();
     }
 

@@ -22,6 +22,10 @@ class DeclarativeTest extends TestCase
     }
 
     /**
+     * Given a class having several differently scoped members and inheriting from DataTypeMock
+     * When has the Declarative trait and calling getClassDescription on the class
+     * Then all class member a method declarations will be output, including relative inheritance
+     *
      * @test
      *
      * @throws \ReflectionException
@@ -151,7 +155,14 @@ class DeclarativeTest extends TestCase
         $this->assertStringContainsString('}', $classDescription);
     }
 
-    private function buildDeclarativeClass($value = null)
+    /**
+     * Return an example class having a variety of members demonstrate Declarative trait.
+     *
+     * @param null $value
+     *
+     * @return \Core\Tests\Mocks\DataTypeMock
+     */
+    private function buildDeclarativeClass($value = null): DataTypeMock
     {
         return new class($value) extends DataTypeMock
         {
@@ -176,7 +187,7 @@ class DeclarativeTest extends TestCase
             public $memberWithMap = ['firstIndex' => 'firstElement', 'secondIndex' => 'secondElement'];
 
             /**
-             *  constructor.
+             * Declarative class constructor.
              *
              * @param $value
              * @param array $settings
@@ -187,6 +198,8 @@ class DeclarativeTest extends TestCase
             }
 
             /**
+             * Have this class show its declarations when being echoed.
+             *
              * @return string
              */
             public function __toString(): string

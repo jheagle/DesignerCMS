@@ -9,7 +9,7 @@ namespace Core\Utilities\Functional;
  *
  * @method static callable[] extractAll()
  *
- * @method static callable apply(callable[] ...$fns)
+ * @method static callable pipe(callable[] ...$fns)
  * @method static callable curry(string | callable $fn, string | object $class = __CLASS__)
  * @method static callable trace(string $label = '')
  * @method static callable tt(string $label = '')

@@ -19,6 +19,7 @@ class StringDt extends DataType
     protected $charSet;
 
     /**
+     * StringDt constructor.
      *
      * @param string $value
      * @param array $settings
@@ -35,6 +36,8 @@ class StringDt extends DataType
     }
 
     /**
+     * Retrieve the configured character set for this DataType
+     *
      * @return mixed
      */
     public function getCharSet()
@@ -43,6 +46,8 @@ class StringDt extends DataType
     }
 
     /**
+     * Retrieve the value which was set for this DataType
+     *
      * @return mixed
      */
     public function getValue()
@@ -51,6 +56,8 @@ class StringDt extends DataType
     }
 
     /**
+     * Update the value for this DataType (apply the correct character set)
+     *
      * @param mixed $value
      *
      * @return mixed|void

@@ -10,6 +10,9 @@ namespace Core\Utilities\Traits;
 trait LazyAssignment
 {
     /**
+     * Provided a keyed array where the keys match names of class members, then the provided values will be applied to
+     * each of the class members as specified.
+     *
      * @param array $settings
      *
      * @return $this
@@ -29,6 +32,8 @@ trait LazyAssignment
     }
 
     /**
+     * Get the value of any member by member name.
+     *
      * @param $memberKey
      *
      * @return mixed
@@ -55,6 +60,9 @@ trait LazyAssignment
     }
 
     /**
+     * Set the value of almost any member by member name.
+     * NOTE: You cannot set the value of a constant.
+     *
      * @param $memberKey
      * @param $value
      *

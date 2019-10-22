@@ -38,7 +38,7 @@ trait IgnoreMethodScopes
                 return $method->invokeArgs($class, $args);
             };
         } catch (\ReflectionException $e) {
-            Pure::trace('Unable to apply reflection')($e);
+            Pure::trace('Unable to pipe reflection')($e);
             return function () use ($className, $methodName) {
                 throw new \Exception("Failed to access {$methodName} of {$className}");
             };

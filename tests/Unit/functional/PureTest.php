@@ -18,11 +18,15 @@ class PureTest extends TestCase
 {
 
     /**
+     * Given four string altering functions and a blank string variable
+     * When passing any number of the functions to pipe in any order
+     * Then pipe returns a callable function which will pass a parameter to all of the provided functions
+     *
      * @test
      */
-    public function applyCanReceiveMultipleFunctions()
+    public function pipeCanReceiveMultipleFunctions()
     {
-        // create new test functions to pass to apply
+        // create new test functions to pass to pipe
         $appendOne = function (string $str): string {
             $appendStr = 'one';
             return !$str ? $appendStr : "{$str}-{$appendStr}";
@@ -37,23 +41,27 @@ class PureTest extends TestCase
         };
         $strParam = '';
 
-        $oneCallable = Pure::apply($appendOne);
+        $oneCallable = Pure::pipe($appendOne);
         $this->assertIsCallable($oneCallable);
         $this->assertEquals('one', $oneCallable($strParam));
-        $twoCallable = Pure::apply($appendOne, $appendTwo);
+        $twoCallable = Pure::pipe($appendOne, $appendTwo);
         $this->assertIsCallable($twoCallable);
         $this->assertEquals('one-two', $twoCallable($strParam));
-        $threeCallable = Pure::apply($appendOne, $appendTwo, $appendThree);
+        $threeCallable = Pure::pipe($appendOne, $appendTwo, $appendThree);
         $this->assertIsCallable($threeCallable);
         $this->assertEquals('one-two-three', $threeCallable($strParam));
     }
 
     /**
+     * Given four string altering functions and a blank string variable
+     * When passing any number of the functions to pipe in any order
+     * Then the resulting string will have been altered by the functions in the order provided
+     *
      * @test
      */
-    public function applyCanAlterInputWithProvidedFunctions()
+    public function pipeCanAlterInputWithProvidedFunctions()
     {
-        // create new test functions to pass to apply
+        // create new test functions to pass to pipe
         $appendOne = function (string $str): string {
             $appendStr = 'one';
             return !$str ? $appendStr : "{$str}-{$appendStr}";
@@ -68,7 +76,7 @@ class PureTest extends TestCase
         };
         $strParam = '';
 
-        $threeCallable = Pure::apply($appendOne, $appendTwo, $appendThree);
+        $threeCallable = Pure::pipe($appendOne, $appendTwo, $appendThree);
         $alteredString = $threeCallable($strParam);
         $this->assertEquals('one-two-three', $alteredString);
 
@@ -76,6 +84,10 @@ class PureTest extends TestCase
     }
 
     /**
+     * Given a function that takes three parameters
+     * When currying the function and passing less than three parameters
+     * Then a function will be returned expecting the remaining parameters
+     *
      * @test
      */
     public function curryReturnsAFunctionFromMissingParameters()
@@ -100,6 +112,10 @@ class PureTest extends TestCase
     }
 
     /**
+     * Given a function that takes three parameters
+     * When currying the function and passing all three parameters at once, or with consecutive calls
+     * Then the final return value of the original function will be returned
+     *
      * @test
      */
     public function curryReturnsFunctionResultWithAllParameters()

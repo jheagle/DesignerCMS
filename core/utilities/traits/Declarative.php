@@ -10,7 +10,10 @@ namespace Core\Utilities\Traits;
 trait Declarative
 {
     /**
+     * Get a string representation of all of this classes member and method declarations.
+     *
      * @return string
+     *
      * @throws \ReflectionException
      */
     final public function getClassDescription(): string
@@ -30,6 +33,8 @@ trait Declarative
     }
 
     /**
+     * Store all of the descriptors, then return the buildDescriptorLinesForClass function.
+     *
      * @param array $classDescriptors
      *
      * @return callable
@@ -37,6 +42,9 @@ trait Declarative
     private function generateDescriptorLinesForClassBuilder(array $classDescriptors): callable
     {
         /**
+         * Given a string to append to, a class name (could be this class or inherited class), build the associated
+         * descriptor lines.
+         *
          * @param string $toString
          * @param string $class
          *
@@ -61,6 +69,8 @@ trait Declarative
     }
 
     /**
+     * Store all of the descriptor groups and class indent states, then return the buildDescriptorLines function.
+     *
      * @param array $descriptorTypes
      * @param string $classIndent
      *
@@ -69,6 +79,8 @@ trait Declarative
     private function generateDescriptorLinesBuilder(array $descriptorTypes, string $classIndent): callable
     {
         /**
+         * Given a descriptor group, add in any styles to distinguish this group.
+         *
          * @param string $toString
          * @param string $descriptorType
          *
@@ -90,6 +102,8 @@ trait Declarative
     }
 
     /**
+     * Store a group of descriptors, indent and prefix states, then return the buildDescriptorLine function.
+     *
      * @param array $descriptors
      * @param string $descriptorIndent
      * @param string $descriptorPrefix
@@ -102,6 +116,8 @@ trait Declarative
         string $descriptorPrefix = ''
     ): callable {
         /**
+         * Given a descriptor (member or method), then build the formatted string as a line to output.
+         *
          * @param string $toString
          * @param string $descriptorKey
          *
@@ -133,6 +149,8 @@ trait Declarative
     }
 
     /**
+     * Retrieve all class members and build a sorted array of member declarations.
+     *
      * @return array
      */
     private function getClassMembers(): array
@@ -143,6 +161,8 @@ trait Declarative
     }
 
     /**
+     * Store all of the class members, and return the buildMemberDeclaration function.
+     *
      * @param array $classVars
      *
      * @return callable
@@ -151,6 +171,9 @@ trait Declarative
     {
         $memberClass = '';
         /**
+         * Given a sorted array of member declarations and a specific member name, build a string for the member
+         * declaration and add it to the array of members.
+         *
          * @param array $members
          * @param string $memberKey
          *
@@ -175,7 +198,7 @@ trait Declarative
             if (is_array($memberValue) || is_object($memberValue)) {
                 $memberValue = json_encode($memberValue);
             }
-            if (!is_null($memberValue)){
+            if (!is_null($memberValue)) {
                 $memberValue = " = {$memberValue}";
             }
             $arrayPointer = &$members[$memberClass]['members'];
@@ -197,6 +220,8 @@ trait Declarative
     }
 
     /**
+     * Retrieve all class methods and build a sorted array of method declarations.
+     *
      * @return array
      */
     private function getClassMethods(): array
@@ -207,6 +232,9 @@ trait Declarative
     }
 
     /**
+     * Given a sorted array of method declarations and a specific method name, build a string for the method
+     * declaration and add it to the array of methods.
+     *
      * @param array $methods
      * @param string $methodName
      *
@@ -256,6 +284,8 @@ trait Declarative
     }
 
     /**
+     * Give a string representing a method's parameters, append another parameter.
+     *
      * @param string $paramString
      * @param \ReflectionParameter $param
      *

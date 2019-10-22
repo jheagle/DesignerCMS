@@ -12,6 +12,8 @@ use Core\DataTypes\DataType;
 class DataTypeMock extends DataType
 {
     /**
+     * Return the value that was previously set and stored as $this->value
+     *
      * @return mixed
      */
     public function getValue()
@@ -20,6 +22,8 @@ class DataTypeMock extends DataType
     }
 
     /**
+     * Set the stored value of this class.
+     *
      * @param mixed $value
      *
      * @return mixed|void

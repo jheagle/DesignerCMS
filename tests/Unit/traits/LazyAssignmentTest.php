@@ -2,6 +2,7 @@
 
 namespace Core\Tests\Unit\Traits;
 
+use Core\DataTypes\Potential;
 use Core\Tests\TestCase;
 use Core\Tests\Traits\IgnoreMethodScopes;
 use Core\Utilities\Traits\LazyAssignment;
@@ -25,6 +26,10 @@ class LazyAssignmentTest extends TestCase
     }
 
     /**
+     * Given a class having several differently scoped members
+     * When calling applyMemberSettings with a keyed array for all existing members
+     * Then all members which can be updated will be updated, only constants cannot be updated
+     *
      * @test
      */
     public function allMembersTypesAssigned()
@@ -119,9 +124,14 @@ class LazyAssignmentTest extends TestCase
         ], $getMember('memberWithMap'));
     }
 
-    private function buildLazyAssignmentClass()
+    /**
+     * Create a class having a sample of varying scoped members and using LazyAssignment.
+     *
+     * @return Potential
+     */
+    private function buildLazyAssignmentClass(): Potential
     {
-        return new class
+        return new class implements Potential
         {
             use LazyAssignment;
 
@@ -162,6 +172,11 @@ class LazyAssignmentTest extends TestCase
             public $memberWithArray = ['firstElement', 'secondElement'];
             public $memberWithArrayAppend = ['firstElement', 'secondElement'];
             public $memberWithMap = ['firstIndex' => 'firstElement', 'secondIndex' => 'secondElement'];
+
+            public function __toString(): string
+            {
+                return get_class($this);
+            }
         };
     }
 }

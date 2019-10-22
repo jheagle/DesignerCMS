@@ -8,7 +8,7 @@
  *
  * @return \Closure
  */
-$apply = static function (...$fns): callable {
+$pipe = static function (...$fns): callable {
     /**
      * Pass $data to each of the $fns provided along with any mutations it receives.
      *
@@ -21,7 +21,7 @@ $apply = static function (...$fns): callable {
          * Type def
          *
          * @var bool $cancelApply This flag is set when a function has received it by reference and within the
-         * function it may cancel executing subsequent apply functions
+         * function it may cancel executing subsequent pipe functions
          */
         $cancelApply = false;
         return array_reduce($fns, function ($data, callable $f) use (&$cancelApply) {
@@ -30,10 +30,10 @@ $apply = static function (...$fns): callable {
     };
 };
 
-if ($declareGlobal ?? false && !function_exists('apply')) {
-    $GLOBALS['apply'] = $apply;
-    function apply(...$fns): callable
+if ($declareGlobal ?? false && !function_exists('pipe')) {
+    $GLOBALS['pipe'] = $pipe;
+    function pipe(...$fns): callable
     {
-        return $GLOBALS['apply'](...$fns);
+        return $GLOBALS['pipe'](...$fns);
     }
 }
