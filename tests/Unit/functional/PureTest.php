@@ -16,6 +16,57 @@ use Core\Utilities\Functional\Pure;
  */
 class PureTest extends TestCase
 {
+    /**
+     * Given a function that takes three parameters
+     * When currying the function and passing less than three parameters
+     * Then a function will be returned expecting the remaining parameters
+     *
+     * @test
+     */
+    public function curryReturnsAFunctionFromMissingParameters()
+    {
+        // create a new test function
+        $curryTest = function (string $one, string $two, string $three): string {
+            return "$one-$two-$three";
+        };
+
+        $curryWithTwoParameters = Pure::curry($curryTest);
+        $curryWithTwoParameters = $curryWithTwoParameters('one', 'two');
+        $this->assertIsCallable($curryWithTwoParameters);
+
+        $curryWithNoParameters = Pure::curry($curryTest);
+        $this->assertIsCallable($curryWithNoParameters);
+
+        $curryWithOneParameter = $curryWithNoParameters('one');
+        $this->assertIsCallable($curryWithOneParameter);
+
+        $newCurryWithTwoParameter = $curryWithOneParameter('two');
+        $this->assertIsCallable($newCurryWithTwoParameter);
+    }
+
+    /**
+     * Given a function that takes three parameters
+     * When currying the function and passing all three parameters at once, or with consecutive calls
+     * Then the final return value of the original function will be returned
+     *
+     * @test
+     */
+    public function curryReturnsFunctionResultWithAllParameters()
+    {
+        // create a new test function
+        $curryTest = function (string $one, string $two, string $three): string {
+            return "$one-$two-$three";
+        };
+
+        // curry should take all arguments
+        $this->assertEquals('one-two-three', $curryTest('one', 'two', 'three'));
+
+        $newCurry1 = Pure::curry($curryTest)('one');
+        $this->assertIsCallable($newCurry1);
+        $newCurry2 = $newCurry1('two');
+        $this->assertIsCallable($newCurry2);
+        $this->assertEquals('one-two-three', $newCurry2('three'));
+    }
 
     /**
      * Given four string altering functions and a blank string variable
@@ -81,57 +132,5 @@ class PureTest extends TestCase
         $this->assertEquals('one-two-three', $alteredString);
 
         $this->assertEquals('one-two-three-one-two-three', $threeCallable($alteredString));
-    }
-
-    /**
-     * Given a function that takes three parameters
-     * When currying the function and passing less than three parameters
-     * Then a function will be returned expecting the remaining parameters
-     *
-     * @test
-     */
-    public function curryReturnsAFunctionFromMissingParameters()
-    {
-        // create a new test function
-        $curryTest = function (string $one, string $two, string $three): string {
-            return "$one-$two-$three";
-        };
-
-        $curryWithTwoParameters = Pure::curry($curryTest);
-        $curryWithTwoParameters = $curryWithTwoParameters('one', 'two');
-        $this->assertIsCallable($curryWithTwoParameters);
-
-        $curryWithNoParameters = Pure::curry($curryTest);
-        $this->assertIsCallable($curryWithNoParameters);
-
-        $curryWithOneParameter = $curryWithNoParameters('one');
-        $this->assertIsCallable($curryWithOneParameter);
-
-        $newCurryWithTwoParameter = $curryWithOneParameter('two');
-        $this->assertIsCallable($newCurryWithTwoParameter);
-    }
-
-    /**
-     * Given a function that takes three parameters
-     * When currying the function and passing all three parameters at once, or with consecutive calls
-     * Then the final return value of the original function will be returned
-     *
-     * @test
-     */
-    public function curryReturnsFunctionResultWithAllParameters()
-    {
-        // create a new test function
-        $curryTest = function (string $one, string $two, string $three): string {
-            return "$one-$two-$three";
-        };
-
-        // curry should take all arguments
-        $this->assertEquals('one-two-three', $curryTest('one', 'two', 'three'));
-
-        $newCurry1 = Pure::curry($curryTest)('one');
-        $this->assertIsCallable($newCurry1);
-        $newCurry2 = $newCurry1('two');
-        $this->assertIsCallable($newCurry2);
-        $this->assertEquals('one-two-three', $newCurry2('three'));
     }
 }
