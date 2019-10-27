@@ -2,6 +2,8 @@
 
 namespace Core\DataTypes\Strings;
 
+use Core\Utilities\Functional\Pure;
+
 /**
  * Class VarCharDt
  *
@@ -9,13 +11,9 @@ namespace Core\DataTypes\Strings;
  */
 class VarCharDt extends StringDt
 {
-
-    protected $min;
-
+    protected $min = 0;
     protected $max;
-
     protected $bits = 16;
-
     protected $length;
 
     public function __construct($value, $settings = [])
@@ -27,27 +25,19 @@ class VarCharDt extends StringDt
             ],
             $settings
         ));
-        self::setMin();
         self::setMax();
-        if ($settings['length'] === null) {
-            $settings['length'] = $this->max;
-        }
-        self::setLength($settings['length']);
+        self::setLength($settings['length'] ?? null);
         self::setValue($this->value);
-    }
-
-    protected function setMin()
-    {
-        $this->min = 0;
     }
 
     protected function setMax()
     {
         if ($this->bits >= self::$systemMaxBits) {
             $this->max = (int)((1 << self::$systemMaxBits - 1) - 1);
-        } else {
-            $this->max = (int)((1 << $this->bits) - 1);
+            return $this->max;
         }
+        $this->max = (int)((1 << $this->bits) - 1);
+        return $this->max;
     }
 
     public function getLength()
@@ -57,12 +47,12 @@ class VarCharDt extends StringDt
 
     protected function setLength($length)
     {
-        if ($length < $this->min) {
-            $length = (int)$this->min;
-        } elseif ($length > $this->max) {
-            $length = (int)$this->max;
-        }
-        $this->length = $length;
+        $this->length = Pure::pipe(
+            Pure::curry([Pure::class, 'nullCoalesce'])($this->max),
+            Pure::curry([Pure::class, 'minBound'])((int)$this->min),
+            Pure::curry([Pure::class, 'maxBound'])((int)$this->max)
+        )($length);
+        return $this->length;
     }
 
     public function getValue()

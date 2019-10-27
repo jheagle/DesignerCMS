@@ -9,8 +9,12 @@ namespace Core\Utilities\Functional;
  *
  * @method static callable[] extractAll()
  *
- * @method static callable curry(string | callable $fn, string | object $class = __CLASS__)
+ * @method static callable curry(callable | string | array $fn, int $minArgs = -1, array $args = [])
+ * @method static number maxBound($max = 0, $number = 0)
+ * @method static number minBound($min = 0, $number = 0)
+ * @method static mixed nullCoalesce($default = null, $value)
  * @method static callable pipe(callable[] ...$fns)
+ * @method static int function (callable | string | array $fn)
  * @method static callable trace(string $label = '')
  * @method static callable tt(string $label = '')
  */
@@ -40,6 +44,16 @@ class Pure
     {
         self::$instance = new Pure();
         return self::$instance;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return callable
+     */
+    public static function getFunction(string $name): callable
+    {
+        return self::$instance->importedFunctions[$name];
     }
 
     /**

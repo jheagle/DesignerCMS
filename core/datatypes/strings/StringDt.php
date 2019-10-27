@@ -11,9 +11,10 @@ use Core\DataTypes\DataType;
  */
 class StringDt extends DataType
 {
-
+    const CHARSET_ASCII = 'ASCII';
     const CHARSET_UTF8 = 'UTF-8';
     const CHARSETS = [
+        self::CHARSET_ASCII,
         self::CHARSET_UTF8,
     ];
     protected $charSet;
