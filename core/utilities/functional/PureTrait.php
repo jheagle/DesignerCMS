@@ -44,23 +44,12 @@ trait PureTrait
      */
     protected function importFunctions(bool $declareGlobal = false): array
     {
-        return $this->importedFunctions += $this->getArrayOfNewFunctions($declareGlobal);
-    }
-
-    /**
-     * Retrieve an array of all of the new functions which have not yet been included.
-     *
-     * @param bool $declareGlobal
-     *
-     * @return array
-     */
-    private function getArrayOfNewFunctions(bool $declareGlobal): array
-    {
-        return array_reduce(
+        $this->importedFunctions = array_reduce(
             $this->getNewFunctionFiles(),
             $this->retrieveFunctionDefinition($declareGlobal),
-            []
+            $this->importedFunctions
         );
+        return $this->importedFunctions;
     }
 
     /**
@@ -127,8 +116,7 @@ trait PureTrait
     private function functionDefined(string $name): bool
     {
         return (
-            function_exists($name)
-            || array_key_exists($name, $this->importedFunctions)
+            array_key_exists($name, $this->importedFunctions)
             || array_key_exists($name, $GLOBALS)
         );
     }

@@ -1,10 +1,11 @@
 <?php
-
 /**
- * @param int $min
- * @param $number
+ * Given a min, if a given number is less than min, then bound the number to the min value.
  *
- * @return int
+ * @param int|float $min
+ * @param int|float $number
+ *
+ * @return int|float
  */
 $minBound = static function ($min = 0, $number) {
     return $number <= $min ? $min : $number;

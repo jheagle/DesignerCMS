@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Pass in a few methods to be run in sequence, returns a function expecting the data which will be altered by the
  * sequence.

@@ -1,5 +1,5 @@
 <?php
-if (!function_exists('rawCurry')) {
+if (!function_exists('curry')) {
     /**
      * Available with the inclusion of Pure.
      * Make any function curried, a simpler version of using curry. Either nest the function as the first argument of
@@ -13,7 +13,7 @@ if (!function_exists('rawCurry')) {
      *
      * @return \Closure
      */
-    function rawCurry($fn, int $minArgs = -1, array $args = []): callable
+    function curry($fn, int $minArgs = -1, array $args = []): callable
     {
         if ($minArgs < 0) {
             $minArgs = requiredParameterCount($fn);
@@ -21,20 +21,16 @@ if (!function_exists('rawCurry')) {
         return function () use ($fn, $minArgs, $args) {
             $args = array_merge($args, func_get_args());
             return (count($args) < $minArgs)
-                ? rawCurry($fn, $minArgs, $args)
+                ? curry($fn, $minArgs, $args)
                 : call_user_func($fn, ...$args);
         };
     }
 }
 
 $curry = static function (...$args) {
-    return rawCurry(...$args);
+    return curry(...$args);
 };
 
 if ($declareGlobal ?? false && !function_exists('curry')) {
     $GLOBALS['curry'] = $curry;
-    function curry($fn): callable
-    {
-        return $GLOBALS['curry']($fn);
-    }
 }

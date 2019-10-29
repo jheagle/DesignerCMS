@@ -1,6 +1,8 @@
 <?php
 if (!function_exists('requiredParameterCount')) {
     /**
+     * Given a function, detect the number of required parameters the function has.
+     *
      * @param callable|string|array $fn
      *
      * @return int

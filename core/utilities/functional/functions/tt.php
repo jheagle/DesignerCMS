@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Pass a string label to be prefixed with the output of the dump.
  *

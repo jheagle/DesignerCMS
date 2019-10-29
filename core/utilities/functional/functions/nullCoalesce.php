@@ -1,10 +1,11 @@
 <?php
-
 /**
- * @param null $default
- * @param $value
+ * Provide a default that will be used if a given value is null.
  *
- * @return null
+ * @param mixed|null $default
+ * @param mixed|null $value
+ *
+ * @return mixed|null
  */
 $nullCoalesce = static function ($default = null, $value) {
     return $value ?? $default;

@@ -3,6 +3,7 @@
 namespace Core\DataTypes\Numbers;
 
 use Core\DataTypes\Strings\StringDt;
+use Core\Utilities\Functional\Pure;
 
 /**
  * Class NumberDt
@@ -27,7 +28,7 @@ class NumberDt extends StringDt
             [
                 'length' => 0,
                 'isSigned' => true,
-                'primitiveType' => 'float'
+                'primitiveType' => 'float',
             ],
             $settings
         ));
@@ -202,16 +203,7 @@ class NumberDt extends StringDt
 
     protected function internalAdd($x, $y)
     {
-        $a = 0;
-        $b = 0;
-        do {
-            $a = $x & $y;
-            $b = $x ^ $y;
-            $x = $a << 1;
-            $y = $b;
-        } while ($a);
-
-        return $b;
+        return Pure::add($x, $y);
     }
 
     protected function internalSubtract($x, $y)
@@ -343,7 +335,7 @@ class NumberDt extends StringDt
      */
     public function negate($number)
     {
-        return $this->internalAdd(~$number, 1);
+        return Pure::negate($number);
     }
 
 }

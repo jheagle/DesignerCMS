@@ -1,10 +1,11 @@
 <?php
-
 /**
- * @param int $max
- * @param $number
+ * Given a max, if a given number is greater than max, then bound the number to the max value.
  *
- * @return int
+ * @param int|float $max
+ * @param int|float $number
+ *
+ * @return int|float
  */
 $maxBound = static function ($max = 0, $number) {
     return $number >= $max ? $max : $number;
