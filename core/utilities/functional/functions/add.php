@@ -24,6 +24,6 @@ $add = static function (int $x, int $y): int {
     return add($x, $y);
 };
 
-if ($declareGlobal ?? false && !function_exists('add')) {
+if ($declareGlobal ?? false && ($GLOBALS['add'] ?? false)) {
     $GLOBALS['add'] = $add;
 }

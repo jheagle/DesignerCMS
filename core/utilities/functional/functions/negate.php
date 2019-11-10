@@ -14,4 +14,8 @@ $negate = static function (int $number): int {
 
 if ($declareGlobal ?? false && !function_exists('negate')) {
     $GLOBALS['negate'] = $negate;
+    function negate(int $number)
+    {
+        return $GLOBALS['negate']($number);
+    }
 }

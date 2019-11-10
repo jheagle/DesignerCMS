@@ -31,6 +31,6 @@ $curry = static function (...$args) {
     return curry(...$args);
 };
 
-if ($declareGlobal ?? false && !function_exists('curry')) {
+if ($declareGlobal ?? false && ($GLOBALS['curry'] ?? false)) {
     $GLOBALS['curry'] = $curry;
 }

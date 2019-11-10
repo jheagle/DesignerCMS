@@ -1,7 +1,8 @@
 <?php
 if (!function_exists('requiredParameterCount')) {
     /**
-     * Given a function, detect the number of required parameters the function has.
+     * Given a function, detect the number of required parameters the function has. Use an array of class name and
+     * method name for methods.
      *
      * @param callable|string|array $fn
      *
@@ -28,3 +29,7 @@ if (!function_exists('requiredParameterCount')) {
 $requiredParameterCount = static function ($fn): int {
     return requiredParameterCount($fn);
 };
+
+if ($declareGlobal ?? false && ($GLOBALS['requiredParameterCount'] ?? false)) {
+    $GLOBALS['requiredParameterCount'] = $requiredParameterCount;
+}

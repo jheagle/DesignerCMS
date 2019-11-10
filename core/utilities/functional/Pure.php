@@ -9,12 +9,13 @@ namespace Core\Utilities\Functional;
  *
  * @method static callable[] extractAll()
  *
- * @method static int add (int $x, int $y)
+ * @method static int add(int $x, int $y)
+ * @method static mixed|null coalesce($filter = null, ...$values)
  * @method static callable curry(callable | string | array $fn, int $minArgs = -1, array $args = [])
+ * @method static mixed defaultValue($default, $value)
  * @method static number maxBound($max = 0, $number = 0)
  * @method static number minBound($min = 0, $number = 0)
  * @method static int negate(int $number)
- * @method static mixed nullCoalesce($default = null, $value)
  * @method static callable pipe(callable[] ...$fns)
  * @method static int requiredParameterCount (callable | string | array $fn)
  * @method static callable trace(string $label = '')

@@ -87,7 +87,7 @@ class VarCharDt extends StringDt
     protected function setLength(?int $length): int
     {
         $this->length = Pure::pipe(
-            Pure::curry([Pure::class, 'nullCoalesce'])($this->maxLength),
+            Pure::curry([Pure::class, 'defaultValue'])($this->maxLength),
             Pure::curry([Pure::class, 'minBound'])((int)$this->minLength),
             Pure::curry([Pure::class, 'maxBound'])((int)$this->maxLength)
         )($length);
