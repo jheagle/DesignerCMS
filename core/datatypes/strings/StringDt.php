@@ -11,9 +11,9 @@ use Core\DataTypes\DataType;
  */
 class StringDt extends DataType
 {
-    const CHARSET_ASCII = 'ASCII';
-    const CHARSET_UTF8 = 'UTF-8';
-    const CHARSETS = [
+    public const CHARSET_ASCII = 'ASCII';
+    public const CHARSET_UTF8 = 'UTF-8';
+    public const CHARSETS = [
         self::CHARSET_ASCII,
         self::CHARSET_UTF8,
     ];
@@ -34,6 +34,7 @@ class StringDt extends DataType
             ],
             $settings
         ));
+        self::setValue($value);
     }
 
     /**

@@ -22,12 +22,11 @@ class VarCharDt extends StringDt
      * @param string $value
      * @param array $settings
      */
-    public function __construct($value, $settings = [])
+    public function __construct(string $value = '', array $settings = [])
     {
         parent::__construct($value, array_merge(
             [
                 'length' => null,
-                'charSet' => 'UTF-8',
             ],
             $settings
         ));
@@ -38,60 +37,43 @@ class VarCharDt extends StringDt
     }
 
     /**
-     * The min length should always be 0, we will ensure it is reset to zero by having this function called in the
-     * constructor.
+     * Retrieve the usable bits for this VarChar
      *
      * @return int
      */
-    protected function setMinLength(): int
+    public function getBits(): int
     {
-        $this->minLength = 0;
-        return $this->minLength;
+        return $this->bits;
     }
 
     /**
-     * The max length must match the max number that can be stored in set bits or the number of system bits available if
-     * less than the set bits.
+     * Retrieve the length that was set for this VarChar
      *
      * @return int
      */
-    protected function setMaxLength()
+    public function getLength(): int
     {
-        if ($this->bits >= self::$systemMaxBits) {
-            $this->maxLength = (int)((1 << self::$systemMaxBits - 1) - 1);
-            if ($this->maxLength < $this->minLength) {
-                // Fix the overflow into negative number back to the highest positive number
-                $this->maxLength = ~$this->maxLength;
-                return $this->maxLength;
-            }
-            return $this->maxLength;
-        }
-        $this->maxLength = (int)((1 << $this->bits) - 1);
+        return $this->length;
+    }
+
+    /**
+     * Get the maximum possible length for this VarChar
+     *
+     * @return int
+     */
+    public function getMaxLength(): int
+    {
         return $this->maxLength;
     }
 
-    public function getLength()
-    {
-        return $this->length;
-    }
-
     /**
-     * Set the max string length that can be used for this stored VarChar value. When no length is provide (null) the
-     * default length with be maxLength. Also, ensure the the provided length is within the bounds of min and max
-     * length.
-     *
-     * @param int|null $length
+     * Get the minimum possible length for this VarChar
      *
      * @return int
      */
-    protected function setLength(?int $length): int
+    public function getMinLength(): int
     {
-        $this->length = Pure::pipe(
-            Pure::curry([Pure::class, 'defaultValue'])($this->maxLength),
-            Pure::curry([Pure::class, 'minBound'])((int)$this->minLength),
-            Pure::curry([Pure::class, 'maxBound'])((int)$this->maxLength)
-        )($length);
-        return $this->length;
+        return $this->minLength;
     }
 
     /**
@@ -119,5 +101,57 @@ class VarCharDt extends StringDt
         $value = substr($value, 0, $this->length);
         $this->value = $value;
         return $this->value;
+    }
+
+    /**
+     * Set the max string length that can be used for this stored VarChar value. When no length is provide (null) the
+     * default length with be maxLength. Also, ensure the the provided length is within the bounds of min and max
+     * length.
+     *
+     * @param int|null $length
+     *
+     * @return int
+     */
+    protected function setLength(?int $length): int
+    {
+        $this->length = Pure::pipe(
+            Pure::curry([Pure::class, 'defaultValue'])($this->maxLength),
+            Pure::curry([Pure::class, 'minBound'])((int)$this->minLength),
+            Pure::curry([Pure::class, 'maxBound'])((int)$this->maxLength)
+        )($length);
+        return $this->length;
+    }
+
+    /**
+     * The max length must match the max number that can be stored in set bits or the number of system bits available if
+     * less than the set bits.
+     *
+     * @return int
+     */
+    protected function setMaxLength(): int
+    {
+        if ($this->bits >= self::$systemMaxBits) {
+            $this->maxLength = (int)((1 << self::$systemMaxBits - 1) - 1);
+            if ($this->maxLength < $this->minLength) {
+                // Fix the overflow into negative number back to the highest positive number
+                $this->maxLength = ~$this->maxLength;
+                return $this->maxLength;
+            }
+            return $this->maxLength;
+        }
+        $this->maxLength = (int)((1 << $this->bits) - 1);
+        return $this->maxLength;
+    }
+
+    /**
+     * The min length should always be 0, we will ensure it is reset to zero by having this function called in the
+     * constructor.
+     *
+     * @return int
+     */
+    protected function setMinLength(): int
+    {
+        $this->minLength = 0;
+        return $this->minLength;
     }
 }

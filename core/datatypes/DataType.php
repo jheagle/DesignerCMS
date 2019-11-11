@@ -15,18 +15,18 @@ abstract class DataType implements DataTypeObject
     use Declarative;
     use LazyAssignment;
 
-    const PRIMITIVE_ARRAY = 'array';
-    const PRIMITIVE_BOOLEAN = 'boolean';
-    const PRIMITIVE_CALLABLE = 'callable';
-    const PRIMITIVE_FLOAT = 'float';
-    const PRIMITIVE_INTEGER = 'integer';
-    const PRIMITIVE_ITERABLE = 'iterable';
-    const PRIMITIVE_NULL = 'null';
-    const PRIMITIVE_OBJECT = 'object';
-    const PRIMITIVE_RESOURCE = 'resource';
-    const PRIMITIVE_STRING = 'string';
+    public const PRIMITIVE_ARRAY = 'array';
+    public const PRIMITIVE_BOOLEAN = 'boolean';
+    public const PRIMITIVE_CALLABLE = 'callable';
+    public const PRIMITIVE_FLOAT = 'float';
+    public const PRIMITIVE_INTEGER = 'integer';
+    public const PRIMITIVE_ITERABLE = 'iterable';
+    public const PRIMITIVE_NULL = 'null';
+    public const PRIMITIVE_OBJECT = 'object';
+    public const PRIMITIVE_RESOURCE = 'resource';
+    public const PRIMITIVE_STRING = 'string';
 
-    const PRIMITIVES = [
+    public const PRIMITIVES = [
         self::PRIMITIVE_BOOLEAN,
         self::PRIMITIVE_FLOAT,
         self::PRIMITIVE_INTEGER,
@@ -39,21 +39,21 @@ abstract class DataType implements DataTypeObject
         self::PRIMITIVE_RESOURCE,
     ];
 
-    const SCALARS = [
+    public const SCALARS = [
         self::PRIMITIVE_BOOLEAN,
         self::PRIMITIVE_FLOAT,
         self::PRIMITIVE_INTEGER,
         self::PRIMITIVE_STRING,
     ];
 
-    const COMPOUNDS = [
+    public const COMPOUNDS = [
         self::PRIMITIVE_ARRAY,
         self::PRIMITIVE_CALLABLE,
         self::PRIMITIVE_ITERABLE,
         self::PRIMITIVE_OBJECT,
     ];
 
-    const SPECIALS = [
+    public const SPECIALS = [
         self::PRIMITIVE_NULL,
         self::PRIMITIVE_RESOURCE,
     ];
@@ -68,27 +68,6 @@ abstract class DataType implements DataTypeObject
     protected static $systemMaxBits;
 
     /**
-     * DataType constructor.
-     *
-     * @param $value
-     * @param array $settings
-     */
-    public function __construct($value = null, array $settings = [])
-    {
-        self::$systemMaxBits = PHP_INT_SIZE << 3;
-        self::applyMemberSettings($settings);
-        $this->setValue($value);
-    }
-
-    /**
-     * @return int
-     */
-    public function getSystemMaxBits(): int
-    {
-        return self::$systemMaxBits;
-    }
-
-    /**
      * @return mixed
      */
     abstract public function getValue();
@@ -101,11 +80,31 @@ abstract class DataType implements DataTypeObject
     abstract public function setValue($value);
 
     /**
+     * DataType constructor.
+     *
+     * @param $value
+     * @param array $settings
+     */
+    public function __construct($value = null, array $settings = [])
+    {
+        self::$systemMaxBits = PHP_INT_SIZE << 3;
+        self::applyMemberSettings($settings);
+    }
+
+    /**
      * @return string
      */
     public function getPrimitiveType(): string
     {
         return $this->primitiveType;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSystemMaxBits(): int
+    {
+        return self::$systemMaxBits;
     }
 
     /**

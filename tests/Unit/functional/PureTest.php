@@ -276,9 +276,21 @@ class PureTest extends TestCase
         $this->assertEquals(3, Pure::requiredParameterCount($customFunction));
         $customClass = new class
         {
-            function customMethod($arg1, $arg2, ...$moreArgs)
+            /**
+             * Some overly done test method that takes some strings and returns a concatenation of the strings.
+             *
+             * @param string $arg1
+             * @param string $arg2
+             * @param string[] ...$moreArgs
+             *
+             * @return string
+             */
+            public function customMethod(string $arg1, string $arg2, ...$moreArgs): string
             {
-                return 'something';
+                return array_reduce($moreArgs, function (string $result, string $anArg): string {
+                    $result .= " $anArg";
+                    return $result;
+                }, "{$arg1} {$arg2}");
             }
         };
         $this->assertEquals(2, Pure::requiredParameterCount([get_class($customClass), 'customMethod']));
