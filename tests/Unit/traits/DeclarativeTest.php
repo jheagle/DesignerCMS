@@ -103,7 +103,7 @@ class DeclarativeTest extends TestCase
 
         $this->assertStringContainsString('static protected systemMaxBits = 64', $classDescription);
         $this->assertStringContainsString('protected primitiveType = "object"', $classDescription);
-        $this->assertStringContainsString('protected value = 0', $classDescription);
+        $this->assertStringContainsString('protected value', $classDescription);
 
         $this->assertStringContainsString('final public getClassDescription(): string', $classDescription);
         $this->assertStringContainsString('public getPrimitiveType(): string', $classDescription);

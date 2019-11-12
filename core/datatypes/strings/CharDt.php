@@ -22,7 +22,7 @@ class CharDt extends VarCharDt
     {
         parent::__construct($value, array_merge(
             [
-                'length' => null,
+                'length' => 1,
             ],
             $settings
         ));

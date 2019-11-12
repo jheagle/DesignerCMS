@@ -34,7 +34,7 @@ class CharDtTest extends TestCase
     {
         $char = new CharDt();
         $this->assertEquals(8, $char->getBits());
-        $this->assertEquals(255, $char->getLength());
+        $this->assertEquals(1, $char->getLength());
         $this->assertEquals(255, $char->getMaxLength());
         $this->assertEquals(0, $char->getMinLength());
         $this->assertEquals(CharDt::CHARSET_UTF8, $char->getCharSet());
