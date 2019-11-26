@@ -49,13 +49,10 @@ class CharDt extends VarCharDt
      */
     public function setValue($value): string
     {
-        if (strlen($value) >= $this->length) {
-            trigger_error("Truncating VarChar value: \"{$value}\"", E_USER_WARNING);
-        }
+        // Note: All values passed to CharDt exceeding the length will be truncated
         $value = substr($value, 0, $this->length);
         $this->value = $value;
         $this->value = str_pad($value, $this->length, "\x0B", STR_PAD_RIGHT);
         return $this->value;
     }
-
 }
