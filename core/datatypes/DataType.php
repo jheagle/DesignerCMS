@@ -68,11 +68,15 @@ abstract class DataType implements DataTypeObject
     protected static $systemMaxBits;
 
     /**
+     * Retrieve the value stored in this data type.
+     *
      * @return mixed
      */
     abstract public function getValue();
 
     /**
+     * Assign a value to this data type.
+     *
      * @param mixed $value
      *
      * @return mixed
@@ -92,6 +96,8 @@ abstract class DataType implements DataTypeObject
     }
 
     /**
+     * Get the PHP data type representation that closely matches the value of this data type.
+     *
      * @return string
      */
     public function getPrimitiveType(): string
@@ -100,6 +106,8 @@ abstract class DataType implements DataTypeObject
     }
 
     /**
+     * Get the maximum number of bits usable for a block of storage.
+     *
      * @return int
      */
     public function getSystemMaxBits(): int
@@ -108,19 +116,24 @@ abstract class DataType implements DataTypeObject
     }
 
     /**
-     * @param mixed|DataType $datatype
+     * Compare the value of this data type to some incoming value or data for equality.
+     *
+     * @param mixed|DataType $dataType
      *
      * @return bool
      */
-    public function isEqual($datatype): bool
+    public function isEqual($dataType): bool
     {
-        return is_a($datatype, DataType::class)
-            ? $this->getValue() === $datatype->getValue()
-            : $this->getValue() === $datatype;
+        return is_a($dataType, DataType::class)
+            ? $this->getValue() === $dataType->getValue()
+            : $this->getValue() === $dataType;
     }
 
     /**
+     * Produce a string to describe this data type.
+     *
      * @return string
+     *
      * @throws \ReflectionException
      */
     public function __toString(): string

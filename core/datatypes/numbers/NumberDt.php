@@ -22,6 +22,12 @@ class NumberDt extends StringDt
 
     protected $filter = '/[^\d.]/';
 
+    /**
+     * NumberDt constructor.
+     *
+     * @param int $value
+     * @param array $settings
+     */
     public function __construct($value = 0, $settings = [])
     {
         parent::__construct($value, array_merge(
@@ -36,16 +42,25 @@ class NumberDt extends StringDt
         self::setLength($this->length);
     }
 
+    /**
+     * @return mixed
+     */
     public function getLength()
     {
         return $this->length;
     }
 
+    /**
+     * @param $length
+     */
     protected function setLength($length)
     {
         $this->length = $length;
     }
 
+    /**
+     * @return string
+     */
     public function getPaddedValue()
     {
         return str_pad(
@@ -56,6 +71,9 @@ class NumberDt extends StringDt
         );
     }
 
+    /**
+     * @return string
+     */
     protected function getPreservedValue()
     {
         if (array_key_exists(-1, $this->valueSplit)) {
@@ -68,6 +86,11 @@ class NumberDt extends StringDt
         return implode('', $this->valueSplit);
     }
 
+    /**
+     * @param $value
+     *
+     * @return array
+     */
     protected function setPreservedValue($value)
     {
         $this->valueSplit = [];

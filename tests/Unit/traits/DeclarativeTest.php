@@ -108,7 +108,7 @@ class DeclarativeTest extends TestCase
         $this->assertStringContainsString('final public getClassDescription(): string', $classDescription);
         $this->assertStringContainsString('public getPrimitiveType(): string', $classDescription);
         $this->assertStringContainsString('public getSystemMaxBits(): int', $classDescription);
-        $this->assertStringContainsString('public isEqual(datatype): bool', $classDescription);
+        $this->assertStringContainsString('public isEqual(dataType): bool', $classDescription);
         $this->assertStringContainsString('protected applyMemberSettings(array settings = [])', $classDescription);
         $this->assertStringContainsString('protected getMember(memberKey)', $classDescription);
         $this->assertStringContainsString('protected setMember(memberKey, value)', $classDescription);

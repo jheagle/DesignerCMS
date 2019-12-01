@@ -278,7 +278,7 @@ trait Declarative
         if ($method->isFinal()) {
             $arrayPointer = &$arrayPointer['final'];
         }
-        $returnType = $method->hasReturnType() ? ': ' . $method->getReturnType() : '';
+        $returnType = $method->hasReturnType() ? ': ' . $method->getReturnType()->getName() : '';
         $arrayPointer[$methodName] = "{$methodName}({$parameters}){$returnType}";
         return $methods;
     }
@@ -294,7 +294,7 @@ trait Declarative
     private function buildParameterDeclaration(string $paramString, \ReflectionParameter $param): string
     {
         $paramDefault = $param->isDefaultValueAvailable() ? ' = ' . json_encode($param->getDefaultValue()) : '';
-        $paramType = $param->hasType() ? $param->getType() . ' ' : '';
+        $paramType = $param->hasType() ? $param->getType()->getName() . ' ' : '';
         $paramDescription = $paramType . $param->getName() . $paramDefault;
         $paramString .= $paramString ? ', ' . $paramDescription : $paramDescription;
         return $paramString;
