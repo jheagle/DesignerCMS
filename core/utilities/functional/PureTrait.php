@@ -9,8 +9,8 @@ namespace Core\Utilities\Functional;
  */
 trait PureTrait
 {
-    protected $functionPath = __DIR__ . '/functions/';
-    protected $importedFunctions = [];
+    protected string $functionPath = __DIR__ . '/functions/';
+    protected array $importedFunctions = [];
 
     /**
      * Modify the path used for retrieving functions to include.

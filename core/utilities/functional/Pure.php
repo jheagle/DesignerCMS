@@ -25,11 +25,9 @@ class Pure
 {
     use PureTrait;
 
-    /** @var null|Pure $instance */
-    private static $instance = null;
+    private static ?Pure $instance = null;
 
-    /** @var string $extractFunction */
-    private static $extractFunction = 'extractAll';
+    private static string $extractFunction = 'extractAll';
 
     /**
      * Pure constructor, we do not need public access to the constructor. This class is instantiated using the

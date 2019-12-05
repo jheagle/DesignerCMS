@@ -9,7 +9,7 @@ namespace Core\DataTypes\Strings;
  */
 class CharDt extends VarCharDt
 {
-    protected $bits = 8;
+    protected int $bits = 8;
 
     /**
      * CharDt constructor.

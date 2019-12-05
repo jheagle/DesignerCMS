@@ -11,10 +11,10 @@ use Core\Utilities\Functional\Pure;
  */
 class VarCharDt extends StringDt
 {
-    protected $minLength = 0;
-    protected $maxLength;
-    protected $bits = 16;
-    protected $length;
+    protected int $minLength = 0;
+    protected ?int $maxLength;
+    protected int $bits = 16;
+    protected ?int $length;
 
     /**
      * VarCharDt constructor.

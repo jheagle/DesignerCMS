@@ -17,7 +17,7 @@ class StringDt extends DataType
         self::CHARSET_ASCII,
         self::CHARSET_UTF8,
     ];
-    protected $charSet;
+    protected ?string $charSet;
 
     /**
      * StringDt constructor.
