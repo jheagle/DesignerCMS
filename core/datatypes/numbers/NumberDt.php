@@ -12,15 +12,11 @@ use Core\Utilities\Functional\Pure;
  */
 class NumberDt extends StringDt
 {
-    protected $length;
-
-    protected $isSigned;
-
-    protected $isNegative;
-
+    protected ?int $length;
+    protected ?bool $isSigned;
+    protected ?bool $isNegative;
     protected $valueSplit;
-
-    protected $filter = '/[^\d.]/';
+    protected ?string $filter = '/[^\d.]/';
 
     /**
      * NumberDt constructor.
@@ -30,14 +26,17 @@ class NumberDt extends StringDt
      */
     public function __construct($value = 0, $settings = [])
     {
-        parent::__construct($value, array_merge(
-            [
-                'length' => 0,
-                'isSigned' => true,
-                'primitiveType' => 'float',
-            ],
-            $settings
-        ));
+        parent::__construct(
+            $value,
+            array_merge(
+                [
+                    'length' => 0,
+                    'isSigned' => true,
+                    'primitiveType' => 'float',
+                ],
+                $settings
+            )
+        );
         self::setValue($this->value);
         self::setLength($this->length);
     }
@@ -123,8 +122,11 @@ class NumberDt extends StringDt
             // custom logic is used in order to store the fields so that the least significant part starts at 0 index
             for ($i = strlen($intNum); $i > 0; $i -= $maxLength) {
                 $charCnt = $i > $maxLength ? $maxLength : $i;
-                $this->valueSplit[] = (int)substr($intNum, $i - $charCnt,
-                    $charCnt);
+                $this->valueSplit[] = (int)substr(
+                    $intNum,
+                    $i - $charCnt,
+                    $charCnt
+                );
             }
 
             // Add the elements of decimal fields to the main split value array
@@ -145,8 +147,11 @@ class NumberDt extends StringDt
             // custom logic is used in order to store the fields so that the least significant part starts at 0 index
             for ($i = strlen($intNum); $i > 0; $i -= $maxLength) {
                 $charCnt = $i > $maxLength ? $maxLength : $i;
-                $this->valueSplit[] = (int)substr($intNum, $i - $charCnt,
-                    $charCnt);
+                $this->valueSplit[] = (int)substr(
+                    $intNum,
+                    $i - $charCnt,
+                    $charCnt
+                );
             }
         }
         krsort(
@@ -210,13 +215,13 @@ class NumberDt extends StringDt
 
     public function exponent($number)
     {
-
     }
 
     public function modulo($number)
     {
         if (is_a($number, 'NumberDt')) {
-            return $number->getValue() & ($number->getValue() - 1) || ($number->getValue() + 1) & $number->getValue() ? $this->getValue() % $number->getValue() : $this->getValue() & ($number->getValue() - 1);
+            return $number->getValue() & ($number->getValue() - 1) || ($number->getValue() + 1) & $number->getValue(
+            ) ? $this->getValue() % $number->getValue() : $this->getValue() & ($number->getValue() - 1);
         }
 
         return $this->isPowerOfTwo($number) || $this->isMersenne(
@@ -315,8 +320,10 @@ class NumberDt extends StringDt
             $number = $number->getValue();
         }
 
-        return $this->modulo($number) ? $this->getValue() / $number : $this->internalDivide($this->getValue(),
-            $number);
+        return $this->modulo($number) ? $this->getValue() / $number : $this->internalDivide(
+            $this->getValue(),
+            $number
+        );
     }
 
     //TODO: use this function logic with perfroming math on numbers stored in string (ex: BigInt)
@@ -340,7 +347,7 @@ class NumberDt extends StringDt
      *
      * @return int
      */
-    public function getAbsolute()
+    public function getAbsolute(): int
     {
         $value = $this->getValue();
         $availBits = self::$systemMaxBits - 1;
@@ -356,7 +363,7 @@ class NumberDt extends StringDt
      *
      * @return int
      */
-    public function negate($number)
+    public function negate($number): int
     {
         return Pure::negate($number);
     }

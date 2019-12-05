@@ -185,8 +185,10 @@ abstract class Entity implements EntityObject
             foreach ($this->{$child} as $entity) {
                 if ($entity instanceof self) {
                     //TODO: if there is no ForeignKey available skip this, check availability, improve ForeignKey logic in child class
-                    $entity->setForeignKey($table,
-                        $this->{$idProp}->getValue());
+                    $entity->setForeignKey(
+                        $table,
+                        $this->{$idProp}->getValue()
+                    );
                     $entity->createEntity();
                 }
             }
@@ -317,8 +319,10 @@ abstract class Entity implements EntityObject
             }
         }
         if (!empty($ids)) {
-            return empty($contact_ids) ? $ids : array_intersect($contact_ids,
-                $ids);
+            return empty($contact_ids) ? $ids : array_intersect(
+                $contact_ids,
+                $ids
+            );
         } else {
             return $contact_ids;
         }

@@ -27,13 +27,16 @@ class StringDt extends DataType
      */
     public function __construct(string $value = '', array $settings = [])
     {
-        parent::__construct($value, array_merge(
-            [
-                'charSet' => self::CHARSET_UTF8,
-                'primitiveType' => self::PRIMITIVE_STRING,
-            ],
-            $settings
-        ));
+        parent::__construct(
+            $value,
+            array_merge(
+                [
+                    'charSet' => self::CHARSET_UTF8,
+                    'primitiveType' => self::PRIMITIVE_STRING,
+                ],
+                $settings
+            )
+        );
         self::setValue($value);
     }
 

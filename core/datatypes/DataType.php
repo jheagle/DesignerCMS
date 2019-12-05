@@ -60,9 +60,7 @@ abstract class DataType implements DataTypeObject
 
     /** @var mixed $value */
     protected $value;
-
     protected string $primitiveType = 'object';
-
     protected static int $systemMaxBits;
 
     /**

@@ -24,12 +24,15 @@ class VarCharDt extends StringDt
      */
     public function __construct(string $value = '', array $settings = [])
     {
-        parent::__construct($value, array_merge(
-            [
-                'length' => null,
-            ],
-            $settings
-        ));
+        parent::__construct(
+            $value,
+            array_merge(
+                [
+                    'length' => null,
+                ],
+                $settings
+            )
+        );
         self::setMinLength();
         self::setMaxLength();
         self::setLength($settings['length'] ?? null);
@@ -118,7 +121,9 @@ class VarCharDt extends StringDt
             Pure::curry([Pure::class, 'defaultValue'])($this->maxLength),
             Pure::curry([Pure::class, 'minBound'])((int)$this->minLength),
             Pure::curry([Pure::class, 'maxBound'])((int)$this->maxLength)
-        )($length);
+        )(
+            $length
+        );
         return $this->length;
     }
 

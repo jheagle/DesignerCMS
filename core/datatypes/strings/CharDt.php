@@ -19,12 +19,15 @@ class CharDt extends VarCharDt
      */
     public function __construct(string $value = '', array $settings = [])
     {
-        parent::__construct($value, array_merge(
-            [
-                'length' => 1,
-            ],
-            $settings
-        ));
+        parent::__construct(
+            $value,
+            array_merge(
+                [
+                    'length' => 1,
+                ],
+                $settings
+            )
+        );
         self::setValue($this->value);
     }
 

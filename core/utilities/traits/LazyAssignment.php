@@ -40,9 +40,11 @@ trait LazyAssignment
      */
     protected function getMember($memberKey)
     {
-        set_error_handler(function ($severity, $message, $file, $line) {
-            throw new \ErrorException($message, $severity, $severity, $file, $line);
-        });
+        set_error_handler(
+            function ($severity, $message, $file, $line) {
+                throw new \ErrorException($message, $severity, $severity, $file, $line);
+            }
+        );
         $memberValue = null;
         try {
             $memberValue = constant(get_class($this) . "::{$memberKey}");
@@ -70,9 +72,11 @@ trait LazyAssignment
      */
     protected function setMember($memberKey, $value)
     {
-        set_error_handler(function ($severity, $message, $file, $line) {
-            throw new \ErrorException($message, $severity, $severity, $file, $line);
-        });
+        set_error_handler(
+            function ($severity, $message, $file, $line) {
+                throw new \ErrorException($message, $severity, $severity, $file, $line);
+            }
+        );
         try {
             $value = constant(get_class($this) . "::{$memberKey}");
         } catch (\Exception $e) {
