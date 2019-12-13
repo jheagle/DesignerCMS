@@ -2,6 +2,7 @@
 
 namespace Core\Controllers\API;
 
+use Core\Utilities\Traits\LazyAssignment;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -20,6 +21,7 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
  */
 class RequestHandler
 {
+    use LazyAssignment;
     /**
      * Class Members
      *
@@ -60,13 +62,7 @@ class RequestHandler
      */
     public function __construct(array $config = [])
     {
-        // Retrieve all the properties of this class so they can be populated lazily
-        foreach (get_class_vars(__CLASS__) as $classMemberName => $default) {
-            // Set this property to the incoming form data otherwise, use the default value
-            $this->{$classMemberName} = is_array($this->{$classMemberName})
-                ? $default + $config[$classMemberName] ?? []
-                : $config[$classMemberName] ?? $default;
-        }
+        $this->applyMemberSettings($config);
         if (!is_null($this->curlClient)) {
             $config = $this->curlClient->getConfig();
             $config['verify'] = false;

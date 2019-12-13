@@ -70,5 +70,6 @@ class StringDt extends DataType
     public function setValue($value)
     {
         $this->value = mb_convert_encoding($value, $this->charSet);
+        return $this->value;
     }
 }

@@ -12,17 +12,26 @@ trait Declarative
     /**
      * Get a string representation of all of this classes member and method declarations.
      *
-     * @return string
+     * @param bool $includePrivate
      *
-     * @throws \ReflectionException
+     * @return string
      */
-    final public function getClassDescription(): string
+    final public function getClassDescription(bool $includePrivate = false): string
     {
-        $classDescriptors = array_merge_recursive($this->getClassMembers(), $this->getClassMethods());
+        $classDescriptors = array_merge_recursive(
+            $this->getClassMembers($includePrivate),
+            $this->getClassMethods($includePrivate)
+        );
         $class = get_class($this);
         // set current class as the first element on the list of class descriptors
         $classDescriptors = [$class => $classDescriptors[$class]] + $classDescriptors;
-        $reflectClass = new \ReflectionClass($class);
+        try {
+            $reflectClass = new \ReflectionClass($class);
+        } catch (\ReflectionException $e) {
+            $describeFailed = "Unable to describe {$class}";
+            trigger_error($describeFailed, E_USER_NOTICE);
+            return $describeFailed;
+        }
         $abstractFinal = $reflectClass->isAbstract() ? 'abstract ' : ($reflectClass->isFinal() ? 'final ' : '');
         $interface = $reflectClass->isInterface() ? 'interface ' : '';
         return "\n\n\e[1;32m{$abstractFinal}{$interface}{$class}\x20{\e[0m" . array_reduce(
@@ -151,23 +160,30 @@ trait Declarative
     /**
      * Retrieve all class members and build a sorted array of member declarations.
      *
+     * @param bool $includePrivate
+     *
      * @return array
      */
-    private function getClassMembers(): array
+    private function getClassMembers(bool $includePrivate = false): array
     {
         $classVars = array_replace_recursive(get_class_vars(get_class($this)), get_object_vars($this));
         ksort($classVars);
-        return array_reduce(array_keys($classVars), $this->generateMemberDeclarationBuilder($classVars), []);
+        return array_reduce(
+            array_keys($classVars),
+            $this->generateMemberDeclarationBuilder($classVars, $includePrivate),
+            []
+        );
     }
 
     /**
      * Store all of the class members, and return the buildMemberDeclaration function.
      *
      * @param array $classVars
+     * @param bool $includePrivate
      *
      * @return callable
      */
-    private function generateMemberDeclarationBuilder(array $classVars): callable
+    private function generateMemberDeclarationBuilder(array $classVars, bool $includePrivate = false): callable
     {
         $memberClass = '';
         /**
@@ -179,7 +195,7 @@ trait Declarative
          *
          * @return array
          */
-        return function (array $members, string $memberKey) use ($classVars, &$memberClass) {
+        return function (array $members, string $memberKey) use ($classVars, &$memberClass, $includePrivate) {
             $member = new \ReflectionProperty($this, $memberKey);
             if ($member->class !== $memberClass) {
                 $memberClass = $member->class;
@@ -198,6 +214,9 @@ trait Declarative
             if (is_array($memberValue) || is_object($memberValue)) {
                 $memberValue = json_encode($memberValue);
             }
+            if (is_bool($memberValue)) {
+                $memberValue = $memberValue ? 'true' : 'false';
+            }
             if (!is_null($memberValue)) {
                 $memberValue = " = {$memberValue}";
             }
@@ -209,6 +228,9 @@ trait Declarative
                 $arrayPointer = &$arrayPointer['protected'];
             }
             if ($member->isPrivate()) {
+                if (!$includePrivate) {
+                    return $members;
+                }
                 $arrayPointer = &$arrayPointer['private'];
             }
             if ($member->isStatic()) {
@@ -228,70 +250,83 @@ trait Declarative
     /**
      * Retrieve all class methods and build a sorted array of method declarations.
      *
+     * @param bool $includePrivate
+     *
      * @return array
      */
-    private function getClassMethods(): array
+    private function getClassMethods(bool $includePrivate = false): array
     {
         $classMethods = get_class_methods(get_class($this));
         sort($classMethods);
-        return array_reduce($classMethods, 'self::buildMethodDeclaration', []);
+        return array_reduce($classMethods, $this->generateMethodDeclarationBuilder($includePrivate), []);
     }
 
     /**
-     * Given a sorted array of method declarations and a specific method name, build a string for the method
-     * declaration and add it to the array of methods.
+     * Set the includePrivate flag then return the function for formatting the method declarations.
      *
-     * @param array $methods
-     * @param string $methodName
+     * @param bool $includePrivate
      *
-     * @return array
-     * @throws \ReflectionException
+     * @return callable
      */
-    private function buildMethodDeclaration(array $methods, string $methodName): array
+    private function generateMethodDeclarationBuilder(bool $includePrivate = false): callable
     {
-        static $methodClass = '';
-        $method = new \ReflectionMethod($this, $methodName);
-        if ($method->class !== $methodClass) {
-            $methodClass = $method->class;
-            if (!array_key_exists($methodClass, $methods) || !array_key_exists('methods', $methods[$methodClass])) {
-                $abstractFinal = ['abstract' => [], 'final' => []];
-                $staticState = array_merge(['static' => $abstractFinal], $abstractFinal);
-                $methods[$methodClass]['methods'] = array_merge(
-                    ['public' => $staticState, 'protected' => $staticState, 'private' => $staticState],
-                    $staticState
-                );
+        /**
+         * Given a sorted array of method declarations and a specific method name, build a string for the method
+         * declaration and add it to the array of methods.
+         *
+         * @param array $methods
+         * @param string $methodName
+         *
+         * @return array
+         */
+        return function (array $methods, string $methodName) use ($includePrivate): array {
+            static $methodClass = '';
+            $method = new \ReflectionMethod($this, $methodName);
+            if ($method->class !== $methodClass) {
+                $methodClass = $method->class;
+                if (!array_key_exists($methodClass, $methods) || !array_key_exists('methods', $methods[$methodClass])) {
+                    $abstractFinal = ['abstract' => [], 'final' => []];
+                    $staticState = array_merge(['static' => $abstractFinal], $abstractFinal);
+                    $methods[$methodClass]['methods'] = array_merge(
+                        ['public' => $staticState, 'protected' => $staticState, 'private' => $staticState],
+                        $staticState
+                    );
+                }
             }
-        }
-        $method->getReturnType();
-        $parameters = array_reduce($method->getParameters(), 'self::buildParameterDeclaration', '');
+            $method->getReturnType();
+            $parameters = array_reduce($method->getParameters(), 'self::buildParameterDeclaration', '');
 
-        $arrayPointer = &$methods[$methodClass]['methods'];
-        if ($method->isPublic()) {
-            $arrayPointer = &$arrayPointer['public'];
-        }
-        if ($method->isProtected()) {
-            $arrayPointer = &$arrayPointer['protected'];
-        }
-        if ($method->isPrivate()) {
-            $arrayPointer = &$arrayPointer['private'];
-        }
-        if ($method->isStatic()) {
-            $arrayPointer = &$arrayPointer['static'];
-        }
-        if ($method->isAbstract()) {
-            $arrayPointer = &$arrayPointer['abstract'];
-        }
-        if ($method->isFinal()) {
-            $arrayPointer = &$arrayPointer['final'];
-        }
-        $returnType = '';
-        if ($method->hasReturnType()) {
-            $type = $method->getReturnType();
-            $returnType = ":\x20" . $type->getName();
-            $returnType = $type->allowsNull() ? "?{$returnType}" : $returnType;
-        }
-        $arrayPointer[$methodName] = "{$methodName}({$parameters}){$returnType}";
-        return $methods;
+            $arrayPointer = &$methods[$methodClass]['methods'];
+            if ($method->isPublic()) {
+                $arrayPointer = &$arrayPointer['public'];
+            }
+            if ($method->isProtected()) {
+                $arrayPointer = &$arrayPointer['protected'];
+            }
+            if ($method->isPrivate()) {
+                if (!$includePrivate) {
+                    return $methods;
+                }
+                $arrayPointer = &$arrayPointer['private'];
+            }
+            if ($method->isStatic()) {
+                $arrayPointer = &$arrayPointer['static'];
+            }
+            if ($method->isAbstract()) {
+                $arrayPointer = &$arrayPointer['abstract'];
+            }
+            if ($method->isFinal()) {
+                $arrayPointer = &$arrayPointer['final'];
+            }
+            $returnType = '';
+            if ($method->hasReturnType()) {
+                $type = $method->getReturnType();
+                $returnType = ":\x20" . $type->getName();
+                $returnType = $type->allowsNull() ? "?{$returnType}" : $returnType;
+            }
+            $arrayPointer[$methodName] = "{$methodName}({$parameters}){$returnType}";
+            return $methods;
+        };
     }
 
     /**

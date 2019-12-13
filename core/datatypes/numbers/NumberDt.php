@@ -12,11 +12,11 @@ use Core\Utilities\Functional\Pure;
  */
 class NumberDt extends StringDt
 {
-    protected ?int $length;
-    protected ?bool $isSigned;
-    protected ?bool $isNegative;
-    protected $valueSplit;
     protected ?string $filter = '/[^\d.]/';
+    protected ?bool $isNegative;
+    protected ?bool $isSigned;
+    protected ?int $length;
+    protected $valueSplit;
 
     /**
      * NumberDt constructor.
@@ -42,19 +42,88 @@ class NumberDt extends StringDt
     }
 
     /**
-     * @return mixed
+     * Increase the value of this NumberDt with the provided number
+     *
+     * @param NumberDt|int|float $number
+     *
+     * @return int
      */
-    public function getLength()
+    public function add($number): int
     {
-        return $this->length;
+        if (is_a($number, NumberDt::class)) {
+            $number = $number->getValue();
+        }
+
+        return Pure::add($this->getValue(), $number);
+    }
+
+    public function divideBy($number)
+    {
+        if (is_a($number, 'NumberDt')) {
+            $number = $number->getValue();
+        }
+
+        return $this->modulo($number) ? $this->getValue() / $number : $this->internalDivide(
+            $this->getValue(),
+            $number
+        );
+    }
+
+    public function exponent($number)
+    {
     }
 
     /**
-     * @param $length
+     * Return the absolute value of the number being the distance from zero
+     *
+     * @return int
      */
-    protected function setLength($length)
+    public function getAbsolute(): int
     {
-        $this->length = $length;
+        $value = $this->getValue();
+        $availBits = self::$systemMaxBits - 1;
+
+        return ($value ^ ($value >> $availBits)) - ($value >> $availBits);
+    }
+
+    /**
+     * Return the filter used to devise a number from a string
+     *
+     * @return string|null
+     */
+    public function getFilter(): ?string
+    {
+        return $this->filter;
+    }
+
+    /**
+     * Check if this number has the signed bit and it is set
+     *
+     * @return bool|null
+     */
+    public function getIsNegative(): ?bool
+    {
+        return $this->isNegative;
+    }
+
+    /**
+     * Check if this number has a signed bit
+     *
+     * @return bool|null
+     */
+    public function getIsSigned(): ?bool
+    {
+        return $this->isSigned;
+    }
+
+    /**
+     * Return the length of this number
+     *
+     * @return int|null
+     */
+    public function getLength(): ?int
+    {
+        return $this->length;
     }
 
     /**
@@ -70,6 +139,111 @@ class NumberDt extends StringDt
         );
     }
 
+    public function getSigned()
+    {
+        return $this->isSigned;
+    }
+
+    public function getValue()
+    {
+        if ($this->isNegative) {
+            return is_string($this->value) ? '-' . $this->value : $this->negate(
+                $this->value
+            );
+        }
+
+        return $this->value;
+    }
+
+    /**
+     * Check if this value was split to preserve the true value
+     *
+     * @return array|null
+     */
+    public function getValueSplit(): ?array
+    {
+        return $this->valueSplit;
+    }
+
+    public function isEven()
+    {
+        return !($this->value & 1);
+    }
+
+    public function isMersenne($number)
+    {
+        return $number && !(($number + 1) & $number);
+    }
+
+    public function isPowerOfTwo($number)
+    {
+        return $number && !($number & ($number - 1));
+    }
+
+    public function logPowerOfTwo($number)
+    {
+        $exponent = 0;
+        while ($number >>= 1) {
+            ++$exponent;
+        }
+
+        return $exponent;
+    }
+
+    public function modulo($number)
+    {
+        if (is_a($number, 'NumberDt')) {
+            return $number->getValue() & ($number->getValue() - 1) || ($number->getValue() + 1) & $number->getValue(
+            ) ? $this->getValue() % $number->getValue() : $this->getValue() & ($number->getValue() - 1);
+        }
+
+        return $this->isPowerOfTwo($number) || $this->isMersenne(
+            $number
+        ) ? $this->getValue() % $number : $this->getValue() & ($number - 1);
+    }
+
+    public function multiplyBy($number)
+    {
+        if (is_a($number, 'NumberDt')) {
+            $number = $number->getValue();
+        }
+
+        return $this->internalMultiply($this->getValue(), $number);
+    }
+
+    /**
+     * Get the inverse of this number (positive -> negative / negative ->
+     * positive)
+     *
+     * @param int $number
+     *
+     * @return int
+     */
+    public function negate($number): int
+    {
+        return Pure::negate($number);
+    }
+
+    public function setValue($value)
+    {
+        $this->isNegative = strstr($value, '-') && $this->isSigned;
+        $result = $this->setPreservedValue($value);
+
+        return $this->value = count($this->valueSplit) < 2 && !array_key_exists(
+            -1,
+            $this->valueSplit
+        ) ? (int)$this->getPreservedValue() : $this->getPreservedValue();
+    }
+
+    public function subtract($number)
+    {
+        if (is_a($number, 'NumberDt')) {
+            $number = $number->getValue();
+        }
+
+        return $this->internalSubtract($this->getValue(), $number);
+    }
+
     /**
      * @return string
      */
@@ -83,6 +257,72 @@ class NumberDt extends StringDt
         }
 
         return implode('', $this->valueSplit);
+    }
+
+    protected function internalDivide($x, $y)
+    {
+        $c = 0;
+        $sign = 0;
+
+        if ($x < 0) {
+            $x = $this->negate($x);
+            $sign ^= 1;
+        }
+
+        if ($y < 0) {
+            $y = $this->negate($y);
+            $sign ^= 1;
+        }
+
+        if ($y != 0) {
+            while ($x >= $y) {
+                $x = $this->internalSubtract($x, $y);
+                ++$c;
+            }
+        }
+        if ($sign) {
+            $c = $this->negate($c);
+        }
+
+        return $c;
+    }
+
+    protected function internalMultiply($x, $y)
+    {
+        $m = 1;
+        $z = 0;
+        if ($x < 0) {
+            $x = $this->negate($x);
+            $y = $this->negate($y);
+        }
+
+        while ($x >= $m && $y) {
+            if ($x & $m) {
+                $z = Pure::add($y, $z);
+            }
+            $y <<= 1;
+            $m <<= 1;
+        }
+
+        return $z;
+    }
+
+    protected function internalSubtract($x, $y)
+    {
+        return Pure::add($x, $this->negate($y));
+    }
+
+    /**
+     * Apply a fixed length
+     *
+     * @param int $length
+     *
+     * @return int
+     */
+    protected function setLength(int $length): int
+    {
+        $this->length = $length;
+        return $this->length;
     }
 
     /**
@@ -160,172 +400,6 @@ class NumberDt extends StringDt
 
         return $this->valueSplit;
     }
-
-    public function getValue()
-    {
-        if ($this->isNegative) {
-            return is_string($this->value) ? '-' . $this->value : $this->negate(
-                $this->value
-            );
-        }
-
-        return $this->value;
-    }
-
-    public function setValue($value)
-    {
-        $this->isNegative = strstr($value, '-') && $this->isSigned;
-        $result = $this->setPreservedValue($value);
-
-        return $this->value = count($this->valueSplit) < 2 && !array_key_exists(
-            -1,
-            $this->valueSplit
-        ) ? (int)$this->getPreservedValue() : $this->getPreservedValue();
-    }
-
-    public function getSigned()
-    {
-        return $this->isSigned;
-    }
-
-    public function isEven()
-    {
-        return !($this->value & 1);
-    }
-
-    public function isPowerOfTwo($number)
-    {
-        return $number && !($number & ($number - 1));
-    }
-
-    public function isMersenne($number)
-    {
-        return $number && !(($number + 1) & $number);
-    }
-
-    public function logPowerOfTwo($number)
-    {
-        $exponent = 0;
-        while ($number >>= 1) {
-            ++$exponent;
-        }
-
-        return $exponent;
-    }
-
-    public function exponent($number)
-    {
-    }
-
-    public function modulo($number)
-    {
-        if (is_a($number, 'NumberDt')) {
-            return $number->getValue() & ($number->getValue() - 1) || ($number->getValue() + 1) & $number->getValue(
-            ) ? $this->getValue() % $number->getValue() : $this->getValue() & ($number->getValue() - 1);
-        }
-
-        return $this->isPowerOfTwo($number) || $this->isMersenne(
-            $number
-        ) ? $this->getValue() % $number : $this->getValue() & ($number - 1);
-    }
-
-    protected function internalAdd($x, $y)
-    {
-        return Pure::add($x, $y);
-    }
-
-    protected function internalSubtract($x, $y)
-    {
-        return $this->internalAdd($x, $this->negate($y));
-    }
-
-    protected function internalMultiply($x, $y)
-    {
-        $m = 1;
-        $z = 0;
-        if ($x < 0) {
-            $x = $this->negate($x);
-            $y = $this->negate($y);
-        }
-
-        while ($x >= $m && $y) {
-            if ($x & $m) {
-                $z = $this->internalAdd($y, $z);
-            }
-            $y <<= 1;
-            $m <<= 1;
-        }
-
-        return $z;
-    }
-
-    protected function internalDivide($x, $y)
-    {
-        $c = 0;
-        $sign = 0;
-
-        if ($x < 0) {
-            $x = $this->negate($x);
-            $sign ^= 1;
-        }
-
-        if ($y < 0) {
-            $y = $this->negate($y);
-            $sign ^= 1;
-        }
-
-        if ($y != 0) {
-            while ($x >= $y) {
-                $x = $this->internalSubtract($x, $y);
-                ++$c;
-            }
-        }
-        if ($sign) {
-            $c = $this->negate($c);
-        }
-
-        return $c;
-    }
-
-    public function add($number)
-    {
-        if (is_a($number, 'NumberDt')) {
-            $number = $number->getValue();
-        }
-
-        return $this->internalAdd($this->getValue(), $number);
-    }
-
-    public function subtract($number)
-    {
-        if (is_a($number, 'NumberDt')) {
-            $number = $number->getValue();
-        }
-
-        return $this->internalSubtract($this->getValue(), $number);
-    }
-
-    public function multiplyBy($number)
-    {
-        if (is_a($number, 'NumberDt')) {
-            $number = $number->getValue();
-        }
-
-        return $this->internalMultiply($this->getValue(), $number);
-    }
-
-    public function divideBy($number)
-    {
-        if (is_a($number, 'NumberDt')) {
-            $number = $number->getValue();
-        }
-
-        return $this->modulo($number) ? $this->getValue() / $number : $this->internalDivide(
-            $this->getValue(),
-            $number
-        );
-    }
-
     //TODO: use this function logic with perfroming math on numbers stored in string (ex: BigInt)
     //    public function add($number) {
     //        $maxLength = strlen('' . (PHP_INT_MAX / 10) . '');
@@ -341,31 +415,4 @@ class NumberDt extends StringDt
     //        }
     //        return $result;
     //    }
-
-    /**
-     * Return the absolute value of the number being the distance from zero
-     *
-     * @return int
-     */
-    public function getAbsolute(): int
-    {
-        $value = $this->getValue();
-        $availBits = self::$systemMaxBits - 1;
-
-        return ($value ^ ($value >> $availBits)) - ($value >> $availBits);
-    }
-
-    /**
-     * Get the inverse of this number (positive -> negative / negative ->
-     * positive)
-     *
-     * @param int $number
-     *
-     * @return int
-     */
-    public function negate($number): int
-    {
-        return Pure::negate($number);
-    }
-
 }

@@ -14,14 +14,17 @@ class BigIntDt extends NumberDt
 
     public function __construct($value = 0, $settings = [])
     {
-        parent::__construct($value, array_merge(
-            [
-                'length' => 0,
-                'isSigned' => true,
-                'primitiveType' => 'int'
-            ],
-            $settings
-        ));
+        parent::__construct(
+            $value,
+            array_merge(
+                [
+                    'length' => 0,
+                    'isSigned' => true,
+                    'primitiveType' => 'int',
+                ],
+                $settings
+            )
+        );
         self::setMin();
         self::setMax();
         self::setLength($settings['length']);
@@ -48,7 +51,7 @@ class BigIntDt extends NumberDt
         $this->absoluteMax = $this->isSigned ? $absoluteMax : '18446744073709551616';
     }
 
-    protected function setLength($length)
+    protected function setLength(int $length): int
     {
         if ($length < 0) {
             $length = 0;
@@ -56,6 +59,7 @@ class BigIntDt extends NumberDt
             $length = (int)strlen((string)$this->absoluteMax);
         }
         $this->length = $length;
+        return $this->length;
     }
 
     public function getValue()
@@ -78,7 +82,6 @@ class BigIntDt extends NumberDt
             $this->valueSplit
         ) ? (int)$this->getPreservedValue() : $this->getPreservedValue();
         if (($this->bits > self::$systemMaxBits || !$this->isSigned) && ($value > $this->max || $value < $this->min)) {
-
             if ($value < 99999999999999 && $value > -99999999999999) {
                 if ($value > $this->min && !$this->isSigned && (int)((float)$value) < $this->min && $value <= ($this->max + (-1 ^ ~$this->max) + 1)) {
                     return $this->value = (int)((float)$value);
