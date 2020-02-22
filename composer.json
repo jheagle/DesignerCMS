@@ -1,5 +1,6 @@
 {
   "name": "joshuaheagle/designer-cms",
+  "description": "PHP + MySQL Datatype integration. Functional programming building blocks.",
   "type": "library",
   "authors": [
     {
@@ -23,7 +24,9 @@
       "Core\\DataTypes\\Strings\\": "core/datatypes/strings/",
       "Core\\Entity\\": "core/entity/",
       "Core\\Models\\": "core/models/",
-      "Core\\Utilities\\": "core/utilities/"
+      "Core\\Utilities\\": "core/utilities/",
+      "Core\\Utilities\\Functional\\": "core/utilities/functional/",
+      "Core\\Utilities\\Traits\\": "core/utilities/traits/"
     }
   },
   "autoload-dev": {
