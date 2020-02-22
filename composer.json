@@ -11,6 +11,7 @@
   "autoload": {
     "psr-4": {
       "Core\\Controllers\\": "core/controllers/",
+      "Core\\Controllers\\API\\": "core/controllers/api/",
       "Core\\Database\\": "core/database/",
       "Core\\DataTypes\\": [
         "core/datatypes/",
@@ -24,6 +25,9 @@
       "Core\\DataTypes\\Strings\\": "core/datatypes/strings/",
       "Core\\Entity\\": "core/entity/",
       "Core\\Models\\": "core/models/",
+      "Core\\Tests\\": "tests/",
+      "Core\\Tests\\Mocks\\": "tests/mocks/",
+      "Core\\Tests\\Traits\\": "tests/traits/",
       "Core\\Utilities\\": "core/utilities/",
       "Core\\Utilities\\Functional\\": "core/utilities/functional/",
       "Core\\Utilities\\Traits\\": "core/utilities/traits/"
