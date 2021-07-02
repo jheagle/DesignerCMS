@@ -4,6 +4,7 @@ namespace Core\Controllers\Api;
 
 use ArgumentCountError;
 use Core\Adaptors\Config;
+use Core\Adaptors\Vendor\CacheRegistry\CacheRegistry;
 use Core\Adaptors\Vendor\Curl\Exceptions\RequestException;
 use Core\Adaptors\Vendor\Curl\Request;
 use Core\Adaptors\Vendor\Logger\Logger;
@@ -11,6 +12,7 @@ use Psr\Cache\InvalidArgumentException;
 use Tests\Mocks\CurlResponseMocker;
 use Tests\mocks\GenericClass;
 use Tests\TestCase;
+use Throwable;
 use TypeError;
 
 /**
@@ -31,6 +33,8 @@ class RequestHandlerTest extends TestCase
      * Create a simple request
      *
      * @return void
+     *
+     * @throws Throwable
      */
     public function testCreateAndCompleteRequest()
     {
@@ -230,5 +234,49 @@ class RequestHandlerTest extends TestCase
         $this->assertIsCallable($createApiHandler);
         $this->assertIsCallable($createApiHandler2);
         $this->assertIsCallable($createApiHandler3);
+    }
+
+    /**
+     * Create a client credentials OAuth request which will be validated.
+     * This also confirms the implementation of the cache.
+     *
+     * @return void
+     *
+     * @throws Throwable
+     */
+    public function testCreatClientCredentialsAuthorizedRequest(): void
+    {
+        $tokenPrefix = 'cache-endpoint-token';
+        CacheRegistry::reset($tokenPrefix);
+        $client = CurlResponseMocker::createMockClient(
+            [
+                CurlResponseMocker::createResponse(
+                    ['body' => '{"access_token":"some-token","expires":7258122000}', 'status' => 200]
+                ),
+                CurlResponseMocker::createResponse(['body' => 'Created', 'status' => 201]),
+            ]
+        );
+        $response = (new RequestHandler(
+            [
+                'baseUrl' => '',
+                'tokenCache' => $tokenPrefix,
+                'headers' => ['Accept' => 'application/json'],
+                'endpointUrl' => '',
+                'tokenGrantType' => 'client-credentials',
+                'credentials' => [
+                    'urlAccessToken' => 'something',
+                    'urlAuthorize' => 'another thing',
+                    'urlResourceOwnerDetails' => 'fake',
+                ],
+                'curlClient' => $client,
+            ]
+        ))
+            ->completeRequest(
+                [
+                    'submitData' => (object)['someProperty' => 'someValue'],
+                ]
+            );
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals('Created', $response->getBody()->getContents());
     }
 }

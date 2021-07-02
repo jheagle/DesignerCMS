@@ -5,6 +5,7 @@ namespace Core\Adaptors\Vendor\CacheRegistry;
 use Core\Adaptors\Adaptor;
 use Core\Adaptors\Vendor\CacheRegistry\Exceptions\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Contracts\Cache\ItemInterface;
 use Throwable;
 
 /**
@@ -17,6 +18,18 @@ use Throwable;
 class CacheRegistry extends Adaptor
 {
     /**
+     * Clear all cached data, optional prefix for namespaced cache.
+     *
+     * @param string $prefix
+     *
+     * @return bool
+     */
+    public function clear(string $prefix = ''): bool
+    {
+        return $this->classInstance->clear($prefix);
+    }
+
+    /**
      * Remove cached data by key.
      *
      * @param string $key
@@ -25,7 +38,7 @@ class CacheRegistry extends Adaptor
      *
      * @throws InvalidArgumentException|Throwable
      */
-    public function delete(string $key)
+    public function delete(string $key): mixed
     {
         return $this->useThrowable(fn() => $this->classInstance->delete($key));
     }
@@ -44,6 +57,32 @@ class CacheRegistry extends Adaptor
      */
     public function get(string $key, callable $callback, float $beta = null, array &$metadata = null): mixed
     {
-        return $this->useThrowable(fn() => $this->classInstance->get($key, $callback, $beta, $metadata));
+        return $this->useThrowable(
+            fn() => $this->classInstance->get(
+                $key,
+                fn(ItemInterface $item) => $callback(CacheItem::wrapCast($item)),
+                $beta,
+                $metadata
+            )
+        );
+    }
+
+    /**
+     * Reset all static properties and clear the cache.
+     *
+     * @param string $cacheToken
+     *
+     * @return static
+     *
+     * @throws Throwable
+     */
+    public static function reset(string $cacheToken = ''): static
+    {
+        if (empty($cacheToken)) {
+            self::singleton()->clear();
+        } else {
+            self::singleton()->delete($cacheToken);
+        }
+        return parent::reset();
     }
 }

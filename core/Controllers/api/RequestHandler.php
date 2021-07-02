@@ -2,8 +2,8 @@
 
 namespace Core\Controllers\Api;
 
+use Core\Adaptors\Vendor\CacheRegistry\CacheItem;
 use Core\Adaptors\Vendor\CacheRegistry\CacheRegistry;
-use Core\Adaptors\Vendor\CacheRegistry\Contracts\CacheItem;
 use Core\Adaptors\Vendor\Curl\Client;
 use Core\Adaptors\Vendor\Curl\Exceptions\CurlException;
 use Core\Adaptors\Vendor\Curl\Exceptions\RequestException;

@@ -1,7 +1,7 @@
 <?php
 
+use Core\Adaptors\Vendor\CacheRegistry\CacheItem;
 use Core\Adaptors\Vendor\CacheRegistry\CacheRegistry;
-use Core\Adaptors\Vendor\CacheRegistry\Contracts\CacheItem;
 use Core\Adaptors\Vendor\CacheRegistry\Exceptions\InvalidArgumentException;
 use Core\Adaptors\Vendor\Curl\Client;
 use Core\Adaptors\Vendor\Curl\Exceptions\CurlException;
@@ -21,10 +21,9 @@ use GuzzleHttp\Handler\MockHandler;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Provider\GenericProvider;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Contracts\Cache\ItemInterface;
 
 return [
-    CacheItem::class => ItemInterface::class,
+    CacheItem::class => \Symfony\Component\Cache\CacheItem::class,
     CacheRegistry::class => FilesystemAdapter::class,
     Client::class => \GuzzleHttp\Client::class,
     HandlerStack::class => \GuzzleHttp\HandlerStack::class,

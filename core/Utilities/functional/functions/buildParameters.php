@@ -11,6 +11,9 @@
  * @throws ReflectionException
  */
 $buildParameters = static function (string $className, string $method, ...$args): array {
+    if (!method_exists($className, $method)) {
+        return $args;
+    }
     $parameters = (new ReflectionClass($className))
         ->getMethod($method)
         ->getParameters();
@@ -18,7 +21,7 @@ $buildParameters = static function (string $className, string $method, ...$args)
         ? (!is_null($parameters[0]->getType()) ? $parameters[0]->getType()->getName() : '')
         : null;
     if (count($args) === 1 && is_array($args[0])) {
-        $args = $firstParamType !== 'array' || is_array(dotGet($args[0], 0))
+        $args = $firstParamType !== 'array' || is_array(reset($args[0]))
             ? $args[0]
             : $args;
     }
