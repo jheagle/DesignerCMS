@@ -1,14 +1,16 @@
 <?php
 
-namespace Core\Tests\Traits;
+namespace Tests\Traits;
 
 use Core\Utilities\Functional\Pure;
+use Exception;
+use ReflectionException;
 use ReflectionMethod;
 
 /**
  * Trait IgnoreMethodScopes
  *
- * @package Core\Tests\traits
+ * @package Tests\traits
  */
 trait IgnoreMethodScopes
 {
@@ -16,13 +18,13 @@ trait IgnoreMethodScopes
      * In order to test non-public methods, this method may be invoked to treat the method as public. Will return a copy
      * of the otherwise inaccessible method.
      *
-     * @param string|\stdClass $class
+     * @param mixed $class
      * @param string $methodName
      * @param mixed ...$classArgs
      *
      * @return callable
      */
-    public function accessNonPublicMethod($class, string $methodName, ...$classArgs): callable
+    public function accessNonPublicMethod(mixed $class, string $methodName, ...$classArgs): callable
     {
         $className = $class;
         if (is_string($class)) {
@@ -37,10 +39,10 @@ trait IgnoreMethodScopes
             return function (...$args) use ($class, $method) {
                 return $method->invokeArgs($class, $args);
             };
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException $e) {
             Pure::trace('Unable to pipe reflection')($e);
             return function () use ($className, $methodName) {
-                throw new \Exception("Failed to access {$methodName} of {$className}");
+                throw new Exception("Failed to access $methodName of $className");
             };
         }
     }

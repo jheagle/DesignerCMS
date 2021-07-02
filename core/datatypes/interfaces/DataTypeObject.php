@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\DataTypes;
+namespace Core\DataTypes\Interfaces;
 
 /**
  * Interface DataTypeObject
@@ -14,7 +14,7 @@ interface DataTypeObject extends Potential
      *
      * @return mixed
      */
-    public function getValue();
+    public function getValue(): mixed;
 
     /**
      * Sets the internally stored value.
@@ -23,5 +23,5 @@ interface DataTypeObject extends Potential
      *
      * @return mixed
      */
-    public function setValue($value);
+    public function setValue(mixed $value): mixed;
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\DataTypes;
+namespace Core\DataTypes\Interfaces;
 
 /**
  * Interface Potential

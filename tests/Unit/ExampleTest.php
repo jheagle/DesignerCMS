@@ -1,13 +1,13 @@
 <?php
 
-namespace Core\Tests\Unit;
+namespace Tests\Unit;
 
-use Core\Tests\TestCase;
+use Tests\TestCase;
 
 /**
  * Class ExampleTest
  *
- * @package Core\Tests\Unit
+ * @package Tests\Unit
  *
  * @small
  *

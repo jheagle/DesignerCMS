@@ -49,7 +49,7 @@ class CharDt extends VarCharDt
      *
      * @return string
      */
-    public function setValue($value): string
+    public function setValue(mixed $value): string
     {
         // Note: All values passed to CharDt exceeding the length will be truncated
         $value = substr($value, 0, $this->length);

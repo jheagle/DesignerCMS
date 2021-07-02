@@ -16,7 +16,7 @@ class NumberDt extends StringDt
     protected ?bool $isNegative;
     protected ?bool $isSigned;
     protected ?int $length;
-    protected $valueSplit;
+    protected ?array $valueSplit;
 
     /**
      * NumberDt constructor.
@@ -24,7 +24,7 @@ class NumberDt extends StringDt
      * @param int $value
      * @param array $settings
      */
-    public function __construct($value = 0, $settings = [])
+    public function __construct($value = 0, array $settings = [])
     {
         parent::__construct(
             $value,
@@ -44,11 +44,11 @@ class NumberDt extends StringDt
     /**
      * Increase the value of this NumberDt with the provided number
      *
-     * @param NumberDt|int|float $number
+     * @param float|int|NumberDt $number
      *
      * @return int
      */
-    public function add($number): int
+    public function add(float|NumberDt|int $number): int
     {
         if (is_a($number, NumberDt::class)) {
             $number = $number->getValue();
@@ -57,7 +57,7 @@ class NumberDt extends StringDt
         return Pure::add($this->getValue(), $number);
     }
 
-    public function divideBy($number)
+    public function divideBy(int|float|NumberDt $number): float|int
     {
         if (is_a($number, 'NumberDt')) {
             $number = $number->getValue();
@@ -129,7 +129,7 @@ class NumberDt extends StringDt
     /**
      * @return string
      */
-    public function getPaddedValue()
+    public function getPaddedValue(): string
     {
         return str_pad(
             $this->getPreservedValue(),
@@ -139,12 +139,12 @@ class NumberDt extends StringDt
         );
     }
 
-    public function getSigned()
+    public function getSigned(): ?bool
     {
         return $this->isSigned;
     }
 
-    public function getValue()
+    public function getValue(): mixed
     {
         if ($this->isNegative) {
             return is_string($this->value) ? '-' . $this->value : $this->negate(
@@ -165,22 +165,22 @@ class NumberDt extends StringDt
         return $this->valueSplit;
     }
 
-    public function isEven()
+    public function isEven(): bool
     {
         return !($this->value & 1);
     }
 
-    public function isMersenne($number)
+    public function isMersenne($number): bool
     {
         return $number && !(($number + 1) & $number);
     }
 
-    public function isPowerOfTwo($number)
+    public function isPowerOfTwo($number): bool
     {
         return $number && !($number & ($number - 1));
     }
 
-    public function logPowerOfTwo($number)
+    public function logPowerOfTwo($number): int
     {
         $exponent = 0;
         while ($number >>= 1) {
@@ -190,7 +190,7 @@ class NumberDt extends StringDt
         return $exponent;
     }
 
-    public function modulo($number)
+    public function modulo(int|float|NumberDt $number): int
     {
         if (is_a($number, 'NumberDt')) {
             return $number->getValue() & ($number->getValue() - 1) || ($number->getValue() + 1) & $number->getValue(
@@ -202,7 +202,7 @@ class NumberDt extends StringDt
         ) ? $this->getValue() % $number : $this->getValue() & ($number - 1);
     }
 
-    public function multiplyBy($number)
+    public function multiplyBy(int|float|NumberDt $number): int
     {
         if (is_a($number, 'NumberDt')) {
             $number = $number->getValue();
@@ -219,15 +219,15 @@ class NumberDt extends StringDt
      *
      * @return int
      */
-    public function negate($number): int
+    public function negate(int $number): int
     {
         return Pure::negate($number);
     }
 
-    public function setValue($value)
+    public function setValue(mixed $value): string|int
     {
         $this->isNegative = strstr($value, '-') && $this->isSigned;
-        $result = $this->setPreservedValue($value);
+        $this->setPreservedValue($value);
 
         return $this->value = count($this->valueSplit) < 2 && !array_key_exists(
             -1,
@@ -235,7 +235,7 @@ class NumberDt extends StringDt
         ) ? (int)$this->getPreservedValue() : $this->getPreservedValue();
     }
 
-    public function subtract($number)
+    public function subtract(int|float|NumberDt $number): int
     {
         if (is_a($number, 'NumberDt')) {
             $number = $number->getValue();
@@ -247,7 +247,7 @@ class NumberDt extends StringDt
     /**
      * @return string
      */
-    protected function getPreservedValue()
+    protected function getPreservedValue(): string
     {
         if (array_key_exists(-1, $this->valueSplit)) {
             $tempSplitValue = $this->valueSplit;
@@ -259,7 +259,7 @@ class NumberDt extends StringDt
         return implode('', $this->valueSplit);
     }
 
-    protected function internalDivide($x, $y)
+    protected function internalDivide($x, $y): int
     {
         $c = 0;
         $sign = 0;
@@ -287,7 +287,7 @@ class NumberDt extends StringDt
         return $c;
     }
 
-    protected function internalMultiply($x, $y)
+    protected function internalMultiply($x, $y): int
     {
         $m = 1;
         $z = 0;
@@ -307,7 +307,7 @@ class NumberDt extends StringDt
         return $z;
     }
 
-    protected function internalSubtract($x, $y)
+    protected function internalSubtract($x, $y): int
     {
         return Pure::add($x, $this->negate($y));
     }
@@ -328,9 +328,9 @@ class NumberDt extends StringDt
     /**
      * @param $value
      *
-     * @return array
+     * @return array|null
      */
-    protected function setPreservedValue($value)
+    protected function setPreservedValue($value): ?array
     {
         $this->valueSplit = [];
         $valueFiltered = preg_replace(
@@ -358,7 +358,7 @@ class NumberDt extends StringDt
                 '',
                 $deciParts
             ); // merge the remaining values to preserve as pre-decimal value
-            // we will seperate the pre-decimal value based on max int length - 1
+            // we will separate the pre-decimal value based on max int length - 1
             // custom logic is used in order to store the fields so that the least significant part starts at 0 index
             for ($i = strlen($intNum); $i > 0; $i -= $maxLength) {
                 $charCnt = $i > $maxLength ? $maxLength : $i;
@@ -383,7 +383,7 @@ class NumberDt extends StringDt
                 '',
                 $deciParts
             ); // merge the remaining values to preserve as pre-decimal value
-            // we will seperate the pre-decimal value based on max int length - 1
+            // we will separate the pre-decimal value based on max int length - 1
             // custom logic is used in order to store the fields so that the least significant part starts at 0 index
             for ($i = strlen($intNum); $i > 0; $i -= $maxLength) {
                 $charCnt = $i > $maxLength ? $maxLength : $i;
@@ -400,7 +400,7 @@ class NumberDt extends StringDt
 
         return $this->valueSplit;
     }
-    //TODO: use this function logic with perfroming math on numbers stored in string (ex: BigInt)
+    //TODO: use this function logic with performing math on numbers stored in string (ex: BigInt)
     //    public function add($number) {
     //        $maxLength = strlen('' . (PHP_INT_MAX / 10) . '');
     //        if (is_a($number, 'Number')) {

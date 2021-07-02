@@ -2,8 +2,9 @@
 
 namespace Core\DataTypes;
 
-use Core\Utilities\Traits\Declarative;
-use Core\Utilities\Traits\LazyAssignment;
+use Core\DataTypes\Interfaces\DataTypeObject;
+use Core\Traits\Declarative;
+use Core\Traits\LazyAssignment;
 
 /**
  * Class DataType
@@ -58,8 +59,7 @@ abstract class DataType implements DataTypeObject
         self::PRIMITIVE_RESOURCE,
     ];
 
-    /** @var mixed $value */
-    protected $value;
+    protected mixed $value;
     protected string $primitiveType = 'object';
     protected static int $systemMaxBits;
 
@@ -68,7 +68,7 @@ abstract class DataType implements DataTypeObject
      *
      * @return mixed
      */
-    abstract public function getValue();
+    abstract public function getValue(): mixed;
 
     /**
      * Assign a value to this data type.
@@ -77,7 +77,7 @@ abstract class DataType implements DataTypeObject
      *
      * @return mixed
      */
-    abstract public function setValue($value);
+    abstract public function setValue(mixed $value): mixed;
 
     /**
      * DataType constructor.
@@ -118,7 +118,7 @@ abstract class DataType implements DataTypeObject
      *
      * @return bool
      */
-    public function isEqual($dataType): bool
+    public function isEqual(mixed $dataType): bool
     {
         return is_a($dataType, DataType::class)
             ? $this->getValue() === $dataType->getValue()
@@ -129,8 +129,6 @@ abstract class DataType implements DataTypeObject
      * Produce a string to describe this data type.
      *
      * @return string
-     *
-     * @throws \ReflectionException
      */
     public function __toString(): string
     {

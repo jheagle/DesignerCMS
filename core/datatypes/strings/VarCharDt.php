@@ -96,7 +96,7 @@ class VarCharDt extends StringDt
      *
      * @return string
      */
-    public function setValue($value): string
+    public function setValue(mixed $value): string
     {
         if (strlen($value) >= $this->length) {
             trigger_error("Truncating VarChar value: \"{$value}\"", E_USER_WARNING);

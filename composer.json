@@ -10,46 +10,28 @@
   ],
   "autoload": {
     "psr-4": {
-      "Core\\Controllers\\": "core/controllers/",
-      "Core\\Controllers\\API\\": "core/controllers/api/",
-      "Core\\Database\\": "core/database/",
-      "Core\\DataTypes\\": [
-        "core/datatypes/",
-        "core/datatypes/interfaces"
-      ],
-      "Core\\DataTypes\\Numbers\\": [
-        "core/datatypes/numbers/",
-        "core/datatypes/numbers/integers",
-        "core/datatypes/numbers/doubles"
-      ],
-      "Core\\DataTypes\\Strings\\": "core/datatypes/strings/",
-      "Core\\Entity\\": "core/entity/",
-      "Core\\Models\\": "core/models/",
-      "Core\\Tests\\": "tests/",
-      "Core\\Tests\\Mocks\\": "tests/mocks/",
-      "Core\\Tests\\Traits\\": "tests/traits/",
-      "Core\\Utilities\\": "core/utilities/",
-      "Core\\Utilities\\Functional\\": "core/utilities/functional/",
-      "Core\\Utilities\\Traits\\": "core/utilities/traits/"
+      "Core\\": "core/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Core\\Tests\\": "tests/"
+      "Tests\\": "tests/"
     }
   },
   "require": {
-    "php": "^7.4",
-    "guzzlehttp/guzzle": "~6.0",
-    "league/oauth2-client": "^2.4",
-    "ext-json": "^7.4"
+    "php": "^8.0",
+    "guzzlehttp/guzzle": "*",
+    "league/oauth2-client": "*",
+    "ext-json": "*",
+    "symfony/cache": "^5.2",
+    "monolog/monolog": "^2.2"
   },
   "require-dev": {
-    "codedungeon/phpunit-result-printer": "^0.23",
-    "fzaninotto/faker": "^1.8",
-    "mockery/mockery": "^1.2",
-    "phpunit/phpunit": "^7",
-    "twig/twig": "^2.0",
-    "symfony/var-dumper": "^4.3"
+    "codedungeon/phpunit-result-printer": "*",
+    "fzaninotto/faker": "*",
+    "mockery/mockery": "*",
+    "phpunit/phpunit": "*",
+    "twig/twig": "*",
+    "symfony/var-dumper": "*"
   }
 }

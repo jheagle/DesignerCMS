@@ -1,6 +1,8 @@
 <?php
 
-namespace Core\DataTypes\Numbers;
+namespace Core\DataTypes\Numbers\Doubles;
+
+use Core\DataTypes\Numbers\NumberDt;
 
 /**
  * Class DecimalDt
@@ -10,16 +12,16 @@ namespace Core\DataTypes\Numbers;
 class DecimalDt extends NumberDt
 {
 
-    protected $precision;
+    protected int $precision;
 
-    protected $scale;
+    protected int $scale;
 
     /**
      *
      * @param mixed|number $value
      * @param array $settings
      */
-    public function __construct($value = 0, array $settings = [])
+    public function __construct(int $value = 0, array $settings = [])
     {
         parent::__construct($value, $settings);
         $settings = array_merge(
@@ -70,18 +72,18 @@ class DecimalDt extends NumberDt
      *
      * @return number
      */
-    public function getValue()
+    public function getValue(): mixed
     {
         return parent::getValue();
     }
 
     /**
      *
-     * @param number $value
+     * @param mixed $value
      *
-     * @return number
+     * @return int|string
      */
-    public function setValue($value)
+    public function setValue(mixed $value): int|string
     {
         $this->isNegative = strstr($value, '-') && $this->isSigned;
         $number = parent::setValue($value);
@@ -102,6 +104,7 @@ class DecimalDt extends NumberDt
             $valueChange = true;
             $numParts[0] = substr($numParts[0], $removeDigits);
         }
+        $prefix = '';
 
         return parent::setValue($prefix . implode('.', $numParts));
     }

@@ -43,9 +43,9 @@ class StringDt extends DataType
     /**
      * Retrieve the configured character set for this DataType
      *
-     * @return mixed
+     * @return string|null
      */
-    public function getCharSet()
+    public function getCharSet(): ?string
     {
         return $this->charSet;
     }
@@ -55,7 +55,7 @@ class StringDt extends DataType
      *
      * @return mixed
      */
-    public function getValue()
+    public function getValue(): mixed
     {
         return $this->value;
     }
@@ -65,9 +65,9 @@ class StringDt extends DataType
      *
      * @param mixed $value
      *
-     * @return mixed|void
+     * @return mixed
      */
-    public function setValue($value)
+    public function setValue(mixed $value): mixed
     {
         $this->value = mb_convert_encoding($value, $this->charSet);
         return $this->value;
