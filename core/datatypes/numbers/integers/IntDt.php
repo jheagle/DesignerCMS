@@ -1,11 +1,11 @@
 <?php
 
-namespace Core\DataTypes\Numbers;
+namespace Core\DataTypes\Numbers\Integers;
 
 class IntDt extends BigIntDt
 {
 
-    protected $bits = 32;
+    protected int $bits = 32;
 
     public function __construct($value = 0, $settings = [])
     {

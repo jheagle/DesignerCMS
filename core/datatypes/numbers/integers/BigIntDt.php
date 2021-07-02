@@ -1,16 +1,18 @@
 <?php
 
-namespace Core\DataTypes\Numbers;
+namespace Core\DataTypes\Numbers\Integers;
+
+use Core\DataTypes\Numbers\NumberDt;
 
 class BigIntDt extends NumberDt
 {
-    protected $min;
+    protected int $min;
 
-    protected $max;
+    protected int $max;
 
-    protected $bits = 64;
+    protected int $bits = 64;
 
-    protected $absoluteMax;
+    protected int $absoluteMax;
 
     public function __construct($value = 0, $settings = [])
     {
@@ -62,12 +64,12 @@ class BigIntDt extends NumberDt
         return $this->length;
     }
 
-    public function getValue()
+    public function getValue(): mixed
     {
         return parent::getValue();
     }
 
-    public function setValue($value)
+    public function setValue(mixed $value): int|string
     {
         $this->isNegative = strstr($value, '-') && $this->isSigned;
         $this->valueSplit = array_filter(

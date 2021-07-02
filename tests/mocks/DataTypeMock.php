@@ -1,13 +1,13 @@
 <?php
 
-namespace Core\Tests\Mocks;
+namespace Tests\Mocks;
 
 use Core\DataTypes\DataType;
 
 /**
  * Class DataTypeMock
  *
- * @package Core\Tests\Mocks
+ * @package Tests\Mocks
  */
 class DataTypeMock extends DataType
 {
@@ -16,7 +16,7 @@ class DataTypeMock extends DataType
      *
      * @return mixed
      */
-    public function getValue()
+    public function getValue(): mixed
     {
         return $this->value;
     }
@@ -26,10 +26,11 @@ class DataTypeMock extends DataType
      *
      * @param mixed $value
      *
-     * @return mixed|void
+     * @return mixed
      */
-    public function setValue($value)
+    public function setValue(mixed $value): mixed
     {
         $this->value = $value;
+        return $value;
     }
 }

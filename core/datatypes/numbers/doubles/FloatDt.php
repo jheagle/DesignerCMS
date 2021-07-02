@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\DataTypes\Numbers;
+namespace Core\DataTypes\Numbers\Doubles;
 
 /**
  * Class FloatDt

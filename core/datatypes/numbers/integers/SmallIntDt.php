@@ -1,11 +1,11 @@
 <?php
 
-namespace Core\DataTypes\Numbers;
+namespace Core\DataTypes\Numbers\Integers;
 
 class SmallIntDt extends BigIntDt
 {
 
-    protected $bits = 16;
+    protected int $bits = 16;
 
     public function __construct($value = 0, $settings = [])
     {
