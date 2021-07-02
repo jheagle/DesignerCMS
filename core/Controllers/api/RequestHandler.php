@@ -3,6 +3,7 @@
 namespace Core\Controllers\Api;
 
 use Core\Adaptors\Vendor\CacheRegistry\CacheRegistry;
+use Core\Adaptors\Vendor\CacheRegistry\Contracts\CacheItem;
 use Core\Adaptors\Vendor\Curl\Client;
 use Core\Adaptors\Vendor\Curl\Exceptions\CurlException;
 use Core\Adaptors\Vendor\Curl\Exceptions\RequestException;
@@ -13,7 +14,6 @@ use Core\Adaptors\Vendor\OAuth\Exceptions\IdentityException;
 use Core\Adaptors\Vendor\OAuth\Provider;
 use Core\Traits\LazyAssignment;
 use InvalidArgumentException;
-use Symfony\Contracts\Cache\ItemInterface;
 use Throwable;
 
 /**
@@ -222,7 +222,7 @@ class RequestHandler
         }
         return $this->cacheProvider->get(
             $this->tokenCache,
-            function (ItemInterface $item): string {
+            function (CacheItem $item): string {
                 $clientClass = $this->curlClient ? get_class($this->curlClient) : Client::class;
                 $provider = $this->authProvider ?? Provider::instantiate()
                         ->with(
