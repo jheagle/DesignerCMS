@@ -15,7 +15,7 @@ class CastedClassType extends DataTransferObject
     public string $className;
     public ?CastedClassProperties $classProperties;
 
-    public static function fromArray(array $properties): static
+    public static function fromArray(array $properties = []): static
     {
         $properties['classProperties'] = CastedClassProperties::fromArray(Pure::dotGet($properties, 'classProperties'));
         return new self($properties);

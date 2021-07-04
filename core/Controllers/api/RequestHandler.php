@@ -67,11 +67,11 @@ class RequestHandler
      *
      * @param array $config The config data for making requests to an endpoint
      */
-    public function __construct(array $config = [])
+    protected function __construct(array $config = [])
     {
         $this->applyMemberSettings($config);
         if (is_null($this->cacheProvider)) {
-            $this->cacheProvider = CacheRegistry::instantiate()->build();
+            $this->cacheProvider = CacheRegistry::singleton()->build();
         }
         if (!empty($this->baseUrl) && !str_starts_with($this->endpointUrl, $this->baseUrl)) {
             // Prepend the base URL to the endpoint URL
@@ -104,99 +104,73 @@ class RequestHandler
      * which expects the array of request details having endpointUrl defined as one of the elements. If the array is
      * provided and it has 'endpointUrl', return the API Handler.
      *
-     * @param array $config Provide the $config data from the Form Project
-     * @param string $baseUrl Provide the base URL for where the form will be submitted
-     * @param null|array $requestDetails An array of settings to be used in the request
-     * [
-     * 'method' => '(null|string) Optionally, provide the type of request (ex: POST or GET)',
-     * 'endpointUrl' => '(null|string) Optionally, provide the specific path to submit to',
-     * 'headers' => '(null|string[]) Optionally, provide the headers for the request',
-     * 'curlClient' => '(null|\GuzzleHttp\Client) Optionally, provide a custom client'
-     * ]
+     * @param RequestHandlerOptions $config Provide the $config data from the Form Project
+     * @param RequestDetails|null $requestDetails An array of settings to be used in the request
      *
      * @return callable|RequestHandler
      */
     public static function prepareApiHandler(
-        array $config = [],
-        string $baseUrl = '',
-        ?array $requestDetails = null
+        RequestHandlerOptions $config,
+        RequestDetails $requestDetails = null
     ): callable|RequestHandler {
         /**
          * Pre-loaded with config and base URL, this function will take the array of request details having endpointUrl
          * defined as one of the elements and return an API Handler.
          *
-         * @param array $requestDetails An array of settings to be used in the request
-         * [
-         * 'method' => '(null|string) Optionally, provide the type of request (ex: POST or GET)',
-         * 'endpointUrl' => '(string) Provide the specific path to submit to',
-         * 'headers' => '(null|string[]) Optionally, provide the headers for the request',
-         * 'curlClient' => '(null|\GuzzleHttp\Client) Optionally, provide a custom client'
-         * ]
+         * @param RequestHandlerOptions $requestDetails
          *
          * @return RequestHandler
          */
         $preparedHandler = function (
-            array $requestDetails
+            RequestDetails $requestDetails
         ) use (
             $config,
-            $baseUrl
-        ): RequestHandler {
-            $endpointUrl = $requestDetails['endpointUrl'] ?? null;
-            if (!is_string($endpointUrl)) {
+        ): self {
+            if (!is_string($requestDetails->endpointUrl)) {
                 throw new InvalidArgumentException(
                     "'requestDetails' must provide an 'endpointUrl' property with a string value"
                 );
             }
-            return new RequestHandler(
-                [
-                    'tokenCache' => $config['tokenCache'] ?? 'cache-endpoint-token',
-                    'tokenGrantType' => $config['grantType'] ?? '',
-                    'credentials' => $config['credentials'] ?? [],
-                    'baseUrl' => $baseUrl,
-                    'method' => $requestDetails['method'] ?? 'GET',
-                    'endpointUrl' => $endpointUrl,
-                    'headers' => $requestDetails['headers']
-                        ?? ['Content-Type' => 'application/json', 'Accept' => 'application/json'],
-                    'curlClient' => $requestDetails['curlClient'] ?? null,
-                    'cacheProvider' => $requestDetails['cacheProvider'] ?? null,
-                ]
-            );
+            return new self(array_replace_recursive($config->toArray(), $requestDetails->toArray()));
         };
-        return (!is_array($requestDetails) || !is_string($requestDetails['endpointUrl'] ?? null))
+        return (!is_string($config->endpointUrl) && (is_null($requestDetails) || !is_string(
+                    $requestDetails->endpointUrl
+                )))
             ? $preparedHandler
-            : $preparedHandler($requestDetails);
+            : $preparedHandler($requestDetails ?? $config);
     }
 
     /**
      * Submit the submission data to the correct API url to be stored, return any responses from the API server.
      *
-     * @param array $requestSettings Includes settings such as request payload, withAuthorization, and renewToken
+     * @param RequestDataSettings|null $requestSettings Includes settings such as request payload, withAuthorization,
+     *     and renewToken
      *
      * @return Response
-     *
-     * @throws Throwable
      */
-    public function completeRequest(array $requestSettings = []): Response
+    public function completeRequest(RequestDataSettings $requestSettings = null): Response
     {
-        $submitData = $requestSettings['submitData'] ?? false;
-        $renewToken = $requestSettings['renewToken'] ?? false;
-        $authorize = $requestSettings['authorize'] ?? true;
+        if (is_null($requestSettings)) {
+            $requestSettings = RequestDataSettings::fromArray();
+        }
         $requestOptions = RequestOptions::initialize();
         $options = [$requestOptions->HEADERS => $this->headers];
-        if ($submitData) {
+        if ($requestSettings->submitData) {
             // When there is submit data, add the json content type and the submission data
             $options[$requestOptions->HEADERS]['Content-Type'] = 'application/json';
-            $options[$requestOptions->JSON] = $submitData;
+            $options[$requestOptions->JSON] = $requestSettings->submitData;
         }
         // Attempt to retrieve an access token, add to headers on success
-        if ($accessToken = ($authorize ? $this->authorizeConnection($renewToken) : false)) {
+        if ($accessToken = ($requestSettings->authorize ? $this->authorizeConnection(
+            $requestSettings->renewToken
+        ) : false)) {
             $options[$requestOptions->HEADERS]['Authorization'] = $accessToken;
         }
         $response = $this->sendRequest($this->endpointUrl, $this->method, $options);
         $status = $response->getStatusCode();
         // If this request should have an authorization token and failed, attempt to renew the token and retry.
-        if (($status < 200 || $status >= 300) && !$renewToken) {
-            $requestSettings['renewToken'] = true;
+        if (($status < 200 || $status >= 300) && !$requestSettings->renewToken) {
+            $requestSettings->renewToken = true;
             return $this->completeRequest($requestSettings);
         }
         // Return a new response with the recent response headers appended
@@ -209,52 +183,65 @@ class RequestHandler
      * @param bool $renew Choose whether to use the cached token or to request a new one.
      *
      * @return string
-     *
-     * @throws Throwable
      */
     protected function authorizeConnection(bool $renew = false): string
     {
-        if (!array_key_exists('urlAccessToken', $this->credentials)) {
+        if (empty($this->tokenGrantType)) {
             return '';
         }
-        if ($renew) {
-            $this->cacheProvider->delete($this->tokenCache);
-        }
-        return $this->cacheProvider->get(
-            $this->tokenCache,
-            function (CacheItem $item): string {
-                $clientClass = $this->curlClient ? get_class($this->curlClient) : Client::class;
-                $provider = $this->authProvider ?? Provider::instantiate()
-                        ->with(
-                            [
-                                'options' => $this->credentials,
-                                'collaborators' => [
-                                    'httpClient' => $this->curlClient ?? new $clientClass(['verify' => false]),
-                                ],
-                            ]
-                        )
-                        ->build();
-                try {
-                    // Try to get an access token using the client credentials grant.
-                    $tokenResult = $provider->getAccessToken($this->tokenGrantType);
-                    $item->expiresAfter($tokenResult->getExpires());
-                    return $tokenResult->getToken();
-                } catch (RequestException | IdentityException $e) {
-                    Logger::error(
-                        'Unable to reach the specified endpoint',
-                        [
-                            'Endpoint URL' => $this->baseUrl,
-                            'RequestException' => $e,
-                        ]
-                    );
-                }
-                return '';
+        try {
+            if ($renew) {
+                $this->cacheProvider->delete($this->tokenCache);
             }
-        );
+            return $this->cacheProvider->get(
+                $this->tokenCache,
+                fn(CacheItem $item) => $this->fetchAuthenticationToken($item)
+            );
+        } catch (\Core\Adaptors\Vendor\CacheRegistry\Exceptions\InvalidArgumentException | Throwable) {
+        }
+        return '';
     }
 
     /**
-     * Using Guzzle, build and send a request to an external resource.
+     * Retrieve an authentication token.
+     *
+     * @param CacheItem $item
+     *
+     * @return string
+     *
+     * @throws Throwable
+     */
+    private function fetchAuthenticationToken(CacheItem $item): string
+    {
+        $clientClass = $this->curlClient ? get_class($this->curlClient) : Client::class;
+        $provider = $this->authProvider ?? Provider::instantiate()
+                ->with(
+                    [
+                        'options' => $this->credentials,
+                        'collaborators' => [
+                            'httpClient' => $this->curlClient ?? new $clientClass(['verify' => false]),
+                        ],
+                    ]
+                )
+                ->build();
+        try {
+            $tokenResult = $provider->getAccessToken($this->tokenGrantType);
+            $item->expiresAfter($tokenResult->getExpires());
+            return $tokenResult->getToken();
+        } catch (RequestException | IdentityException $e) {
+            Logger::error(
+                'Unable to reach the specified endpoint',
+                [
+                    'Endpoint URL' => $this->baseUrl,
+                    'RequestException' => $e,
+                ]
+            );
+        }
+        return '';
+    }
+
+    /**
+     * Using Curl Adaptor, build and send a request to an external resource.
      *
      * @param string $url The url of the remote resource.
      * @param string $method The request method to be applied ['GET', 'POST', 'OPTIONS', 'CREATE', etc.]
@@ -264,10 +251,8 @@ class RequestHandler
      */
     private function sendRequest(string $url, string $method = 'GET', array $options = []): Response
     {
-        // Default to not throwing exceptions for non-success state
         $options['exceptions'] = $options['exceptions'] ?? false;
         $client = $this->curlClient ?? Client::instantiate()->with(['verify' => false])->build();
-        // Attempt to connect to remote resource, log in case of failure
         try {
             return $client->request($method, $url, $options);
         } catch (CurlException | RequestException | Throwable $e) {

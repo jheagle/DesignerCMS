@@ -40,7 +40,9 @@ class CacheRegistry extends Adaptor
      */
     public function delete(string $key): mixed
     {
-        return $this->useThrowable(fn() => $this->classInstance->delete($key));
+        return $this->useThrowable(
+            fn() => $this->classInstance->delete($key)
+        );
     }
 
     /**
@@ -55,7 +57,7 @@ class CacheRegistry extends Adaptor
      *
      * @throws InvalidArgumentException|Throwable
      */
-    public function get(string $key, callable $callback, float $beta = null, array &$metadata = null): mixed
+    public function get(string $key, callable $callback, float $beta = null, array $metadata = null): mixed
     {
         return $this->useThrowable(
             fn() => $this->classInstance->get(
@@ -74,15 +76,19 @@ class CacheRegistry extends Adaptor
      *
      * @return static
      *
-     * @throws Throwable
+     * @throws InvalidArgumentException|Throwable
      */
     public static function reset(string $cacheToken = ''): static
     {
+        $className = get_called_class();
+        self::$customInstances[$className] = null;
+        self::$staticInstances[$className] = null;
+        $instance = self::singleton();
         if (empty($cacheToken)) {
-            self::singleton()->clear();
-        } else {
-            self::singleton()->delete($cacheToken);
+            $instance->clear();
+            return $instance;
         }
-        return parent::reset();
+        $instance->delete($cacheToken);
+        return $instance;
     }
 }

@@ -29,12 +29,12 @@ abstract class DataTransferObject implements ArrayAccess, Arrayable, Jsonable
         $this->applyMemberSettings($properties);
     }
 
-    public static function fromArray(array $properties): static
+    public static function fromArray(array $properties = []): static
     {
         return new static($properties);
     }
 
-    public static function fromJson(string $json): static
+    public static function fromJson(string $json = ''): static
     {
         return new static(json_decode($json, true));
     }
