@@ -1,8 +1,7 @@
 <?php
-require 'vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
-use Core\Database\PhpDbConnect;
-use Core\DataTypes\Numbers\IntDt;
+use Core\DataTypes\Numbers\Integers\IntDt;
 use Core\DataTypes\Strings\VarCharDt;
 use Core\Entity\Field;
 use Core\Utilities\Functional\Pure;
@@ -12,7 +11,7 @@ use Symfony\Component\VarDumper\Dumper\HtmlDumper;
 use Symfony\Component\VarDumper\VarDumper;
 
 VarDumper::setHandler(function ($var) {
-    $htmlDumper = new HtmlDumper;
+    $htmlDumper = new HtmlDumper();
     $htmlDumper->setStyles([
         'default' => 'background-color:transparent; color:#FF1B00D4; line-height:1.2em; font:14px Menlo, Monaco, Consolas, monospace; word-wrap: break-word; white-space: pre-wrap; position:relative; z-index:99999; word-break: break-all',
         'num' => 'font-weight:bold; color:#1231DA',
@@ -29,9 +28,9 @@ VarDumper::setHandler(function ($var) {
         'ellipsis' => 'color:#FF1B00D4',
     ]);
 
-    $dumper = PHP_SAPI === 'cli' ? new CliDumper : $htmlDumper;
+    $dumper = PHP_SAPI === 'cli' ? new CliDumper() : $htmlDumper;
 
-    $dumper->dump((new VarCloner)->cloneVar($var));
+    $dumper->dump((new VarCloner())->cloneVar($var));
 });
 
 Pure::extractAll();
@@ -47,27 +46,7 @@ $newCurry2 = $newCurry1('two');
 trace('curryTest with two parameters')($newCurry2);
 trace('curryTest with all three parameters')($newCurry2('three'));
 
-
-$localHosts = ['127.0.0.1', '::1'];
-if (in_array($_SERVER['SERVER_ADDR'], $localHosts, true) && in_array(
-        $_SERVER['REMOTE_ADDR'],
-        $localHosts,
-        true
-    )) {
-    //    header('Content-Type: application/json'); This is my debuggin trick, but if I have xdebug then this ruins it
-    $testing = true;
-    $production = false;
-}
-
-if (!isset($username)) {
-    $username = 'root';
-}
-
-if (!isset($hostname)) {
-    $hostname = 'localhost';
-}
-
-$db = PHPDBConnect::instantiateDB('', '', '', '', $testing, $production);
+require __DIR__ . '/bootstrap.php';
 
 $value = 'Hello';
 $datatype = new VarCharDt($value, ['length' => 100]);
@@ -87,7 +66,7 @@ trace('Bitwise Add:')($integer->add($testValue));
 trace('True Add:')($integer->getValue() + $testValue);
 trace('Bitwise Subtract:')($integer->subtract($testValue));
 trace('True Subtract:')($integer->getValue() - $testValue);
-trace('Bitwise Mulitiply:')($integer->multiplyBy($testValue));
+trace('Bitwise Multiply:')($integer->multiplyBy($testValue));
 trace('True Multiple:')($integer->getValue() * $testValue);
 trace('Bitwise Divide:')($integer->divideBy($testValue));
 trace('True Divide:')($integer->getValue() / $testValue);

@@ -2,43 +2,66 @@
 
 namespace Core\Database;
 
+use PDO;
+
+/**
+ *
+ */
 class PhpDbConnect extends DbConnect
 {
-
-    protected function __construct($settings)
+    /**
+     * @param string $queryRaw
+     * @return int
+     */
+    public function insert(string $queryRaw = ''): int
     {
-        parent::__construct($settings);
+        return $this->exec($queryRaw);
     }
 
-    public function insert($queryRaw = '')
-    {
-        return $this->exec($queryRaw, 'insert');
-    }
-
-    public function update($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return int
+     */
+    public function update(string $queryRaw = ''): int
     {
         return $this->exec($queryRaw, 'update');
     }
 
-    public function delete($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return int
+     */
+    public function delete(string $queryRaw = ''): int
     {
         return $this->exec($queryRaw, 'delete');
     }
 
-    public function alter($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return int
+     */
+    public function alter(string $queryRaw = ''): int
     {
         return $this->exec($queryRaw, 'alter');
     }
 
-    public function select($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return mixed
+     */
+    public function select(string $queryRaw = ''): mixed
     {
-        return $this->query($queryRaw, 'select');
+        return $this->query($queryRaw);
     }
 
-    public function select_assoc($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return mixed
+     */
+    public function selectAssoc(string $queryRaw = ''): mixed
     {
         if (empty($this->result) || $queryRaw !== $this->queryRaw) {
-            $this->query($queryRaw, 'select');
+            $this->query($queryRaw);
         }
 
         return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
@@ -46,10 +69,29 @@ class PhpDbConnect extends DbConnect
         ) : $this->result;
     }
 
-    public function select_num($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return mixed
+     */
+    public function selectColumn(string $queryRaw = ''): mixed
     {
         if (empty($this->result) || $queryRaw !== $this->queryRaw) {
-            $this->query($queryRaw, 'select');
+            $this->query($queryRaw);
+        }
+
+        return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
+            PDO::FETCH_COLUMN
+        ) : $this->result;
+    }
+
+    /**
+     * @param string $queryRaw
+     * @return mixed
+     */
+    public function selectNum(string $queryRaw = ''): mixed
+    {
+        if (empty($this->result) || $queryRaw !== $this->queryRaw) {
+            $this->query($queryRaw);
         }
 
         return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
@@ -57,10 +99,14 @@ class PhpDbConnect extends DbConnect
         ) : $this->result;
     }
 
-    public function select_both($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return mixed
+     */
+    public function selectBoth(string $queryRaw = ''): mixed
     {
         if (empty($this->result) || $queryRaw !== $this->queryRaw) {
-            $this->query($queryRaw, 'select');
+            $this->query($queryRaw);
         }
 
         return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
@@ -68,21 +114,29 @@ class PhpDbConnect extends DbConnect
         ) : $this->result;
     }
 
-    public function select_object($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return mixed
+     */
+    public function selectObject(string $queryRaw = ''): mixed
     {
         if (empty($this->result) || $queryRaw !== $this->queryRaw) {
-            $this->query($queryRaw, 'select');
+            $this->query($queryRaw);
         }
 
         return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
-            PDO::FETCH_OBJECT
+            PDO::FETCH_OBJ
         ) : $this->result;
     }
 
-    public function select_lazy($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return mixed
+     */
+    public function selectLazy(string $queryRaw = ''): mixed
     {
         if (empty($this->result) || $queryRaw !== $this->queryRaw) {
-            $this->query($queryRaw, 'select');
+            $this->query($queryRaw);
         }
 
         return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
@@ -90,14 +144,19 @@ class PhpDbConnect extends DbConnect
         ) : $this->result;
     }
 
-    protected function queryValidation($queryRaw, $type)
+    /**
+     * @param string $queryRaw
+     * @param string $type
+     * @return string
+     */
+    public function queryValidation(string $queryRaw, string $type): string
     {
         if ($queryRaw === $this->queryRaw) {
             return $this->query;
         }
         $this->queryRaw = $queryRaw;
 
-        return $this->query = $this->queryRaw; // remove thise once complete function
+        return $this->query = $this->queryRaw; // remove this once complete function
         /*        if (!preg_match("`?\d*[a-zA-Z][0-9a-zA-Z$_]*`?", $tableName)) {
           return;
           }
@@ -142,7 +201,12 @@ class PhpDbConnect extends DbConnect
           return $this->query; */
     }
 
-    public function consoleOut($outputIn, $typeIn = 'DB')
+    /**
+     * @param string $outputIn
+     * @param string $typeIn
+     * @return bool
+     */
+    public function consoleOut(string $outputIn, string $typeIn = 'DB'): bool
     {
         global $screenOut;
         $output = is_array($outputIn) || is_object($outputIn) ? json_encode(
@@ -150,17 +214,21 @@ class PhpDbConnect extends DbConnect
         ) : $outputIn;
         $type = addslashes($typeIn);
         if (isset($screenOut) && $screenOut) {
-            echo "{$type}: {$output}\r\n";
+            echo "$type: $output\r\n";
         } else {
             $output = addslashes($output);
             $output = str_replace("\n", ' ', $output);
-            echo "<script>console.log(\"{$type}: {$output}\")</script>";
+            echo "<script>console.log(\"$type: $output\")</script>";
         }
 
         return true;
     }
 
-    public function sanitizeOutput($output)
+    /**
+     * @param mixed $output
+     * @return string|array
+     */
+    public function sanitizeOutput(mixed $output): string|array
     {
         if (is_array($output)) {
             $new_output = [];

@@ -168,13 +168,11 @@ class Logger extends Adaptor
         }
         $newInstance = parent::singleton($resource, ...$args);
         foreach (Config::get('logger.handlers', []) as $handler) {
-            /**
-             * @var Adaptor $handlerClass
-             */
             $handlerClass = self::HANDLERS[$handler['type']];
+            assert($handlerClass instanceof Adaptor);
             $newInstance->classInstance->pushHandler(
                 $handlerClass::instantiate()
-                    ->with(array_values(Pure::dotGet($handler, 'context')))
+                    ->with(Pure::dotGet($handler, 'context'))
                     ->build()
                     ->preCast()
             );

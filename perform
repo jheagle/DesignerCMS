@@ -1,0 +1,28 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+use Core\Database\PhpDbConnect;
+use Core\Utilities\Functional\Pure;
+
+Pure::extractAll();
+
+$db = null;
+require __DIR__ . '/bootstrap.php';
+
+assert($db instanceof PhpDbConnect);
+$total = [];
+while ($result = $db->selectColumn('SHOW TABLES')) {
+    Pure::trace('result')($result);
+    $total[] = $result;
+}
+$allDescriptions = array_flip($total);
+foreach ($total as $table) {
+    $allDescriptions[$table] = [];
+    while ($desc = $db->selectAssoc("DESCRIBE $table")) {
+        Pure::trace('desc')($desc);
+        $allDescriptions[$table][dotGet($desc, 'Field')] = $desc;
+    }
+}
+Pure::tt('all')($allDescriptions);

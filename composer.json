@@ -24,7 +24,8 @@
     "league/oauth2-client": "*",
     "ext-json": "*",
     "symfony/cache": "^5.2",
-    "monolog/monolog": "^2.2"
+    "monolog/monolog": "^2.2",
+    "ext-pdo": "*"
   },
   "require-dev": {
     "codedungeon/phpunit-result-printer": "*",
@@ -32,6 +33,7 @@
     "mockery/mockery": "*",
     "phpunit/phpunit": "*",
     "twig/twig": "*",
+    "symfony/dotenv": "^5.3",
     "symfony/var-dumper": "*"
   }
 }

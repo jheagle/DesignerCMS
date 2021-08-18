@@ -2,52 +2,76 @@
 
 namespace Core\Database;
 
-class AjaxDbConnect extends DbConnect
+class AjaxDbConnect extends PhpDbConnect
 {
 
-    private $jsonResult;
+    private string $jsonResult;
 
-    protected function __construct($settings)
+    public function __construct($settings)
     {
         parent::__construct($settings);
     }
 
-    public function insert($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return int
+     */
+    final public function insert(string $queryRaw = ''): int
     {
         $this->jsonResult = json_encode(parent::insert($queryRaw));
 
         return $this->jsonResult;
     }
 
-    public function update($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return int
+     */
+    final public function update(string $queryRaw = ''): int
     {
         $this->jsonResult = json_encode(parent::update($queryRaw));
 
         return $this->jsonResult;
     }
 
-    public function delete($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return int
+     */
+    final public function delete(string $queryRaw = ''): int
     {
         $this->jsonResult = json_encode(parent::delete($queryRaw));
 
         return $this->jsonResult;
     }
 
-    public function alter($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return int
+     */
+    final public function alter(string $queryRaw = ''): int
     {
         $this->jsonResult = json_encode(parent::alter($queryRaw));
 
         return $this->jsonResult;
     }
 
-    public function select($queryRaw = '')
+    /**
+     * @param string $queryRaw
+     * @return string|bool
+     */
+    final public function select(string $queryRaw = ''): string|bool
     {
-        $this->jsonResult = json_encode(parent::select_assoc($queryRaw));
+        $this->jsonResult = json_encode(parent::selectAssoc($queryRaw));
 
         return $this->jsonResult;
     }
 
-    public function requestValidation($request)
+    /**
+     * @param string $request
+     * @return bool
+     */
+    final public function requestValidation(string $request): bool
     {
         $type = substr($request, 0, 6);
         $query = substr($request, 7);
@@ -59,12 +83,12 @@ class AjaxDbConnect extends DbConnect
             ) && $type === $ex_type && $query === $ex_query;
     }
 
-    protected function queryValidation($queryRaw, $type)
-    {
-        return parent::queryValidation($queryRaw, $type);
-    }
-
-    public function consoleOut($outputIn, $typeIn = 'DB')
+    /**
+     * @param string $outputIn
+     * @param string $typeIn
+     * @return bool
+     */
+    final public function consoleOut($outputIn, $typeIn = 'DB'): bool
     {
         $output = is_array($outputIn) || is_object($outputIn) ? json_encode(
             $outputIn
@@ -73,35 +97,7 @@ class AjaxDbConnect extends DbConnect
         if (!headers_sent()) {
             header('Content-Type: application/json');
         }
-        echo "{$type}: {$output}\r\n";
+        echo "$type: $output\r\n";
+        return true;
     }
-
-    public function sanitizeOutput($output)
-    {
-        if (is_array($output)) {
-            $new_output = [];
-            foreach ($output as $key => $value) {
-                if (is_array($value)) {
-                    $new_output[$key] = $this->sanitizeOutput($value);
-                } else {
-                    $new_output[$key] = stripslashes(
-                        htmlentities(
-                            str_replace('\r', '', $value),
-                            ENT_HTML5,
-                            'UTF-8',
-                            false
-                        )
-                    );
-                }
-            }
-
-            return $new_output;
-        }
-
-        return stripslashes(
-            htmlentities(str_replace('\r', '', $output), ENT_HTML5, 'UTF-8',
-                false)
-        );
-    }
-
 }

@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Core\Utilities\Functional\Pure;
 use Core\Utilities\Functional\PureTrait;
 use Faker\Factory;
 use Faker\Generator;
@@ -58,6 +59,8 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         $this->setUpFaker();
+
+        Pure::extractAll();
 
         foreach ($this->afterApplicationCreatedCallbacks as $callback) {
             call_user_func($callback);

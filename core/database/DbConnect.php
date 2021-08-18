@@ -2,94 +2,176 @@
 
 namespace Core\Database;
 
-use Core\DataTypes\Potential;
+use Core\Adaptors\Config;
+use Core\Adaptors\Vendor\Logger\Logger;
+use Core\DataTypes\Interfaces\Potential;
+use Core\Traits\LazyAssignment;
+use Core\Utilities\Functional\Pure;
 use PDO;
 use PDOException;
 
+/**
+ *
+ */
 abstract class DbConnect implements Potential
 {
+    use LazyAssignment;
 
-    protected static $instance;
+    /**
+     * @var DbConnect[] $instance
+     */
+    public static array $instance = [];
 
-    protected static $pdoInstance;
+    /**
+     * @var PDO[] $pdoInstance
+     */
+    public static array $pdoInstance = [];
 
-    protected $database;
+    private static string $staticDatabase;
 
-    public $production; // environment
+    public string $database;
 
-    public $testing; // mode (truly run a query or not)
+    public bool $production; // environment
 
-    protected $queries;
+    public bool $testing; // mode (truly run a query or not)
 
-    protected $result;
+    public int $queries = 0;
 
-    protected $queryRaw;
+    public mixed $result;
 
-    protected $query;
+    public string $queryRaw = '';
 
-    protected function __construct($settings)
+    public string $query = '';
+
+    /**
+     * @param array $settings
+     */
+    public function __construct(array $settings = [])
     {
+        $this->applyMemberSettings($settings);
         $localHosts = ['127.0.0.1', '::1'];
-        if (in_array($_SERVER['SERVER_ADDR'], $localHosts, true) && in_array(
+        if (in_array(Pure::dotGet($_SERVER, 'SERVER_ADDR', ''), $localHosts, true) && in_array(
                 $_SERVER['REMOTE_ADDR'],
                 $localHosts,
                 true
             )) {
-            //    header('Content-Type: application/json'); This is my debuggin trick, but if I have xdebug then this ruins it
-            $testing = true;
-            $production = false;
+            //    header('Content-Type: application/json'); This is my debugging trick, but if I have xdebug then this ruins it
+            $this->testing = true;
+            $this->production = false;
         }
-
-        if (!isset($username)) {
-            $username = 'root';
+        $connection = Config::get('database.connection', 'mysql');
+        $username = Pure::dotGet($settings, 'username');
+        if (empty($username)) {
+            $username = Config::get("database.connections.$connection.username", 'root');
         }
-
-        if (!isset($hostname)) {
-            $hostname = 'localhost';
+        $password = Pure::dotGet($settings, 'password');
+        if (empty($password)) {
+            $password = Config::get("database.connections.$connection.password", '');
         }
-        extract($settings);
-        if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password) && $production) {
+        $hostname = Pure::dotGet($settings, 'hostname');
+        if (empty($hostname)) {
+            $hostname = Config::get("database.connections.$connection.hostname", 'localhost');
+        }
+        if (empty($this->database)) {
+            $this->database = Config::get("database.connections.$connection.database", '127.0.0.1');
+        }
+        self::$staticDatabase = $this->database;
+        if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password) && $this->production) {
             global $RESOURCES;
             include_once $RESOURCES['dbInfo'];
         }
-        $this->database = $database;
-        $this->testing = $testing;
-        $this->production = $production;
-        $this->queries = 0;
         if (empty(self::$pdoInstance) || !is_array(self::$pdoInstance)) {
             self::$pdoInstance = [];
         }
         try {
-            if (empty(self::$pdoInstance[$database])) {
-                self::$pdoInstance[$database] = new PDO(
-                    "mysql:host={$hostname};dbname={$database}",
+            if (empty(self::$pdoInstance[$this->database])) {
+                self::$pdoInstance[$this->database] = new PDO(
+                    "$connection:host=$hostname;dbname=$this->database",
                     $username,
                     $password
                 );
             }
-            if ($testing || !$production) {
-                $this->consoleOut("Connected to database ({$database})");
+            if ($this->testing || !$this->production) {
+                $this->consoleOut("Connected to database ($this->database)");
             }
-            //TODO: ADD LOG
+            Logger::info("Connected to database ($this->database@$hostname)");
         } catch (PDOException $e) {
-            if ($testing || !$production) {
+            if ($this->testing || !$this->production) {
                 $this->consoleOut($e->getMessage());
             }
-            //TODO: ADD LOG
+            Logger::error("Unable to connect to $this->database@$hostname", [
+                'Exception' => $e
+            ]);
         }
     }
 
+    /**
+     * @param string $queryRaw
+     * @return mixed
+     */
+    abstract public function insert(string $queryRaw): mixed;
+
+    /**
+     * @param string $queryRaw
+     * @return mixed
+     */
+    abstract public function update(string $queryRaw): mixed;
+
+    /**
+     * @param string $queryRaw
+     * @return mixed
+     */
+    abstract public function delete(string $queryRaw): mixed;
+
+    /**
+     * @param string $queryRaw
+     * @return mixed
+     */
+    abstract public function alter(string $queryRaw): mixed;
+
+    /**
+     * @param string $queryRaw
+     * @return mixed
+     */
+    abstract public function select(string $queryRaw): mixed;
+
+    /**
+     * @param string $queryRaw
+     * @param string $type
+     * @return string
+     */
+    abstract public function queryValidation(string $queryRaw, string $type): string;
+
+    /**
+     * @param string $outputIn
+     * @param string $typeIn
+     * @return mixed
+     */
+    abstract public function consoleOut(string $outputIn, string $typeIn): mixed;
+
+    /**
+     * @param mixed $output
+     * @return mixed
+     */
+    abstract public function sanitizeOutput(mixed $output): mixed;
+
+    /**
+     *
+     */
     public function __destruct()
     {
         if ($this->testing || !$this->production) {
-            $this->consoleOut("Completed {$this->queries} Queries");
+            $this->consoleOut("Completed $this->queries Queries");
         }
     }
 
-    final public static function instantiateDB()
+    /**
+     * @return static
+     */
+    final public static function instantiateDB(): self
     {
         $args = func_get_args();
-        $default_args = [
+        $defaultArgs = [
             'string' => [
                 'hostname' => 'localhost',
                 'database' => '',
@@ -105,21 +187,18 @@ abstract class DbConnect implements Potential
         if (count($args) === 1 and is_array($args[0])) {
             $settings = array_shift($args);
         }
-        foreach ($args as $arg => $val) {
+        foreach ($args as $val) {
             $type = gettype($val);
-            if (array_key_exists($type, $default_args)) {
-                $key = key($default_args[$type]);
-                array_shift($default_args[$type]);
+            if (array_key_exists($type, $defaultArgs)) {
+                $key = key($defaultArgs[$type]);
+                array_shift($defaultArgs[$type]);
                 $settings[$key] = $val;
             }
         }
-        foreach ($default_args as $defaults) {
+        foreach ($defaultArgs as $defaults) {
             $settings = array_merge($defaults, $settings);
         }
 
-        if (!is_array(self::$instance)) {
-            self::$instance = [];
-        }
         if (empty(self::$instance[$settings['database']])) {
             $class = get_called_class();
             self::$instance[$settings['database']] = new $class($settings);
@@ -128,12 +207,20 @@ abstract class DbConnect implements Potential
         return self::$instance[$settings['database']];
     }
 
+    /**
+     *
+     */
     private function __clone()
     {
 
     }
 
-    public function __call($name, $arguments)
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call(string $name, array $arguments = []): mixed
     {
         return (!method_exists($this, $name) && method_exists(
                 self::$pdoInstance[$this->database],
@@ -144,18 +231,28 @@ abstract class DbConnect implements Potential
         ) : false;
     }
 
-    public static function __callStatic($name, $arguments)
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public static function __callStatic(string $name, array $arguments = []): mixed
     {
-        return (!method_exists(DBConnect, $name) && method_exists(
-                self::$pdoInstance[static::database],
+        return (!method_exists(DbConnect::class, $name) && method_exists(
+                self::$pdoInstance[self::$staticDatabase],
                 $name
             )) ? call_user_func_array(
-            [self::$pdoInstance[static::database], $name],
+            [self::$pdoInstance[self::$staticDatabase], $name],
             $arguments
         ) : false;
     }
 
-    protected function exec($queryRaw = '', $type = 'insert')
+    /**
+     * @param string $queryRaw
+     * @param string $type
+     * @return int
+     */
+    final public function exec(string $queryRaw = '', string $type = 'insert'): int
     {
         $count = 0;
         $query = empty($queryRaw) ? $this->query : $this->queryValidation(
@@ -163,17 +260,21 @@ abstract class DbConnect implements Potential
             $type
         );
         if (empty($query)) {
-            return;
+            return 0;
         }
         try {
             if ($this->testing || !$this->production) {
                 $this->consoleOut($query);
             }
-            //TODO: ADD LOG
+            Logger::info("Running query:", [
+                'Query' => $query,
+            ]);
             if (!$this->testing && self::$pdoInstance[$this->database]) {
                 $count = self::$pdoInstance[$this->database]->exec($query);
             }
-            //TODO: Create psuedo insert and record for testing mode
+            Logger::info("Query complete:", [
+                'Query' => $query,
+            ]);
             $this->queries += $count;
 
             return $count;
@@ -181,28 +282,45 @@ abstract class DbConnect implements Potential
             if ($this->testing || !$this->production) {
                 $this->consoleOut($e->getMessage());
             }
-
-            //TODO: ADD LOG
+            Logger::error("Failed to execute query", [
+                'Query' => $query,
+                'Exception' => $e,
+                'Raw' => $queryRaw,
+            ]);
             return 0;
         }
     }
 
-    abstract protected function insert($queryRaw);
+    /**
+     * @param string|null $name
+     * @return string
+     */
+    final public function lastInsertId(string $name = null): string
+    {
+        return self::$pdoInstance[$this->database]->lastInsertId($name);
+    }
 
-    abstract protected function update($queryRaw);
+    /**
+     * @return int
+     */
+    final public function rowCount(): int
+    {
+        return self::$pdoInstance[$this->database]->rowCount();
+    }
 
-    abstract protected function delete($queryRaw);
-
-    abstract protected function alter($queryRaw);
-
-    protected function query($queryRaw = '', $type = 'select')
+    /**
+     * @param string $queryRaw
+     * @param string $type
+     * @return mixed
+     */
+    final public function query(string $queryRaw = '', string $type = 'select'): mixed
     {
         $query = empty($queryRaw) ? $this->query : $this->queryValidation(
             $queryRaw,
             $type
         );
         if (empty($query)) {
-            return;
+            return 0;
         }
         try {
             if ($queryRaw === $this->queryRaw && isset(self::$pdoInstance[$this->database])) {
@@ -210,38 +328,37 @@ abstract class DbConnect implements Potential
                     $this->query
                 );
             }
+            Logger::info("Running query:", [
+                'Query' => $query,
+            ]);
             if ($this->testing || !$this->production) {
                 $this->consoleOut($this->query);
             }
+            Logger::info("Query complete:", [
+                'Query' => $query,
+            ]);
 
             return $this->result;
         } catch (PDOException $e) {
             if ($this->testing || !$this->production) {
                 $this->consoleOut($e->getMessage());
             }
-
-            //TODO: ADD LOG
+            Logger::error("Failed to execute query", [
+                'Query' => $query,
+                'Exception' => $e,
+                'Raw' => $queryRaw,
+            ]);
             return 0;
         }
     }
 
-    abstract protected function select($queryRaw);
-
-    abstract protected function queryValidation($queryRaw, $type);
-
-    abstract protected function consoleOut($outputIn, $typeIn);
-
-    public function lastInsertId($name = null)
-    {
-        return self::$pdoInstance[$this->database]->lastInsertId($name);
-    }
-
-    public function rowCount()
-    {
-        return self::$pdoInstance[$this->database]->rowCount();
-    }
-
-    public function sanitizeInput($input, $escape = true, &$type = null)
+    /**
+     * @param mixed $input
+     * @param bool $escape
+     * @param string|null $type
+     * @return string|array|bool|int|object|float|null
+     */
+    final public function sanitizeInput(mixed $input, bool $escape = true, string &$type = null): string|array|bool|int|null|object|float
     {
         if (is_array($input)) {
             $type = [];
@@ -255,7 +372,7 @@ abstract class DbConnect implements Potential
                     );
                 } else {
                     $value = html_entity_decode($value, ENT_HTML5, 'UTF-8');
-                    $new_input[$key] = filterVarType(
+                    $new_input[$key] = $this->filterVarType(
                         $value,
                         $escape,
                         $type[$key]
@@ -267,10 +384,16 @@ abstract class DbConnect implements Potential
         }
         $input = html_entity_decode($input, ENT_HTML5, 'UTF-8');
 
-        return filterVarType($input, $escape, $type);
+        return $this->filterVarType($input, $escape, $type);
     }
 
-    public function filterVarType($input, $escape = true, &$type = null)
+    /**
+     * @param string $val
+     * @param bool $escape
+     * @param int|null $type
+     * @return string|array|bool|int|object|float|null
+     */
+    final public function filterVarType(string $val, bool $escape = true, int &$type = null): string|array|bool|int|null|object|float
     {
         $input = trim($val);
         $length = strlen($input);
@@ -284,11 +407,11 @@ abstract class DbConnect implements Potential
             $input = strtolower($input) === 'true';
             $type = PDO::PARAM_BOOL;
         } elseif (json_decode($input)) {
-            $val = json_decode($input);
+            $input = json_decode($val);
             if (is_array($input)) {
-                $input = (array)sanitizeInput($input, $escape);
+                $input = (array)$this->sanitizeInput($input, $escape);
             } elseif (is_object($input)) {
-                $input = (object)sanitizeInput((array)$input, $escape);
+                $input = (object)$this->sanitizeInput((array)$input, $escape);
             }
             $type = PDO::PARAM_LOB;
             if ($input === null) {
@@ -305,9 +428,11 @@ abstract class DbConnect implements Potential
         return $input;
     }
 
-    abstract public function sanitizeOutput($output);
-
-    public function camelToUnderscore($input)
+    /**
+     * @param string $input
+     * @return string
+     */
+    final public function camelToUnderscore(string $input): string
     {
         return ltrim(
             strtolower(preg_replace('/[A-Z0-9]/', '_$0', $input)),
@@ -315,11 +440,18 @@ abstract class DbConnect implements Potential
         );
     }
 
-    public function underscoreToCamel($input)
+    /**
+     * @param string $input
+     * @return string
+     */
+    final public function underscoreToCamel(string $input): string
     {
         return str_replace(' ', '', ucwords(str_replace('_', ' ', $input)));
     }
 
+    /**
+     * @return string
+     */
     public function __toString(): string
     {
         $string = '';
@@ -329,7 +461,7 @@ abstract class DbConnect implements Potential
             } else {
                 $string .= ', ';
             }
-            $string .= "{$k}: {$v}";
+            $string .= "$k: $v";
         }
 
         return $string . ' )';

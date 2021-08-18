@@ -8,7 +8,8 @@ return [
         [
             'type' => Logger::HANDLER_FILE_STREAM,
             'context' => [
-                'path' => 'logs/all.log',
+                'stream' => 'logs/all.log',
+                'filePermission' => '0644'
             ],
         ],
     ],

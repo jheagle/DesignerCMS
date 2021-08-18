@@ -14,13 +14,14 @@ use BadFunctionCallException;
  * @method static int add(int $x, int $y)
  * @method static array buildParameters(string $className, string $method, ...$args)
  * @method static mixed|null castTo(mixed $value, string $castType)
- * @method static mixed|null coalesce($filter = null, ...$values)
+ * @method static mixed|null coalesce(mixed $filter = null, ...$values)
  * @method static callable curry(callable | string | array $fn, int $minArgs = -1, array $args = [])
- * @method static mixed defaultValue($default, $value)
+ * @method static mixed defaultValue(mixed $default, mixed $value)
  * @method static mixed|null dotGet(array|object $arrayObject, string $dotNotation, mixed $default = null)
  * @method static mixed|null dotSet(array|object $arrayObject, string $dotNotation, mixed $value)
- * @method static number maxBound($max = 0, $number = 0)
- * @method static number minBound($min = 0, $number = 0)
+ * @method static mixed envGet (string $name, mixed $default = null)
+ * @method static number maxBound(float|int $max = 0, float|int $number = 0)
+ * @method static number minBound(float|int $min = 0, float|int $number = 0)
  * @method static int negate(int $number)
  * @method static callable pipe(callable[] ...$fns)
  * @method static int requiredParameterCount (callable | string | array $fn)
@@ -43,7 +44,7 @@ class Pure
      * Pure constructor, we do not need public access to the constructor. This class is instantiated using the
      * instantiatePure method.
      */
-    protected function __construct()
+    private function __construct()
     {
     }
 
@@ -79,12 +80,12 @@ class Pure
      * Use Pure to statically call any of the helper functions in the functions directory. This method will import and
      * pass the function call into to real function then return the result of calling that function.
      *
-     * @param $name
-     * @param $arguments
+     * @param string $name
+     * @param array $arguments
      *
      * @return mixed
      */
-    public static function __callStatic($name, $arguments)
+    public static function __callStatic(string $name, array $arguments): mixed
     {
         if (is_null(self::$instance)) {
             self::instantiatePure();

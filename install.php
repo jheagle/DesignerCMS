@@ -1,33 +1,15 @@
 <?php
 
+use Core\Adaptors\Config;
 use Core\Database\PhpDbConnect;
 
-$localHosts = ['127.0.0.1', '::1'];
-if (in_array($_SERVER['SERVER_ADDR'], $localHosts, true) && in_array(
-        $_SERVER['REMOTE_ADDR'],
-        $localHosts,
-        true
-    )) {
-    //    header('Content-Type: application/json'); This is my debuggin trick, but if I have xdebug then this ruins it
-    $testing = true;
-    $production = false;
-}
-
-if (!isset($username)) {
-    $username = 'root';
-}
-
-if (!isset($hostname)) {
-    $hostname = 'localhost';
-}
-
-$db = PHPDBConnect::instantiateDB('', '', '', '', $testing, $production);
-$db = PHPDBConnect::instantiateDB($testing, $production);
+require __DIR__ . '/bootstrap.php';
+$db = PhpDbConnect::instantiateDB(Config::get('system.testing'), Config::get('system.production'));
 
 $selectTables = "SELECT CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) as name FROM information_schema.TABLES WHERE TABLE_SCHEMA <> 'mysql' AND ENGINE = 'MyISAM' AND TABLE_TYPE = 'BASE TABLE'";
 
 $alterQuery = [];
-while ($table = $db->select_assoc($selectTables)) {
+while ($table = $db->selectAssoc($selectTables)) {
     $alterQuery[] = "ALTER TABLE {$table['name']} engine=InnoDB";
 }
 
@@ -46,7 +28,7 @@ $selectTables = "SELECT TABLE_SCHEMA AS dname, CONCAT(TABLE_SCHEMA, '.', TABLE_N
 
 $alterQuery = [];
 $database = '';
-while ($fields = $db->select_assoc($selectTables)) {
+while ($fields = $db->selectAssoc($selectTables)) {
     if ($database !== $fields['dname']) {
         $database = $table['dname'];
         $alterQuery[] = "ALTER DATABASE {$fields['dname']} CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci";
