@@ -13,6 +13,7 @@ use Core\Adaptors\Vendor\Logger\Logger;
 use Core\Adaptors\Vendor\OAuth\Exceptions\IdentityException;
 use Core\Adaptors\Vendor\OAuth\Provider;
 use Core\Traits\LazyAssignment;
+use Core\Utilities\Functional\Pure;
 use InvalidArgumentException;
 use Throwable;
 
@@ -39,13 +40,13 @@ class RequestHandler
      * @var string $tokenGrantType The type of oauth authentication
      * @var array $credentials An name keyed array of the required access credentials
      */
-    protected string $baseUrl = '';
-    protected string $endpointUrl = '';
-    protected string $method = 'GET';
-    protected array $headers = [];
-    protected string $tokenCache = 'endpoint-token';
-    protected string $tokenGrantType = '';
-    protected array $credentials = [
+    private string $baseUrl = '';
+    private string $endpointUrl = '';
+    private string $method = 'GET';
+    private array $headers = [];
+    private string $tokenCache = 'endpoint-token';
+    private string $tokenGrantType = '';
+    private array $credentials = [
         'urlAuthorize' => '',
         'urlResourceOwnerDetails' => '',
     ];
@@ -57,17 +58,17 @@ class RequestHandler
      * @var Response|null $curlResponse Provide a custom response
      * @var Provider|null $authProvider Provide a custom Oauth2 Provider
      */
-    protected ?Client $curlClient = null;
-    protected ?Response $curlResponse = null;
-    protected ?Provider $authProvider = null;
-    protected ?CacheRegistry $cacheProvider = null;
+    private ?Client $curlClient = null;
+    private ?Response $curlResponse = null;
+    private ?Provider $authProvider = null;
+    private ?CacheRegistry $cacheProvider = null;
 
     /**
      * RequestHandler constructor.
      *
      * @param array $config The config data for making requests to an endpoint
      */
-    protected function __construct(array $config = [])
+    private function __construct(array $config = [])
     {
         $this->applyMemberSettings($config);
         if (is_null($this->cacheProvider)) {
@@ -88,10 +89,9 @@ class RequestHandler
                         . ltrim($credentials[$name], '/');
                 }
                 if (preg_match('/^ENV:{.*}$/', $credentials[$name])) {
-                    // TODO: use some mechanism to store credentials
-                    $configKey = preg_replace("/^ENV:{(.*)}$/", "$1", $credentials[$name]);
-                    // TODO: Fetch the credentials and set them on $credentials[$name]
-                    $credentials[$name] = $configKey;
+                    $credentials[$name] = Pure::envGet(
+                        preg_replace("/^ENV:{(.*)}$/", "$1", $credentials[$name])
+                    );
                 }
                 return $credentials;
             },
@@ -111,8 +111,9 @@ class RequestHandler
      */
     public static function prepareApiHandler(
         RequestHandlerOptions $config,
-        RequestDetails $requestDetails = null
-    ): callable|RequestHandler {
+        RequestDetails        $requestDetails = null
+    ): callable|RequestHandler
+    {
         /**
          * Pre-loaded with config and base URL, this function will take the array of request details having endpointUrl
          * defined as one of the elements and return an API Handler.
@@ -184,7 +185,7 @@ class RequestHandler
      *
      * @return string
      */
-    protected function authorizeConnection(bool $renew = false): string
+    private function authorizeConnection(bool $renew = false): string
     {
         if (empty($this->tokenGrantType)) {
             return '';
