@@ -4,6 +4,7 @@ namespace Core\Adaptors;
 
 use Core\Adaptors\Vendor\Logger\Logger;
 use Core\Contracts\Castable;
+use Core\Contracts\LazyAssignable;
 use Core\Objects\DataTypes\CastedClassType;
 use Core\Traits\LazyAssignment;
 use Core\Utilities\Functional\Pure;
@@ -17,7 +18,7 @@ use Throwable;
  *
  * @package Core\Adaptors
  */
-abstract class ErrorAdaptor extends Error implements Castable
+abstract class ErrorAdaptor extends Error implements Castable, LazyAssignable
 {
     use LazyAssignment;
 

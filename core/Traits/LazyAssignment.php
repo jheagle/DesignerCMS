@@ -19,7 +19,7 @@ trait LazyAssignment
      *
      * @return $this
      */
-    private function applyMemberSettings(array $settings = []): static
+    public function applyMemberSettings(array $settings = []): self
     {
         // Retrieve all the members of this class so they can be populated lazily
         // Set this member to the incoming form data otherwise, use the default value
@@ -42,11 +42,26 @@ trait LazyAssignment
     /**
      * Retrieve all of the class members.
      *
+     * @param bool $useDefaults
+     *
      * @return array
      */
-    private function getAllMembers(): array
+    public function getAllMembers(bool $useDefaults = false): array
     {
-        return array_replace_recursive(get_class_vars(get_class($this)), get_object_vars($this));
+        $classVars = get_class_vars(get_class($this));
+        $objectVars = get_object_vars($this);
+        $members = array_replace_recursive($classVars, $objectVars);
+        if ($useDefaults) {
+            return $members;
+        }
+        return array_reduce(
+            array_keys($members),
+            function ($memberValues, $memberName) {
+                $memberValues[$memberName] = $this->getMember($memberName);
+                return $memberValues;
+            },
+            []
+        );
     }
 
     /**
@@ -56,7 +71,7 @@ trait LazyAssignment
      *
      * @return mixed
      */
-    private function getMember(string $memberKey): mixed
+    public function getMember(string $memberKey): mixed
     {
         $className = get_class($this);
         if (defined("$className::$memberKey")) {
@@ -81,7 +96,7 @@ trait LazyAssignment
      *
      * @return mixed
      */
-    private function setMember(string $memberKey, mixed $value): mixed
+    public function setMember(string $memberKey, mixed $value): mixed
     {
         $className = get_class($this);
         if (defined("$className::$memberKey")) {

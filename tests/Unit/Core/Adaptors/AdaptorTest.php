@@ -2,7 +2,7 @@
 
 namespace Core\Adaptors;
 
-use Tests\mocks\GenericClass;
+use Tests\Mocks\GenericClass;
 use Tests\TestCase;
 
 /**

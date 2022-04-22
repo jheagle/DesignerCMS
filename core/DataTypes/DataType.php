@@ -2,6 +2,8 @@
 
 namespace Core\DataTypes;
 
+use Core\Contracts\Declarable;
+use Core\Contracts\LazyAssignable;
 use Core\DataTypes\Interfaces\DataTypeObject;
 use Core\Traits\Declarative;
 use Core\Traits\LazyAssignment;
@@ -11,7 +13,7 @@ use Core\Traits\LazyAssignment;
  *
  * @package Core\DataTypes
  */
-abstract class DataType implements DataTypeObject
+abstract class DataType implements DataTypeObject, Declarable, LazyAssignable
 {
     use Declarative;
     use LazyAssignment;

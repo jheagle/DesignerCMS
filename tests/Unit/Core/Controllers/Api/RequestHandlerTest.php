@@ -10,7 +10,7 @@ use Core\Adaptors\Vendor\Curl\Request;
 use Core\Adaptors\Vendor\Logger\Logger;
 use Psr\Cache\InvalidArgumentException;
 use Tests\Mocks\CurlResponseMocker;
-use Tests\mocks\GenericClass;
+use Tests\Mocks\GenericClass;
 use Tests\TestCase;
 use Throwable;
 use TypeError;

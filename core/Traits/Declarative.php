@@ -22,7 +22,7 @@ trait Declarative
      *
      * @return string
      */
-    final public function getClassDescription(bool $includePrivate = false): string
+    public function getClassDescription(bool $includePrivate = false): string
     {
         $classDescriptors = array_merge_recursive(
             $this->getClassMembers($includePrivate),
@@ -333,8 +333,8 @@ trait Declarative
             $returnType = '';
             if ($method->hasReturnType()) {
                 $type = $method->getReturnType();
-                $returnType = ":\x20" . $type->getName();
-                $returnType = $type->allowsNull() ? "?$returnType" : $returnType;
+                $returnType = $type->allowsNull() ? ":\x20?$returnType" : ":\x20$returnType";
+                $returnType .= $type->getName();
             }
             $arrayPointer[$methodName] = "$methodName($parameters)$returnType";
             return $methods;

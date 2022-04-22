@@ -5,15 +5,16 @@ namespace Core\Objects;
 use ArrayAccess;
 use Core\Contracts\Arrayable;
 use Core\Contracts\Jsonable;
-use Core\Utilities\Functional\Pure;
+use Core\Contracts\LazyAssignable;
 use Core\Traits\LazyAssignment;
+use Core\Utilities\Functional\Pure;
 
 /**
  * Class DataTransferObject simplifies creating defined object structures.
  *
  * @package Core\Objects
  */
-abstract class DataTransferObject implements ArrayAccess, Arrayable, Jsonable
+abstract class DataTransferObject implements ArrayAccess, Arrayable, Jsonable, LazyAssignable
 {
     use LazyAssignment;
 

@@ -4,6 +4,7 @@ namespace Core\Database;
 
 use Core\Adaptors\Config;
 use Core\Adaptors\Vendor\Logger\Logger;
+use Core\Contracts\LazyAssignable;
 use Core\DataTypes\Interfaces\Potential;
 use Core\Traits\LazyAssignment;
 use Core\Utilities\Functional\Pure;
@@ -13,7 +14,7 @@ use PDOException;
 /**
  *
  */
-abstract class DbConnect implements Potential
+abstract class DbConnect implements LazyAssignable, Potential
 {
     use LazyAssignment;
 
@@ -212,7 +213,6 @@ abstract class DbConnect implements Potential
      */
     private function __clone()
     {
-
     }
 
     /**
@@ -358,8 +358,11 @@ abstract class DbConnect implements Potential
      * @param string|null $type
      * @return string|array|bool|int|object|float|null
      */
-    final public function sanitizeInput(mixed $input, bool $escape = true, string &$type = null): string|array|bool|int|null|object|float
-    {
+    final public function sanitizeInput(
+        mixed $input,
+        bool $escape = true,
+        string &$type = null
+    ): string|array|bool|int|null|object|float {
         if (is_array($input)) {
             $type = [];
             $new_input = [];
@@ -393,8 +396,11 @@ abstract class DbConnect implements Potential
      * @param int|null $type
      * @return string|array|bool|int|object|float|null
      */
-    final public function filterVarType(string $val, bool $escape = true, int &$type = null): string|array|bool|int|null|object|float
-    {
+    final public function filterVarType(
+        string $val,
+        bool $escape = true,
+        int &$type = null
+    ): string|array|bool|int|null|object|float {
         $input = trim($val);
         $length = strlen($input);
         if ($length === strlen((int)$input)) {

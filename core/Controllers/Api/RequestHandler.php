@@ -12,6 +12,7 @@ use Core\Adaptors\Vendor\Curl\Response;
 use Core\Adaptors\Vendor\Logger\Logger;
 use Core\Adaptors\Vendor\OAuth\Exceptions\IdentityException;
 use Core\Adaptors\Vendor\OAuth\Provider;
+use Core\Contracts\LazyAssignable;
 use Core\Traits\LazyAssignment;
 use Core\Utilities\Functional\Pure;
 use InvalidArgumentException;
@@ -25,7 +26,7 @@ use Throwable;
  *
  * @package Core\Controllers\API
  */
-class RequestHandler
+class RequestHandler implements LazyAssignable
 {
     use LazyAssignment;
 
@@ -111,9 +112,8 @@ class RequestHandler
      */
     public static function prepareApiHandler(
         RequestHandlerOptions $config,
-        RequestDetails        $requestDetails = null
-    ): callable|RequestHandler
-    {
+        RequestDetails $requestDetails = null
+    ): callable|RequestHandler {
         /**
          * Pre-loaded with config and base URL, this function will take the array of request details having endpointUrl
          * defined as one of the elements and return an API Handler.
@@ -198,7 +198,7 @@ class RequestHandler
                 $this->tokenCache,
                 fn(CacheItem $item) => $this->fetchAuthenticationToken($item)
             );
-        } catch (\Core\Adaptors\Vendor\CacheRegistry\Exceptions\InvalidArgumentException | Throwable) {
+        } catch (\Core\Adaptors\Vendor\CacheRegistry\Exceptions\InvalidArgumentException|Throwable) {
         }
         return '';
     }
@@ -229,7 +229,7 @@ class RequestHandler
             $tokenResult = $provider->getAccessToken($this->tokenGrantType);
             $item->expiresAfter($tokenResult->getExpires());
             return $tokenResult->getToken();
-        } catch (RequestException | IdentityException $e) {
+        } catch (RequestException|IdentityException $e) {
             Logger::error(
                 'Unable to reach the specified endpoint',
                 [
@@ -256,7 +256,7 @@ class RequestHandler
         $client = $this->curlClient ?? Client::instantiate()->with(['verify' => false])->build();
         try {
             return $client->request($method, $url, $options);
-        } catch (CurlException | RequestException | Throwable $e) {
+        } catch (CurlException|RequestException|Throwable $e) {
             Logger::error(
                 'Unable to reach the specified endpoint',
                 [

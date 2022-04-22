@@ -4,6 +4,7 @@ namespace Core\Adaptors;
 
 use Core\Adaptors\Vendor\Logger\Logger;
 use Core\Contracts\Castable;
+use Core\Contracts\LazyAssignable;
 use Core\Objects\DataTypes\CastedClassType;
 use Core\Traits\LazyAssignment;
 use Core\Utilities\Functional\Pure;
@@ -18,7 +19,7 @@ use Throwable;
  *
  * @package Core\Adaptors
  */
-abstract class ExceptionAdaptor extends Exception implements Castable
+abstract class ExceptionAdaptor extends Exception implements Castable, LazyAssignable
 {
     use LazyAssignment;
 
@@ -98,8 +99,8 @@ abstract class ExceptionAdaptor extends Exception implements Castable
             : array_replace_recursive(get_class_vars(get_class($castable)), get_object_vars($castable));
         return (new $className(
             ...array_values(
-                   Pure::buildParameters($className, '__construct', ...$properties)
-               )
+                Pure::buildParameters($className, '__construct', ...$properties)
+            )
         ))
             ->assignTransferableProperties($castable)
             ->wrap($castable);
@@ -147,8 +148,8 @@ abstract class ExceptionAdaptor extends Exception implements Castable
         }
         $newClass = new $className(
             ...array_values(
-                   Pure::buildParameters($className, '__construct', ...$this->getTransferableProperties())
-               )
+                Pure::buildParameters($className, '__construct', ...$this->getTransferableProperties())
+            )
         );
         if ($newClass instanceof Castable) {
             $newClass->assignTransferableProperties($this);
@@ -181,12 +182,12 @@ abstract class ExceptionAdaptor extends Exception implements Castable
         }
         $newClass = new $this->castedClass->className(
             ...array_values(
-                   Pure::buildParameters(
-                       $this->castedClass->className,
-                       '__construct',
-                       ...$this->castedClass->classProperties->toArray()
-                   )
-               )
+                Pure::buildParameters(
+                    $this->castedClass->className,
+                    '__construct',
+                    ...$this->castedClass->classProperties->toArray()
+                )
+            )
         );
         if ($newClass instanceof Castable) {
             $newClass->assignTransferableProperties($this);

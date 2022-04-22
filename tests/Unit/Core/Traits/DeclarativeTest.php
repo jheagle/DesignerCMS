@@ -44,6 +44,7 @@ class DeclarativeTest extends TestCase
          *   static protected string staticProtectedMember = "static protected"
          *   protected ?string protectedMember
          *
+         *   final public testFinal(): void
          *   public __construct(value, array settings = [])
          *   public __toString(): string
          */
@@ -73,23 +74,25 @@ class DeclarativeTest extends TestCase
         );
         $this->assertStringContainsString('protected ?string protectedMember', $classDescription);
 
+        $this->assertStringContainsString('final public testFinal(): void', $classDescription);
         $this->assertStringContainsString('public __construct(value, array settings = [])', $classDescription);
         $this->assertStringContainsString('public __toString(): string', $classDescription);
 
         /*
          *   abstract Core\DataTypes\DataType
          *
-         *     static protected int systemMaxBits = 64
+         *     static protected int systemMaxBits
          *     protected string primitiveType = "object"
          *     protected ?mixed value = 0
          *
-         *     final public getClassDescription(bool includePrivate = false): string
+         *     public applyMemberSettings(array settings = []): self
+         *     public getAllMembers(bool useDefaults = false): array
+         *     public getClassDescription(bool includePrivate = false): string
+         *     public getMember(string memberKey): ?mixed
          *     public getPrimitiveType(): string
          *     public getSystemMaxBits(): int
          *     public isEqual(?mixed datatype): bool
-         *     protected applyMemberSettings(array settings = [])
-         *     protected getMember(memberKey)
-         *     protected setMember(memberKey, value)
+         *     public setMember(string memberKey, ?mixed value): ?mixed
          *     private buildParameterDeclaration(string paramString, ReflectionParameter param): string
          *     private generateDescriptorLineBuilder(array descriptors, string descriptorIndent, string descriptorPrefix = ""): callable
          *     private generateDescriptorLinesBuilder(array descriptorTypes, string classIndent): callable
@@ -98,23 +101,28 @@ class DeclarativeTest extends TestCase
          *     private generateMethodDeclarationBuilder(bool includePrivate = false): callable
          *     private getClassMembers(bool includePrivate = false): array
          *     private getClassMethods(bool includePrivate = false): array
+         *     private isStaticMember(string memberKey): bool
          */
         $this->assertStringContainsString('abstract Core\DataTypes\DataType', $classDescription);
 
-        $this->assertStringContainsString('static protected int systemMaxBits = 64', $classDescription);
+        $this->assertStringContainsString('static protected int systemMaxBits', $classDescription);
         $this->assertStringContainsString('protected string primitiveType = "object"', $classDescription);
         $this->assertStringContainsString('protected ?mixed value', $classDescription);
 
+        $this->assertStringContainsString('public applyMemberSettings(array settings = []): self', $classDescription);
+        $this->assertStringContainsString('public getAllMembers(bool useDefaults = false): array', $classDescription);
         $this->assertStringContainsString(
-            'final public getClassDescription(bool includePrivate = false): string',
+            'public getClassDescription(bool includePrivate = false): string',
             $classDescription
         );
+        $this->assertStringContainsString('public getMember(string memberKey): ?mixed', $classDescription);
         $this->assertStringContainsString('public getPrimitiveType(): string', $classDescription);
         $this->assertStringContainsString('public getSystemMaxBits(): int', $classDescription);
         $this->assertStringContainsString('public isEqual(?mixed dataType): bool', $classDescription);
-        $this->assertStringContainsString('protected applyMemberSettings(array settings = [])', $classDescription);
-        $this->assertStringContainsString('protected getMember(memberKey)', $classDescription);
-        $this->assertStringContainsString('protected setMember(memberKey, value)', $classDescription);
+        $this->assertStringContainsString(
+            'public setMember(string memberKey, ?mixed value): ?mixed',
+            $classDescription
+        );
         $this->assertStringContainsString(
             'private buildParameterDeclaration(string paramString, ReflectionParameter param): string',
             $classDescription
@@ -151,15 +159,15 @@ class DeclarativeTest extends TestCase
         /*
          *   Tests\Mocks\DataTypeMock
          *
-         *     public getValue()
-         *     public setValue(?mixed value)?: mixed
+         *     public getValue(): ?mixed
+         *     public setValue(?mixed value): ?mixed
          *
          * }
          */
         $this->assertStringContainsString('Tests\Mocks\DataTypeMock', $classDescription);
 
-        $this->assertStringContainsString('public getValue()', $classDescription);
-        $this->assertStringContainsString('public setValue(?mixed value)?: mixed', $classDescription);
+        $this->assertStringContainsString('public getValue(): ?mixed', $classDescription);
+        $this->assertStringContainsString('public setValue(?mixed value): ?mixed', $classDescription);
 
         $this->assertStringContainsString('}', $classDescription);
     }
@@ -213,6 +221,11 @@ class DeclarativeTest extends TestCase
             public function __toString(): string
             {
                 return $this->getClassDescription();
+            }
+
+            final public function testFinal(): void
+            {
+                //
             }
         };
     }
