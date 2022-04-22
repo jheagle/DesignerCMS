@@ -17,6 +17,13 @@ if (!function_exists('dotGet')) {
         if (!$key) {
             return $isArray ? $arrayObject[$dotNotation] ?? $default : $arrayObject->$dotNotation ?? $default;
         }
+        if ($key === '*') {
+            $result = [];
+            foreach ($arrayObject as $wildKey => $wildValue) {
+                $result[$wildKey] = dotGet($wildValue, strAfter($dotNotation, '.'), $default);
+            }
+            return $result;
+        }
         if ($isArray && !array_key_exists($key, $arrayObject)) {
             return $default;
         }

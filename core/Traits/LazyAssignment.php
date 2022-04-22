@@ -19,15 +19,22 @@ trait LazyAssignment
      *
      * @return $this
      */
-    protected function applyMemberSettings(array $settings = []): static
+    private function applyMemberSettings(array $settings = []): static
     {
         // Retrieve all the members of this class so they can be populated lazily
+        // Set this member to the incoming form data otherwise, use the default value
         foreach ($this->getAllMembers() as $classMemberName => $default) {
-            // Set this member to the incoming form data otherwise, use the default value
-            $newClassMemberValue = is_array($default)
-                ? array_replace_recursive($default, (array)($settings[$classMemberName] ?? []))
-                : $settings[$classMemberName] ?? $default;
-            $this->setMember($classMemberName, $newClassMemberValue);
+            if (!array_key_exists($classMemberName, $settings) && $this->getMember($classMemberName)) {
+                continue;
+            }
+            if (is_array($default)) {
+                $this->setMember(
+                    $classMemberName,
+                    array_replace_recursive($default, (array)($settings[$classMemberName] ?? []))
+                );
+                continue;
+            }
+            $this->setMember($classMemberName, $settings[$classMemberName] ?? $default);
         }
         return $this;
     }
@@ -37,7 +44,7 @@ trait LazyAssignment
      *
      * @return array
      */
-    protected function getAllMembers(): array
+    private function getAllMembers(): array
     {
         return array_replace_recursive(get_class_vars(get_class($this)), get_object_vars($this));
     }
@@ -45,11 +52,11 @@ trait LazyAssignment
     /**
      * Get the value of any member by member name.
      *
-     * @param $memberKey
+     * @param string $memberKey
      *
      * @return mixed
      */
-    protected function getMember($memberKey): mixed
+    private function getMember(string $memberKey): mixed
     {
         $className = get_class($this);
         if (defined("$className::$memberKey")) {
@@ -61,7 +68,7 @@ trait LazyAssignment
         try {
             return $this::$$memberKey;
         } catch (Error) {
-            return $this->$memberKey;
+            return $this->$memberKey ?? null;
         }
     }
 
@@ -69,12 +76,12 @@ trait LazyAssignment
      * Set the value of almost any member by member name.
      * NOTE: You cannot set the value of a constant.
      *
-     * @param $memberKey
-     * @param $value
+     * @param string $memberKey
+     * @param mixed $value
      *
      * @return mixed
      */
-    protected function setMember($memberKey, $value): mixed
+    private function setMember(string $memberKey, mixed $value): mixed
     {
         $className = get_class($this);
         if (defined("$className::$memberKey")) {
@@ -83,12 +90,27 @@ trait LazyAssignment
         if (!property_exists($this, $memberKey)) {
             return $value;
         }
+        if ($this->isStaticMember($memberKey)) {
+            return $this::$$memberKey = $value;
+        }
+        $this->$memberKey = $value;
+        return $this->$memberKey;
+    }
+
+    /**
+     * Determine if a member is static.
+     *
+     * @param string $memberKey
+     *
+     * @return bool
+     */
+    private function isStaticMember(string $memberKey): bool
+    {
         try {
-            $this::$$memberKey = $value;
-            return $this::$$memberKey;
-        } catch (Error) {
-            $this->$memberKey = $value;
-            return $this->$memberKey;
+            $test = $this::$$memberKey;
+            return true;
+        } catch (Error $error) {
+            return false;
         }
     }
 }

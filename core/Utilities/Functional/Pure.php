@@ -18,6 +18,7 @@ use BadFunctionCallException;
  * @method static callable curry(callable | string | array $fn, int $minArgs = -1, array $args = [])
  * @method static mixed defaultValue(mixed $default, mixed $value)
  * @method static mixed|null dotGet(array|object $arrayObject, string $dotNotation, mixed $default = null)
+ * @method static array dotNotate(array|object $arrayObject, string $prepend = '')
  * @method static mixed|null dotSet(array|object $arrayObject, string $dotNotation, mixed $value)
  * @method static mixed envGet (string $name, mixed $default = null)
  * @method static number maxBound(float|int $max = 0, float|int $number = 0)

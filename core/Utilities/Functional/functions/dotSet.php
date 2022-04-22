@@ -8,9 +8,9 @@ if (!function_exists('dotSet')) {
      * @param string $dotNotation
      * @param mixed $value
      *
-     * @return mixed
+     * @return array|object
      */
-    function dotSet(array|object $arrayObject, string $dotNotation, mixed $value): mixed
+    function dotSet(array|object $arrayObject, string $dotNotation, mixed $value): array|object
     {
         $isArray = is_array($arrayObject);
         $key = strBefore($dotNotation, '.');
@@ -21,6 +21,13 @@ if (!function_exists('dotSet')) {
                 $arrayObject->$dotNotation = $value;
             }
             return $arrayObject;
+        }
+        if ($key === '*') {
+            $results = [];
+            foreach ($arrayObject as $wildKey => $wildValue) {
+                $results[$wildKey] = dotSet($wildValue, "$wildKey." . strAfter($dotNotation, '.'), $value);
+            }
+            return $results;
         }
         $returnValue = dotSet(
             $isArray ? $arrayObject[$key] ?? [] : $arrayObject->$key ?? [],
