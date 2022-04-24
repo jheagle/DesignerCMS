@@ -1,14 +1,15 @@
 <?php
 
-namespace Core\Adaptors;
+namespace Tests\Unit\Core\Adaptors;
 
+use Core\Adaptors\Config;
 use Tests\Mocks\GenericClass;
 use Tests\TestCase;
 
 /**
  * Class ConfigTest
  *
- * @package Core\Adaptors
+ * @package Tests\Unit\Core\Adaptors
  *
  * @group Unit
  * @group Config
@@ -18,7 +19,7 @@ class ConfigTest extends TestCase
     /**
      * Reset, clear Config for the tests.
      */
-    public function setUp(): void
+    final public function setUp(): void
     {
         parent::setUp();
         Config::reset();
@@ -31,7 +32,7 @@ class ConfigTest extends TestCase
      *
      * @test
      */
-    public function resetWithEmptyConfigClearsConfigData()
+    final public function resetWithEmptyConfigClearsConfigData(): void
     {
         $this->assertNotEmpty(Config::get());
         Config::reset([]);
@@ -45,7 +46,7 @@ class ConfigTest extends TestCase
      *
      * @test
      */
-    public function setConfigDataStoresIt()
+    final public function setConfigDataStoresIt(): void
     {
         Config::reset([]);
         Config::set('adapters.something', ['this thing']);
@@ -66,7 +67,7 @@ class ConfigTest extends TestCase
      *
      * @test
      */
-    public function getConfigRetrievesData()
+    final public function getConfigRetrievesData(): void
     {
         Config::reset(
             [
@@ -88,7 +89,7 @@ class ConfigTest extends TestCase
      *
      * @test
      */
-    public function manageConfigFromExternalClass()
+    final public function manageConfigFromExternalClass(): void
     {
         Config::reset(
             [

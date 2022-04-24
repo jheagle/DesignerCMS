@@ -32,7 +32,7 @@ class LazyAssignmentTest extends TestCase
      *
      * @test
      */
-    public function allMembersTypesAssigned()
+    final public function allMembersTypesAssigned()
     {
         $implementor = $this->buildLazyAssignmentClass();
         $applyMemberSettings = $this->accessNonPublicMethod($implementor, 'applyMemberSettings');

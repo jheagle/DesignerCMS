@@ -2,7 +2,7 @@
 
 if (!function_exists('dotNotate')) {
     /**
-     * Convert an array or object to a single dimensional array with dot notation.
+     * Convert an array or object to a single dimensional associative array with dot notation.
      *
      * @param array|object $arrayObject
      * @param string $prepend
@@ -14,7 +14,7 @@ if (!function_exists('dotNotate')) {
         $results = [];
 
         foreach ($arrayObject as $key => $value) {
-            if (is_array($value) && !empty($value)) {
+            if (is_array($value) || is_object($value)) {
                 $results = array_merge($results, dotNotate($value, $prepend . $key . '.'));
                 continue;
             }

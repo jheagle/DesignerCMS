@@ -1,7 +1,8 @@
 <?php
 
-namespace Core\DataTypes;
+namespace Tests\Unit\Core\DataTypes;
 
+use Core\DataTypes\DataType;
 use Core\DataTypes\Strings\StringDt;
 use Tests\TestCase;
 
@@ -18,7 +19,7 @@ use Tests\TestCase;
  */
 class StringDtTest extends TestCase
 {
-    public function setUp(): void
+    final public function setUp(): void
     {
         parent::setUp();
     }
@@ -30,11 +31,11 @@ class StringDtTest extends TestCase
      *
      * @test
      */
-    public function createdStringDtInstanceHasCorrectProperties()
+    final public function createdStringDtInstanceHasCorrectProperties(): void
     {
         $string = new StringDt();
         $this->assertEquals(StringDt::CHARSET_UTF8, $string->getCharSet());
-        $this->assertEquals(StringDt::PRIMITIVE_STRING, $string->getPrimitiveType());
+        $this->assertEquals(DataType::PRIMITIVE_STRING, $string->getPrimitiveType());
         $this->assertEquals('', $string->getValue());
         $this->assertEquals(PHP_INT_SIZE << 3, $string->getSystemMaxBits());
 
@@ -49,7 +50,7 @@ class StringDtTest extends TestCase
      *
      * @test
      */
-    public function stringDtEqualsToStringOrSelf()
+    final public function stringDtEqualsToStringOrSelf(): void
     {
         $string = new StringDt();
         $this->assertTrue($string->isEqual(''));

@@ -1,13 +1,15 @@
 <?php
 
-namespace Core\Adaptors;
+namespace Tests\Unit\Core\Adaptors;
 
+use Core\Adaptors\Config;
+use Core\Adaptors\Lang;
 use Tests\TestCase;
 
 /**
  * Class LangTest
  *
- * @package Core\Adaptors
+ * @package Tests\Unit\Core\Adaptors
  *
  * @group Unit
  * @group Lang
@@ -23,7 +25,7 @@ class LangTest extends TestCase
      *
      * @test
      */
-    public function getMissingTranslationsReturnsLastKeyAsTranslation(): void
+    final public function getMissingTranslationsReturnsLastKeyAsTranslation(): void
     {
         $this->assertEquals(
             'missing',
@@ -47,7 +49,7 @@ class LangTest extends TestCase
      *
      * @test
      */
-    public function getCorrectEnglishTranslations(): void
+    final public function getCorrectEnglishTranslations(): void
     {
         Config::reset();
         $this->assertEquals(
@@ -67,7 +69,7 @@ class LangTest extends TestCase
      *
      * @test
      */
-    public function getCorrectFrenchTranslations(): void
+    final public function getCorrectFrenchTranslations(): void
     {
         Config::set('system.locale', 'fr-ca');
         $this->assertEquals(
@@ -87,7 +89,7 @@ class LangTest extends TestCase
      *
      * @test
      */
-    public function getCorrectSpanishTranslations(): void
+    final public function getCorrectSpanishTranslations(): void
     {
         Config::set('system.locale', 'es-mx');
         $this->assertEquals(

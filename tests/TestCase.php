@@ -3,7 +3,6 @@
 namespace Tests;
 
 use Core\Utilities\Functional\Pure;
-use Core\Utilities\Functional\PureTrait;
 use Faker\Factory;
 use Faker\Generator;
 use Mockery;
@@ -13,50 +12,43 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
  * Class TestCase
  *
  * @package Tests
- *
- * @method callable pipe(callable[] ...$fns)
- * @method callable curry(string | callable $fn, string | object $class = __CLASS__)
- * @method callable trace(string $label = '')
- * @method callable tt(string $label = '')
  */
 abstract class TestCase extends BaseTestCase
 {
-    use PureTrait;
-
     /**
      * The callbacks that should be run after the application is created.
      *
      * @var array
      */
-    protected array $afterApplicationCreatedCallbacks = [];
+    public array $afterApplicationCreatedCallbacks = [];
 
     /**
      * The callbacks that should be run before the application is destroyed.
      *
      * @var array
      */
-    protected array $beforeApplicationDestroyedCallbacks = [];
+    public array $beforeApplicationDestroyedCallbacks = [];
 
     /**
      * Indicates if we have made it through the base setUp function.
      *
      * @var bool
      */
-    protected bool $setUpHasRun = false;
+    public bool $setUpHasRun = false;
 
     /**
      * The Faker instance.
      *
      * @var Generator
      */
-    protected Generator $faker;
+    public Generator $faker;
 
     /**
      * Setup the test environment.
      *
      * @return void
      */
-    protected function setUp(): void
+    public function setUp(): void
     {
         $this->setUpFaker();
 
@@ -66,8 +58,6 @@ abstract class TestCase extends BaseTestCase
             call_user_func($callback);
         }
 
-        $this->setUpPureFunctions();
-
         $this->setUpHasRun = true;
     }
 
@@ -76,28 +66,18 @@ abstract class TestCase extends BaseTestCase
      *
      * @return void
      */
-    protected function setUpFaker()
+    public function setUpFaker(): void
     {
         $this->faker = $this->makeFaker();
     }
 
     /**
-     *
-     */
-    protected function setUpPureFunctions()
-    {
-        foreach ($this->importFunctions() as $name => $callable) {
-            $this->$name = $callable;
-        }
-    }
-
-    /**
-     * @param $name
-     * @param $arguments
+     * @param string $name
+     * @param array $arguments
      *
      * @return bool|mixed
      */
-    public function __call($name, $arguments)
+    public function __call(string $name, array $arguments): mixed
     {
         return call_user_func($this->{$name}, ...$arguments);
     }
@@ -109,7 +89,7 @@ abstract class TestCase extends BaseTestCase
      *
      * @return Generator
      */
-    protected function faker(string $locale = null): Generator
+    public function faker(string $locale = null): Generator
     {
         return is_null($locale) ? $this->faker : $this->makeFaker($locale);
     }
@@ -121,7 +101,7 @@ abstract class TestCase extends BaseTestCase
      *
      * @return Generator
      */
-    protected function makeFaker(string $locale = null): Generator
+    public function makeFaker(string $locale = null): Generator
     {
         return Factory::create($locale ?? Factory::DEFAULT_LOCALE);
     }
@@ -131,7 +111,7 @@ abstract class TestCase extends BaseTestCase
      *
      * @return void
      */
-    protected function tearDown(): void
+    public function tearDown(): void
     {
         $this->setUpHasRun = false;
 
@@ -158,7 +138,7 @@ abstract class TestCase extends BaseTestCase
      *
      * @return void
      */
-    public function afterApplicationCreated(callable $callback)
+    public function afterApplicationCreated(callable $callback): void
     {
         $this->afterApplicationCreatedCallbacks[] = $callback;
 
@@ -174,7 +154,7 @@ abstract class TestCase extends BaseTestCase
      *
      * @return void
      */
-    protected function beforeApplicationDestroyed(callable $callback)
+    public function beforeApplicationDestroyed(callable $callback): void
     {
         $this->beforeApplicationDestroyedCallbacks[] = $callback;
     }

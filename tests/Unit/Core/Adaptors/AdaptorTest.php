@@ -1,14 +1,17 @@
 <?php
 
-namespace Core\Adaptors;
+namespace Tests\Unit\Core\Adaptors;
 
+use Core\Adaptors\Adaptor;
+use Core\Adaptors\Config;
+use Core\Adaptors\Lang;
 use Tests\Mocks\GenericClass;
 use Tests\TestCase;
 
 /**
  * Class AdaptorTest
  *
- * @package Core\Adaptors
+ * @package Tests\Unit\Core\Adaptors
  *
  * @coversDefaultClass Adaptor
  *
@@ -17,7 +20,7 @@ use Tests\TestCase;
  */
 class AdaptorTest extends TestCase
 {
-    public function setUp(): void
+    final public function setUp(): void
     {
         parent::setUp();
         Config::reset([]);
@@ -32,7 +35,7 @@ class AdaptorTest extends TestCase
      *
      * @covers ::instantiateResource
      */
-    public function createInstanceOfAnotherClass()
+    final public function createInstanceOfAnotherClass(): void
     {
         Config::set('adaptors.' . AdaptorClass::class, GenericClass::class);
         $adaptor = (new AdaptorClass())->instantiateResource();
@@ -48,7 +51,7 @@ class AdaptorTest extends TestCase
      *
      * @covers ::__get
      */
-    public function unableToGetPrivateProperty()
+    final public function unableToGetPrivateProperty(): void
     {
         $adaptor = new AdaptorClass();
         $this->expectErrorMessage(
@@ -66,7 +69,7 @@ class AdaptorTest extends TestCase
      *
      * @covers ::__set
      */
-    public function unableToSetPrivateProperty()
+    final public function unableToSetPrivateProperty(): void
     {
         $adaptor = new AdaptorClass();
         $this->expectErrorMessage(
@@ -84,7 +87,7 @@ class AdaptorTest extends TestCase
      *
      * @covers ::__get
      */
-    public function unableToGetWhenGetAccessDenied()
+    final public function unableToGetWhenGetAccessDenied(): void
     {
         $adaptor = new AdaptorClass();
         $adaptor->cannotGetMe = false;
@@ -103,7 +106,7 @@ class AdaptorTest extends TestCase
      *
      * @covers ::__set
      */
-    public function unableToSetWhenSetAccessDenied()
+    final public function unableToSetWhenSetAccessDenied(): void
     {
         $adaptor = new AdaptorClass();
         $this->assertTrue($adaptor->cannotSetMe);
@@ -123,7 +126,7 @@ class AdaptorTest extends TestCase
      * @covers ::__set
      * @covers ::__get
      */
-    public function ableToSetAndGetNewProperty()
+    final public function ableToSetAndGetNewProperty(): void
     {
         $adaptor = new AdaptorClass();
         $adaptor->somethingNew = true;
@@ -141,7 +144,7 @@ class AdaptorTest extends TestCase
      *
      * @covers ::__get
      */
-    public function getClassInstancePropertyFromMagicGet()
+    final public function getClassInstancePropertyFromMagicGet(): void
     {
         AdaptorClass::setResource(new GenericClass(['extraProperty' => true]));
         $adaptor = AdaptorClass::instantiate()->build();
@@ -157,7 +160,7 @@ class AdaptorTest extends TestCase
      *
      * @covers ::__set
      */
-    public function setClassInstancePropertyFromMagicSet()
+    final public function setClassInstancePropertyFromMagicSet(): void
     {
         AdaptorClass::setResource(new GenericClass(['extraProperty' => true]));
         $adaptor = (new AdaptorClass())->build();
@@ -175,7 +178,7 @@ class AdaptorTest extends TestCase
      *
      * @covers ::__call
      */
-    public function canCallCustomAdaptorMethod()
+    final public function canCallCustomAdaptorMethod(): void
     {
         AdaptorClass::setResource(new GenericClass(['instanceMethod' => fn() => true]));
         $adaptor = (new AdaptorClass())->build();
@@ -193,7 +196,7 @@ class AdaptorTest extends TestCase
      *
      * @covers ::__call
      */
-    public function errorWhenMethodIsNotDefined()
+    final public function errorWhenMethodIsNotDefined(): void
     {
         $adaptor = new AdaptorClass();
         $adaptor->extraMethod = true;
@@ -208,14 +211,14 @@ class AdaptorClass extends Adaptor
     protected bool $cannotSetMe = true;
     protected bool $doNotAccess = true;
 
-    public function __construct()
+    final public function __construct()
     {
         parent::__construct();
         $this->accessScopes['cannotGetMe'] = ['set' => true];
         $this->accessScopes['cannotSetMe'] = ['get' => true];
     }
 
-    public function instantiateResource(): self
+    final public function instantiateResource(): self
     {
         $this->classInstance = new $this->castedClass->className();
         return $this;

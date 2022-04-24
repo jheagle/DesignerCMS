@@ -14,15 +14,26 @@ if (!function_exists('dotGet')) {
     {
         $isArray = is_array($arrayObject);
         $key = strBefore($dotNotation, '.');
-        if (!$key) {
-            return $isArray ? $arrayObject[$dotNotation] ?? $default : $arrayObject->$dotNotation ?? $default;
+        $lastKey = !$key;
+        if ($lastKey) {
+            $key = $dotNotation;
         }
         if ($key === '*') {
             $result = [];
             foreach ($arrayObject as $wildKey => $wildValue) {
+                if ($lastKey) {
+                    $result[$wildKey] = $wildValue;
+                    continue;
+                }
+                if (!is_array($wildValue) && !is_object($wildValue)) {
+                    continue;
+                }
                 $result[$wildKey] = dotGet($wildValue, strAfter($dotNotation, '.'), $default);
             }
-            return $result;
+            return $isArray ? $result : (object)$result;
+        }
+        if ($lastKey) {
+            return $isArray ? $arrayObject[$dotNotation] ?? $default : $arrayObject->$dotNotation ?? $default;
         }
         if ($isArray && !array_key_exists($key, $arrayObject)) {
             return $default;

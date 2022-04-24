@@ -16,7 +16,7 @@ use Tests\TestCase;
  */
 class DeclarativeTest extends TestCase
 {
-    public function setUp(): void
+    final public function setUp(): void
     {
         parent::setUp();
     }
@@ -28,7 +28,7 @@ class DeclarativeTest extends TestCase
      *
      * @test
      */
-    public function toStringMethodReturnsDescriptionOfClass()
+    final public function toStringMethodReturnsDescriptionOfClass()
     {
         $implementor = $this->buildDeclarativeClass(0);
         $classDescription = $implementor->getClassDescription(true);

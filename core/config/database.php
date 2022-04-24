@@ -1,14 +1,14 @@
 <?php
 
 return [
-    'connection' => defaultValue('mysql', envGet('DB_CONNECTION')),
+    'connection' => envGet('DB_CONNECTION', 'mysql'),
 
     'connections' => [
         'mysql' => [
-            'database' => defaultValue('127.0.0.1', envGet('DB_DATABASE')),
-            'hostname' => defaultValue('localhost', envGet('DB_HOSTNAME')),
-            'username' => defaultValue('root', envGet('DB_USERNAME')),
-            'password' => defaultValue('', envGet('DB_PASSWORD')),
+            'database' => envGet('DB_DATABASE', '127.0.0.1'),
+            'hostname' => envGet('DB_HOSTNAME', 'localhost'),
+            'username' => envGet('DB_USERNAME', 'root'),
+            'password' => envGet('DB_PASSWORD', ''),
         ]
     ]
 ];

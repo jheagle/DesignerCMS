@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\DataTypes;
+namespace Tests\Unit\Core\DataTypes;
 
 use stdClass;
 use Tests\Mocks\DataTypeMock;
@@ -19,7 +19,7 @@ use Tests\TestCase;
  */
 class DataTypeTest extends TestCase
 {
-    public function setUp(): void
+    final public function setUp(): void
     {
         parent::setUp();
     }
@@ -31,7 +31,7 @@ class DataTypeTest extends TestCase
      *
      * @test
      */
-    public function createdDataTypeInstanceHasCorrectProperties()
+    final public function createdDataTypeInstanceHasCorrectProperties(): void
     {
         $dataType = new DataTypeMock();
         $this->assertEquals(PHP_INT_SIZE << 3, $dataType->getSystemMaxBits());
@@ -46,7 +46,7 @@ class DataTypeTest extends TestCase
      *
      * @test
      */
-    public function mockDtEqualsToNullOrSelf()
+    final public function mockDtEqualsToNullOrSelf(): void
     {
         $dataType = new DataTypeMock();
         $this->assertTrue($dataType->isEqual(null));
@@ -63,7 +63,7 @@ class DataTypeTest extends TestCase
      *
      * @test
      */
-    public function newlySetValueIsReturnedWithGetValue()
+    final public function newlySetValueIsReturnedWithGetValue(): void
     {
         $dataType = new DataTypeMock();
         $this->assertTrue($dataType->isEqual(null));

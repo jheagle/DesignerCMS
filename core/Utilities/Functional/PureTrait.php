@@ -2,8 +2,6 @@
 
 namespace Core\Utilities\Functional;
 
-use Tests\TestCase;
-
 /**
  * Trait PureTrait
  *
@@ -19,9 +17,9 @@ trait PureTrait
      *
      * @param string $path
      *
-     * @return PureTrait|Pure|TestCase
+     * @return PureTrait
      */
-    public function setFunctionPath(string $path): self
+    final public function setFunctionPath(string $path): self
     {
         $this->functionPath = $path;
         return $this;
@@ -32,7 +30,7 @@ trait PureTrait
      *
      * @return callable[]
      */
-    protected function extractFunctions(): array
+    final public function extractFunctions(): array
     {
         return $this->importFunctions(true);
     }
@@ -44,7 +42,7 @@ trait PureTrait
      *
      * @return callable[]
      */
-    protected function importFunctions(bool $declareGlobal = false): array
+    final public function importFunctions(bool $declareGlobal = false): array
     {
         $this->importedFunctions = array_reduce(
             $this->getNewFunctionFiles(),

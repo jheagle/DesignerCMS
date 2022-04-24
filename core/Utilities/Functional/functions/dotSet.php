@@ -10,11 +10,28 @@ if (!function_exists('dotSet')) {
      *
      * @return array|object
      */
-    function dotSet(array|object $arrayObject, string $dotNotation, mixed $value): array|object
+    function dotSet(array|object &$arrayObject, string $dotNotation, mixed $value): array|object
     {
         $isArray = is_array($arrayObject);
         $key = strBefore($dotNotation, '.');
-        if (!$key) {
+        $lastKey = !$key;
+        if ($lastKey) {
+            $key = $dotNotation;
+        }
+        if ($key === '*') {
+            foreach ($arrayObject as $wildKey => &$wildValue) {
+                if ($lastKey) {
+                    $wildValue = $value;
+                    continue;
+                }
+                if (!is_array($wildValue) && !is_object($wildValue)) {
+                    continue;
+                }
+                dotSet($wildValue, strAfter($dotNotation, '.'), $value);
+            }
+            return $arrayObject;
+        }
+        if ($lastKey) {
             if ($isArray) {
                 $arrayObject[$dotNotation] = $value;
             } else {
@@ -22,15 +39,9 @@ if (!function_exists('dotSet')) {
             }
             return $arrayObject;
         }
-        if ($key === '*') {
-            $results = [];
-            foreach ($arrayObject as $wildKey => $wildValue) {
-                $results[$wildKey] = dotSet($wildValue, "$wildKey." . strAfter($dotNotation, '.'), $value);
-            }
-            return $results;
-        }
+        $next  = $isArray ? $arrayObject[$key] ?? [] : $arrayObject->$key ?? [];
         $returnValue = dotSet(
-            $isArray ? $arrayObject[$key] ?? [] : $arrayObject->$key ?? [],
+            $next,
             strAfter($dotNotation, '.'),
             $value
         );

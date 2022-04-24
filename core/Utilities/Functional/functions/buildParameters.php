@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Get and return the first value that does not match the value to be replaced.
+ * Assign an array of arguments to the correct positions matching a method's signature.
  *
  * @param string $className
  * @param string $method

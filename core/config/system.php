@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'defaultLocale' => defaultValue('en-ca', envGet('DEFAULT_LANG')),
-    'langPath' => defaultValue(__DIR__ . '/core/lang', envGet('LANG_PATH')),
-    'testing' => defaultValue(false, envGet('TESTING')),
-    'production' => defaultValue(true, envGet('PRODUCTION')),
+    'defaultLocale' => envGet('DEFAULT_LANG', 'en-ca'),
+    'langPath' => envGet('LANG_PATH', __DIR__ . '/core/lang'),
+    'testing' => envGet('TESTING', false),
+    'production' => envGet('PRODUCTION', true),
 ];

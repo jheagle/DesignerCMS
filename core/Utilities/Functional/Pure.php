@@ -30,10 +30,8 @@ use BadFunctionCallException;
  * @method static string strAfterLast(string $subject, string $search)
  * @method static string strBefore(string $subject, string $search)
  * @method static string strBeforeLast(string $subject, string $search)
- * @method static callable trace(string $label = '')
- * @method static callable tt(string $label = '')
  */
-class Pure
+class Pure implements Functional
 {
     use PureTrait;
 
@@ -54,7 +52,7 @@ class Pure
      *
      * @return Pure
      */
-    final public static function instantiatePure(): Pure
+    private static function instantiatePure(): Pure
     {
         self::$instance = new Pure();
         return self::$instance;

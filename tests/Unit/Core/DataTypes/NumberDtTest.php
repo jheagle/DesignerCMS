@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\DataTypes;
+namespace Tests\Unit\Core\DataTypes;
 
 use Core\DataTypes\Numbers\NumberDt;
 use Tests\TestCase;
@@ -18,7 +18,7 @@ use Tests\TestCase;
  */
 class NumberDtTest extends TestCase
 {
-    public function setUp(): void
+    final public function setUp(): void
     {
         parent::setUp();
     }
@@ -30,7 +30,7 @@ class NumberDtTest extends TestCase
      *
      * @test
      */
-    public function createdNumberDtInstanceHasCorrectProperties()
+    final public function createdNumberDtInstanceHasCorrectProperties(): void
     {
         $number = new NumberDt();
         $this->assertEquals('/[^\d.]/', $number->getFilter());
@@ -50,7 +50,7 @@ class NumberDtTest extends TestCase
      *
      * @test
      */
-    public function numberAddsCorrectly()
+    final public function numberAddsCorrectly(): void
     {
         $number = new NumberDt(2);
         $result = $number->add(2);

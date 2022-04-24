@@ -1,8 +1,10 @@
 <?php
 
-namespace Core\DataTypes;
+namespace Tests\Unit\Core\DataTypes;
 
+use Core\DataTypes\DataType;
 use Core\DataTypes\Strings\CharDt;
+use Core\DataTypes\Strings\StringDt;
 use Tests\TestCase;
 
 /**
@@ -18,7 +20,7 @@ use Tests\TestCase;
  */
 class CharDtTest extends TestCase
 {
-    public function setUp(): void
+    final public function setUp(): void
     {
         parent::setUp();
     }
@@ -30,15 +32,15 @@ class CharDtTest extends TestCase
      *
      * @test
      */
-    public function createdCharDtInstanceHasCorrectProperties()
+    final public function createdCharDtInstanceHasCorrectProperties(): void
     {
         $char = new CharDt();
         $this->assertEquals(8, $char->getBits());
         $this->assertEquals(1, $char->getLength());
         $this->assertEquals(255, $char->getMaxLength());
         $this->assertEquals(0, $char->getMinLength());
-        $this->assertEquals(CharDt::CHARSET_UTF8, $char->getCharSet());
-        $this->assertEquals(CharDt::PRIMITIVE_STRING, $char->getPrimitiveType());
+        $this->assertEquals(StringDt::CHARSET_UTF8, $char->getCharSet());
+        $this->assertEquals(DataType::PRIMITIVE_STRING, $char->getPrimitiveType());
         $this->assertEquals('', $char->getValue());
         $this->assertEquals(PHP_INT_SIZE << 3, $char->getSystemMaxBits());
 
