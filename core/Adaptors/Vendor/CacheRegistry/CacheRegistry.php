@@ -4,6 +4,7 @@ namespace Core\Adaptors\Vendor\CacheRegistry;
 
 use Core\Adaptors\Adaptor;
 use Core\Adaptors\Vendor\CacheRegistry\Exceptions\InvalidArgumentException;
+use Core\Contracts\Adaptable;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Contracts\Cache\ItemInterface;
 use Throwable;
@@ -15,7 +16,7 @@ use Throwable;
  *
  * @property FilesystemAdapter $classInstance
  */
-class CacheRegistry extends Adaptor
+class CacheRegistry extends Adaptor implements CacheRegistryInterface
 {
     /**
      * Clear all cached data, optional prefix for namespaced cache.
@@ -24,7 +25,7 @@ class CacheRegistry extends Adaptor
      *
      * @return bool
      */
-    public function clear(string $prefix = ''): bool
+    final public function clear(string $prefix = ''): bool
     {
         return $this->classInstance->clear($prefix);
     }
@@ -38,7 +39,7 @@ class CacheRegistry extends Adaptor
      *
      * @throws InvalidArgumentException|Throwable
      */
-    public function delete(string $key): mixed
+    final public function delete(string $key): mixed
     {
         return $this->useThrowable(
             fn() => $this->classInstance->delete($key)
@@ -57,7 +58,7 @@ class CacheRegistry extends Adaptor
      *
      * @throws InvalidArgumentException|Throwable
      */
-    public function get(string $key, callable $callback, float $beta = null, array $metadata = null): mixed
+    final public function get(string $key, callable $callback, float $beta = null, array $metadata = null): mixed
     {
         return $this->useThrowable(
             fn() => $this->classInstance->get(
@@ -74,11 +75,11 @@ class CacheRegistry extends Adaptor
      *
      * @param string $cacheToken
      *
-     * @return static
+     * @return Adaptable
      *
      * @throws InvalidArgumentException|Throwable
      */
-    public static function reset(string $cacheToken = ''): static
+    public static function reset(string $cacheToken = ''): Adaptable
     {
         $className = get_called_class();
         self::$customInstances[$className] = null;

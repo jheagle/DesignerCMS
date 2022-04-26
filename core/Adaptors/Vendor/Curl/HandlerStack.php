@@ -3,6 +3,7 @@
 namespace Core\Adaptors\Vendor\Curl;
 
 use Core\Adaptors\Adaptor;
+use Core\Contracts\Adaptable;
 
 /**
  * Class HandlerStack
@@ -11,14 +12,14 @@ use Core\Adaptors\Adaptor;
  *
  * @property \GuzzleHttp\HandlerStack $classInstance
  */
-class HandlerStack extends Adaptor
+class HandlerStack extends Adaptor implements HandlerStackInterface
 {
     /**
      * Initialize this class with the provided handler.
      *
      * @param Mocks\Handler|Adaptor $build
      *
-     * @return Adaptor|HandlerStack
+     * @return Adaptable|HandlerStack
      */
     public static function create(Mocks\Handler|Adaptor $build): Adaptor|HandlerStack
     {

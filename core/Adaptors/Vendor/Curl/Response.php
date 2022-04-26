@@ -11,14 +11,14 @@ use Core\Adaptors\Adaptor;
  *
  * @property \GuzzleHttp\Psr7\Response $classInstance
  */
-class Response extends Adaptor
+class Response extends Adaptor implements ResponseInterface
 {
     /**
      * Retrieve the HTTP status code returned from the request.
      *
      * @return int
      */
-    public function getStatusCode(): int
+    final public function getStatusCode(): int
     {
         return $this->classInstance->getStatusCode();
     }
@@ -28,7 +28,7 @@ class Response extends Adaptor
      *
      * @return Stream
      */
-    public function getBody(): Stream
+    final public function getBody(): Stream
     {
         return Stream::wrapCast($this->classInstance->getBody());
     }

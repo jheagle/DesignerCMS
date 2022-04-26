@@ -16,7 +16,7 @@ use Throwable;
  * @property GenericProvider|null $classInstance
  * @property string $className = 'GenericProvider'
  */
-class Provider extends Adaptor
+class Provider extends Adaptor implements ProviderInterface
 {
     public array $options = [];
     public array $collaborators = [];
@@ -31,7 +31,7 @@ class Provider extends Adaptor
      *
      * @throws Throwable
      */
-    public function getAccessToken(mixed $grant, array $options = []): AccessToken|AccessTokenInterface
+    final public function getAccessToken(mixed $grant, array $options = []): AccessToken|AccessTokenInterface
     {
         return $this->useThrowable(fn() => $this->classInstance->getAccessToken($grant, $options));
     }

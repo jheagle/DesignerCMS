@@ -14,7 +14,7 @@ use Core\Utilities\Functional\Pure;
  *
  * @property \Monolog\Logger $classInstance
  */
-class Logger extends Adaptor
+class Logger extends Adaptor implements LoggerInterface
 {
     public const HANDLER_FILE_STREAM = 'file_stream';
 

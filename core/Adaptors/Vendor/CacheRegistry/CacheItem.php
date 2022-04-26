@@ -11,7 +11,7 @@ use Core\Adaptors\Adaptor;
  *
  * @property \Symfony\Component\Cache\CacheItem $classInstance
  */
-class CacheItem extends Adaptor
+class CacheItem extends Adaptor implements CacheItemInterface
 {
     /**
      * Set the time when this cache must expire.
@@ -20,7 +20,7 @@ class CacheItem extends Adaptor
      *
      * @return $this
      */
-    public function expiresAfter(mixed $getExpires): static
+    final public function expiresAfter(mixed $getExpires): static
     {
         $this->classInstance->expiresAfter($getExpires);
         return $this;

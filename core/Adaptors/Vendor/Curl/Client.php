@@ -12,7 +12,7 @@ use Throwable;
  *
  * @property \GuzzleHttp\Client $classInstance
  */
-class Client extends Adaptor
+class Client extends Adaptor implements ClientInterface
 {
     /**
      * Access the request method of this client and provide some exception handling.
@@ -25,7 +25,7 @@ class Client extends Adaptor
      *
      * @throws Throwable
      */
-    public function request(string $method, string $url, array $options): Response
+    final public function request(string $method, string $url, array $options): Response
     {
         return $this->useThrowable(
             fn() => Response::wrapCast($this->classInstance->request($method, $url, $options))
