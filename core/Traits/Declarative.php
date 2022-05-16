@@ -5,8 +5,10 @@ namespace Core\Traits;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
+use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
+use ReflectionUnionType;
 
 /**
  * Trait Declarative
@@ -22,7 +24,7 @@ trait Declarative
      *
      * @return string
      */
-    public function getClassDescription(bool $includePrivate = false): string
+    final public function getClassDescription(bool $includePrivate = false): string
     {
         $classDescriptors = array_merge_recursive(
             $this->getClassMembers($includePrivate),
@@ -222,7 +224,7 @@ trait Declarative
                 $memberValue = '"' . $memberValue . '"';
             }
             if (is_array($memberValue) || is_object($memberValue)) {
-                $memberValue = json_encode($memberValue);
+                $memberValue = json_encode($memberValue, JSON_PRETTY_PRINT);
             }
             if (is_bool($memberValue)) {
                 $memberValue = $memberValue ? 'true' : 'false';
@@ -305,7 +307,6 @@ trait Declarative
                     );
                 }
             }
-            $method->getReturnType();
             $parameters = array_reduce($method->getParameters(), 'self::buildParameterDeclaration', '');
 
             $arrayPointer = &$methods[$methodClass]['methods'];
@@ -331,10 +332,23 @@ trait Declarative
                 $arrayPointer = &$arrayPointer['final'];
             }
             $returnType = '';
-            if ($method->hasReturnType()) {
-                $type = $method->getReturnType();
+            $type = $method->hasReturnType() ? $method->getReturnType() : null;
+            if ($type && is_a($type, ReflectionNamedType::class)) {
                 $returnType = $type->allowsNull() ? ":\x20?$returnType" : ":\x20$returnType";
                 $returnType .= $type->getName();
+            }
+            if ($type && is_a($type, ReflectionUnionType::class)) {
+                $returnType = array_reduce(
+                    $type->getTypes(),
+                    function (string $typeString, ReflectionNamedType $namedType) {
+                        if ($typeString) {
+                            $typeString .= '|';
+                        }
+                        return $typeString . $namedType->getName();
+                    },
+                    ''
+                );
+                $returnType = $type->allowsNull() ? ":\x20$returnType|null" : ":\x20$returnType";
             }
             $arrayPointer[$methodName] = "$methodName($parameters)$returnType";
             return $methods;

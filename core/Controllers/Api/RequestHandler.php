@@ -12,6 +12,7 @@ use Core\Adaptors\Vendor\Curl\Response;
 use Core\Adaptors\Vendor\Logger\Logger;
 use Core\Adaptors\Vendor\OAuth\Exceptions\IdentityException;
 use Core\Adaptors\Vendor\OAuth\Provider;
+use Core\Contracts\Adaptable;
 use Core\Contracts\LazyAssignable;
 use Core\Traits\LazyAssignment;
 use Core\Utilities\Functional\Pure;
@@ -56,13 +57,23 @@ class RequestHandler implements LazyAssignable
      * Instance variables
      *
      * @var Client|null $curlClient Provide a custom client
-     * @var Response|null $curlResponse Provide a custom response
-     * @var Provider|null $authProvider Provide a custom Oauth2 Provider
      */
     private ?Client $curlClient = null;
+
+    /**
+     * @var Response|null $curlResponse Provide a custom response
+     */
     private ?Response $curlResponse = null;
+
+    /**
+     * @var Provider|null $authProvider Provide a custom Oauth2 Provider
+     */
     private ?Provider $authProvider = null;
-    private ?CacheRegistry $cacheProvider = null;
+
+    /**
+     * @var Adaptable|CacheRegistry|null $cacheProvider The means for caching results
+     */
+    private CacheRegistry|Adaptable|null $cacheProvider = null;
 
     /**
      * RequestHandler constructor.
@@ -149,7 +160,7 @@ class RequestHandler implements LazyAssignable
      *
      * @return Response
      */
-    public function completeRequest(RequestDataSettings $requestSettings = null): Response
+    final public function completeRequest(RequestDataSettings $requestSettings = null): Response
     {
         if (is_null($requestSettings)) {
             $requestSettings = RequestDataSettings::fromArray();

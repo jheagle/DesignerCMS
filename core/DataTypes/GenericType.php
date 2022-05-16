@@ -3,6 +3,8 @@
 namespace Core\DataTypes;
 
 use Core\Contracts\Castable;
+use Core\Contracts\Declarable;
+use Core\Traits\Declarative;
 use Core\Traits\LazyAssignment;
 use Core\Traits\MakeCastable;
 
@@ -11,8 +13,14 @@ use Core\Traits\MakeCastable;
  *
  * @package Core
  */
-abstract class GenericType implements Castable
+abstract class GenericType implements Castable, Declarable
 {
     use LazyAssignment;
     use MakeCastable;
+    use Declarative;
+
+    public function __toString(): string
+    {
+        return $this->getClassDescription();
+    }
 }

@@ -4,9 +4,10 @@ namespace Core\Objects;
 
 use ArrayAccess;
 use Core\Contracts\Arrayable;
+use Core\Contracts\Castable;
 use Core\Contracts\Jsonable;
-use Core\Contracts\LazyAssignable;
 use Core\Traits\LazyAssignment;
+use Core\Traits\MakeCastable;
 use Core\Utilities\Functional\Pure;
 
 /**
@@ -14,9 +15,10 @@ use Core\Utilities\Functional\Pure;
  *
  * @package Core\Objects
  */
-abstract class DataTransferObject implements ArrayAccess, Arrayable, Jsonable, LazyAssignable
+abstract class DataTransferObject implements ArrayAccess, Arrayable, Castable, Jsonable
 {
     use LazyAssignment;
+    use MakeCastable;
 
     public array $extraAttributes = [];
 
@@ -47,7 +49,7 @@ abstract class DataTransferObject implements ArrayAccess, Arrayable, Jsonable, L
      *
      * @return bool
      */
-    public function offsetExists($offset): bool
+    final public function offsetExists(mixed $offset): bool
     {
         return property_exists($this, $offset) || array_key_exists($offset, $this->extraAttributes);
     }
@@ -59,7 +61,7 @@ abstract class DataTransferObject implements ArrayAccess, Arrayable, Jsonable, L
      *
      * @return mixed
      */
-    public function offsetGet($offset): mixed
+    final public function offsetGet(mixed $offset): mixed
     {
         return Pure::coalesce(null, Pure::dotGet($this, $offset), Pure::dotGet($this->extraAttributes, $offset));
     }
@@ -70,7 +72,7 @@ abstract class DataTransferObject implements ArrayAccess, Arrayable, Jsonable, L
      * @param mixed $offset
      * @param mixed $value
      */
-    public function offsetSet($offset, $value): void
+    final public function offsetSet(mixed $offset, mixed $value): void
     {
         if (is_null($offset)) {
             $this->extraAttributes[] = $value;
@@ -88,7 +90,7 @@ abstract class DataTransferObject implements ArrayAccess, Arrayable, Jsonable, L
      *
      * @param mixed $offset
      */
-    public function offsetUnset($offset)
+    final public function offsetUnset(mixed $offset): void
     {
         if (property_exists($this, $offset)) {
             $this->$offset = null;
@@ -98,7 +100,7 @@ abstract class DataTransferObject implements ArrayAccess, Arrayable, Jsonable, L
         }
     }
 
-    public function toArray(): array
+    final public function toArray(): array
     {
         return array_map(
             fn($propertyValue) => $propertyValue instanceof Arrayable ? $propertyValue->toArray() : $propertyValue,
@@ -106,7 +108,7 @@ abstract class DataTransferObject implements ArrayAccess, Arrayable, Jsonable, L
         );
     }
 
-    public function toJson(): string
+    final public function toJson(): string
     {
         return json_encode(
             array_map(

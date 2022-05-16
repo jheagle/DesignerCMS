@@ -36,10 +36,19 @@ class DeclarativeTest extends TestCase
          * Tests\Mocks\DataTypeMock@anonymous {
          *
          *   static public string staticPublicMember = "static public"
-         *   public array memberWithArray = ["firstElement","secondElement"]
-         *   public array memberWithArrayAppend = ["firstElement","secondElement"]
+         *   public array memberWithArray = [
+         *     "firstElement",
+         *     "secondElement"
+         *   ]
+         *   public array memberWithArrayAppend = [
+         *     "firstElement",
+         *     "secondElement"
+         *   ]
          *   public string memberWithDefault = "public"
-         *   public array memberWithMap = {"firstIndex":"firstElement","secondIndex":"secondElement"}
+         *   public array memberWithMap = {
+         *     "firstIndex":"firstElement",
+         *     "secondIndex":"secondElement"
+         *   }
          *   public ?string publicMember
          *   static protected string staticProtectedMember = "static protected"
          *   protected ?string protectedMember
@@ -55,16 +64,16 @@ class DeclarativeTest extends TestCase
             $classDescription
         );
         $this->assertStringContainsString(
-            'public array memberWithArray = ["firstElement","secondElement"]',
+            "public array memberWithArray = [\n    \"firstElement\",\n    \"secondElement\"\n]",
             $classDescription
         );
         $this->assertStringContainsString(
-            'public array memberWithArrayAppend = ["firstElement","secondElement"]',
+            "public array memberWithArrayAppend = [\n    \"firstElement\",\n    \"secondElement\"\n]",
             $classDescription
         );
         $this->assertStringContainsString('public string memberWithDefault = "public"', $classDescription);
         $this->assertStringContainsString(
-            'public array memberWithMap = {"firstIndex":"firstElement","secondIndex":"secondElement"}',
+            "public array memberWithMap = {\n    \"firstIndex\": \"firstElement\",\n    \"secondIndex\": \"secondElement\"\n}",
             $classDescription
         );
         $this->assertStringContainsString('public ?string publicMember', $classDescription);

@@ -1,6 +1,8 @@
 <?php
+
 require __DIR__ . '/vendor/autoload.php';
 
+use Core\Adaptors\Vendor\OAuth\Provider;
 use Core\DataTypes\Numbers\Integers\IntDt;
 use Core\DataTypes\Strings\VarCharDt;
 use Core\Entity\Field;
@@ -34,6 +36,9 @@ VarDumper::setHandler(function ($var) {
 });
 
 Pure::extractAll();
+
+$providerTest = Provider::instantiate();
+echo toHtml(string: $providerTest);
 function curryTest($one, $two, $three): string
 {
     return "$one-$two-$three";
