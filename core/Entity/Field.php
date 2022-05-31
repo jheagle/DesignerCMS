@@ -3,8 +3,9 @@
 namespace Core\Entity;
 
 use Core\DataTypes\DataType;
+use Core\DataTypes\Interfaces\Potential;
 use Core\DataTypes\Numbers\NumberDt;
-use Core\DataTypes\Potential;
+use Core\DataTypes\Strings\StringDt;
 
 /**
  * Class Field
@@ -14,53 +15,53 @@ use Core\DataTypes\Potential;
 class Field implements Potential
 {
 
-    const PRIMARY_KEY = 1;
+    public const PRIMARY_KEY = 1;
 
-    const NOT_NULL = 2;
+    public const NOT_NULL = 2;
 
-    const UNIQUE = 4;
+    public const UNIQUE = 4;
 
-    const BINARY = 8;
+    public const BINARY = 8;
 
-    const UNSIGNED = 16;
+    public const UNSIGNED = 16;
 
-    const ZERO_FILL = 32;
+    public const ZERO_FILL = 32;
 
-    const AUTO_INCREMENT = 64;
+    public const AUTO_INCREMENT = 64;
 
-    const REQUIRED = 128;
+    public const REQUIRED = 128;
 
-    const INDEX = 256;
+    public const INDEX = 256;
 
-    const FULLTEXT = 512;
+    public const FULLTEXT = 512;
 
     /** @var string $name */
-    protected $name;
+    private string $name;
 
-    /** @var null|DataType $dataType */
-    protected $dataType = null;
+    /** @var string|DataType|null $dataType */
+    private string|DataType|null $dataType = null;
 
     /** @var int $attributes */
-    protected $attributes;
+    private int $attributes;
 
     /** @var mixed $default */
-    protected $default;
+    private string $default;
 
     /**
      * Field constructor.
      *
      * @param string $name
-     * @param string $dataType
-     * @param string $default
-     * @param null $length
+     * @param string|DataType|null $dataType
+     * @param mixed $default
+     * @param int|null $length
      * @param int $attributes
      */
     public function __construct(
-        $name = '',
-        $dataType = 'String',
-        $default = '',
-        $length = null,
-        $attributes = self::NOT_NULL
+        string $name = '',
+        string|DataType|null $dataType = StringDt::class,
+        mixed $default = '',
+        ?int $length = null,
+        int $attributes = self::NOT_NULL
     ) {
         $this->name = strtolower(str_replace(' ', '_', $name));
         // Set Required attribute if this field is Unique or a Primary Key
@@ -72,8 +73,7 @@ class Field implements Potential
             $this->attributes |= self::UNSIGNED;
         }
         // TODO: Implement a way of applying DataType-specific settings
-        $dataTypeClassName = '\Core\DataTypes\Numbers\\' . $dataType . 'Dt';
-        $this->dataType = new $dataTypeClassName(
+        $this->dataType = new $dataType(
             $default,
             ['length' => $length, 'isSigned' => !$this->hasAttr(self::UNSIGNED)]
         );
@@ -83,7 +83,7 @@ class Field implements Potential
     /**
      * @return int|mixed|string
      */
-    public function getValue()
+    final public function getValue(): mixed
     {
         if ($this->dataType instanceof NumberDt && property_exists(
                 get_class($this->dataType),
@@ -96,31 +96,31 @@ class Field implements Potential
     }
 
     /**
-     * @param $value
+     * @param mixed $value
      *
      * @return mixed
      */
-    public function setValue($value)
+    final public function setValue(mixed $value): mixed
     {
         return $this->dataType->setValue($value);
     }
 
     /**
-     * @param $attr
+     * @param mixed $attr
      *
      * @return bool
      */
-    public function hasAttr($attr)
+    final public function hasAttr(mixed $attr): bool
     {
         return ($this->attributes & $attr) === $attr;
     }
 
     /**
-     * @param $attr
+     * @param mixed $attr
      *
      * @return bool
      */
-    public function hasAttribute($attr)
+    final public function hasAttribute(mixed $attr): bool
     {
         return self::hasAttr($attr);
     }

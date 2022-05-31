@@ -60,22 +60,11 @@ abstract class DbConnect implements LazyAssignable, Potential
             $this->testing = true;
             $this->production = false;
         }
-        $connection = Config::get('database.connection', 'mysql');
-        $username = Pure::dotGet($settings, 'username');
-        if (empty($username)) {
-            $username = Config::get("database.connections.$connection.username", 'root');
-        }
-        $password = Pure::dotGet($settings, 'password');
-        if (empty($password)) {
-            $password = Config::get("database.connections.$connection.password", '');
-        }
-        $hostname = Pure::dotGet($settings, 'hostname');
-        if (empty($hostname)) {
-            $hostname = Config::get("database.connections.$connection.hostname", 'localhost');
-        }
-        if (empty($this->database)) {
-            $this->database = Config::get("database.connections.$connection.database", '127.0.0.1');
-        }
+        $connection = Pure::dotGet($settings, 'connection', 'mysql');
+        $username = Pure::dotGet($settings, 'username', 'root');
+        $password = Pure::dotGet($settings, 'password', '');
+        $hostname = Pure::dotGet($settings, 'hostname', 'localhost');
+        $this->database = Pure::dotGet($settings, 'database', '127.0.0.1');
         self::$staticDatabase = $this->database;
         if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password) && $this->production) {
             global $RESOURCES;
@@ -174,6 +163,7 @@ abstract class DbConnect implements LazyAssignable, Potential
         $args = func_get_args();
         $defaultArgs = [
             'string' => [
+                'connection' => 'mysql',
                 'hostname' => 'localhost',
                 'database' => '',
                 'username' => 'root',

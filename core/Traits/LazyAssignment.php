@@ -2,6 +2,13 @@
 
 namespace Core\Traits;
 
+use Core\Adaptors\ErrorAdaptor;
+use Core\Adaptors\ExceptionAdaptor;
+use Core\Controllers\Api\RequestHandler;
+use Core\Database\DbConnect;
+use Core\DataTypes\DataType;
+use Core\DataTypes\GenericType;
+use Core\Objects\DataTransferObject;
 use Error;
 
 /**
@@ -17,14 +24,14 @@ trait LazyAssignment
      *
      * @param array $settings
      *
-     * @return $this
+     * @return DataTransferObject|ErrorAdaptor|ExceptionAdaptor|RequestHandler|DbConnect|DataType|GenericType|LazyAssignment
      */
     public function applyMemberSettings(array $settings = []): self
     {
         // Retrieve all the members of this class so they can be populated lazily
         // Set this member to the incoming form data otherwise, use the default value
         foreach ($this->getAllMembers() as $classMemberName => $default) {
-            if (!array_key_exists($classMemberName, $settings) && $this->getMember($classMemberName)) {
+            if (!array_key_exists($classMemberName, $settings)) {
                 continue;
             }
             if (is_array($default)) {

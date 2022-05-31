@@ -1,8 +1,8 @@
 <?php
 
 require __DIR__ . '/vendor/autoload.php';
-
 use Core\Adaptors\Vendor\OAuth\Provider;
+use Core\DataTypes\Numbers\Integers\BigIntDt;
 use Core\DataTypes\Numbers\Integers\IntDt;
 use Core\DataTypes\Strings\VarCharDt;
 use Core\Entity\Field;
@@ -37,48 +37,49 @@ VarDumper::setHandler(function ($var) {
 
 Pure::extractAll();
 
-$providerTest = Provider::instantiate();
-echo toHtml(string: $providerTest);
 function curryTest($one, $two, $three): string
 {
     return "$one-$two-$three";
 }
 
-trace('curryTest with all parameters')(curryTest('one', 'two', 'three'));
+dump('curryTest with all parameters', curryTest('one', 'two', 'three'));
 $newCurry1 = Pure::curry('curryTest')('one');
-trace('curryTest with one parameter')($newCurry1);
+dump('curryTest with one parameter', $newCurry1);
 $newCurry2 = $newCurry1('two');
-trace('curryTest with two parameters')($newCurry2);
-trace('curryTest with all three parameters')($newCurry2('three'));
+dump('curryTest with two parameters', $newCurry2);
+dump('curryTest with all three parameters', $newCurry2('three'));
 
 require __DIR__ . '/bootstrap.php';
 
 $value = 'Hello';
 $datatype = new VarCharDt($value, ['length' => 100]);
-trace('VarChar')($datatype);
-trace('VarChar: getValue')($datatype->getValue());
+dump('VarChar', $datatype);
+dump('VarChar: getValue', $datatype->getValue());
 
 $value = 128;
 $testValue = 32;
 $integer = new IntDt($value, ['length' => 0, 'isSigned' => false]);
-trace('Integer')($integer);
-trace('Integer: getValue')($integer->getValue());
-trace('Number 32')($testValue);
-trace('Integer: isEven')($integer->isEven());
-trace('Integer: getAbsolute')($integer->getAbsolute());
-trace('Integer: isEqual to 4294967295')($integer->isEqual('4294967295'));
-trace('Bitwise Add:')($integer->add($testValue));
-trace('True Add:')($integer->getValue() + $testValue);
-trace('Bitwise Subtract:')($integer->subtract($testValue));
-trace('True Subtract:')($integer->getValue() - $testValue);
-trace('Bitwise Multiply:')($integer->multiplyBy($testValue));
-trace('True Multiple:')($integer->getValue() * $testValue);
-trace('Bitwise Divide:')($integer->divideBy($testValue));
-trace('True Divide:')($integer->getValue() / $testValue);
-trace('Bitwise Modulo:')($integer->modulo($testValue));
-trace('True Modulo:')($integer->getValue() % $testValue);
+dump('Integer', $integer);
+dump('Integer: getValue', $integer->getValue());
+dump('Number 32', $testValue);
+dump('Integer: isEven', $integer->isEven());
+dump('Integer: getAbsolute', $integer->getAbsolute());
+dump('Integer: isEqual to 4294967295', $integer->isEqual('4294967295'));
+dump('Bitwise Add:', $integer->add($testValue));
+dump('True Add:', $integer->getValue() + $testValue);
+dump('Bitwise Subtract:', $integer->subtract($testValue));
+dump('True Subtract:', $integer->getValue() - $testValue);
+dump('Bitwise Multiply:', $integer->multiplyBy($testValue));
+dump('True Multiple:', $integer->getValue() * $testValue);
+dump('Bitwise Divide:', $integer->divideBy($testValue));
+dump('True Divide:', $integer->getValue() / $testValue);
+dump('Bitwise Modulo:', $integer->modulo($testValue));
+dump('True Modulo:', $integer->getValue() % $testValue);
 
-$field = new Field('column', 'BigInt', 0, 50, Field::ZERO_FILL | Field::UNSIGNED);
+$field = new Field('column', BigIntDt::class, 0, 50, Field::ZERO_FILL | Field::UNSIGNED);
 $field->setValue('999999999999999999');
-trace('Field')($field);
-trace('Field: getValue')($field->getValue());
+dump('Field', $field);
+dump('Field: getValue', $field->getValue());
+
+$providerTest = Provider::instantiate();
+echo toHtml(string: $providerTest);

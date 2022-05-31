@@ -64,16 +64,16 @@ class DeclarativeTest extends TestCase
             $classDescription
         );
         $this->assertStringContainsString(
-            "public array memberWithArray = [\n    \"firstElement\",\n    \"secondElement\"\n]",
+            "public array memberWithArray = [\n  ",
             $classDescription
         );
         $this->assertStringContainsString(
-            "public array memberWithArrayAppend = [\n    \"firstElement\",\n    \"secondElement\"\n]",
+            "public array memberWithArrayAppend = [\n  ",
             $classDescription
         );
         $this->assertStringContainsString('public string memberWithDefault = "public"', $classDescription);
         $this->assertStringContainsString(
-            "public array memberWithMap = {\n    \"firstIndex\": \"firstElement\",\n    \"secondIndex\": \"secondElement\"\n}",
+            "public array memberWithMap = {\n  ",
             $classDescription
         );
         $this->assertStringContainsString('public ?string publicMember', $classDescription);

@@ -12,7 +12,7 @@ class BigIntDt extends NumberDt
 
     protected int $bits = 64;
 
-    protected int $absoluteMax;
+    protected string $absoluteMax;
 
     public function __construct($value = 0, $settings = [])
     {

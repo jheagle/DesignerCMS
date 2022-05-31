@@ -2,7 +2,10 @@
 
 namespace Core\Traits;
 
+use Core\Adaptors\Adaptor;
 use Core\Adaptors\Config;
+use Core\Adaptors\ErrorAdaptor;
+use Core\Adaptors\ExceptionAdaptor;
 use Core\Adaptors\Lang;
 use Core\Contracts\Adaptable;
 use Core\Contracts\Castable;
@@ -57,7 +60,7 @@ trait MakeAdaptable
      *
      * @param mixed|null $resource
      *
-     * @return self
+     * @return ErrorAdaptor|Adaptor|ExceptionAdaptor|MakeAdaptable
      */
     public static function instantiate(mixed $resource = null): self
     {
@@ -138,7 +141,7 @@ trait MakeAdaptable
     /**
      * Instantiate the class instance wrapped by this adaptor.
      *
-     * @return $this
+     * @return ErrorAdaptor|Adaptor|ExceptionAdaptor|MakeAdaptable
      */
     final public function build(): self
     {
@@ -178,7 +181,7 @@ trait MakeAdaptable
      *
      * @param ...$args
      *
-     * @return $this
+     * @return ErrorAdaptor|Adaptor|ExceptionAdaptor|MakeAdaptable
      */
     final public function with(...$args): self
     {

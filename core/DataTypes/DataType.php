@@ -61,7 +61,7 @@ abstract class DataType implements DataTypeObject, Declarable, LazyAssignable
         self::PRIMITIVE_RESOURCE,
     ];
 
-    protected mixed $value;
+    protected mixed $value = null;
     protected string $primitiveType = 'object';
     protected static int $systemMaxBits;
 
@@ -84,10 +84,10 @@ abstract class DataType implements DataTypeObject, Declarable, LazyAssignable
     /**
      * DataType constructor.
      *
-     * @param $value
+     * @param mixed $value
      * @param array $settings
      */
-    public function __construct($value = null, array $settings = [])
+    public function __construct(mixed $value = null, array $settings = [])
     {
         self::$systemMaxBits = PHP_INT_SIZE << 3;
         self::applyMemberSettings($settings);
@@ -98,7 +98,7 @@ abstract class DataType implements DataTypeObject, Declarable, LazyAssignable
      *
      * @return string
      */
-    public function getPrimitiveType(): string
+    final public function getPrimitiveType(): string
     {
         return $this->primitiveType;
     }
@@ -108,7 +108,7 @@ abstract class DataType implements DataTypeObject, Declarable, LazyAssignable
      *
      * @return int
      */
-    public function getSystemMaxBits(): int
+    final public function getSystemMaxBits(): int
     {
         return self::$systemMaxBits;
     }
@@ -120,7 +120,7 @@ abstract class DataType implements DataTypeObject, Declarable, LazyAssignable
      *
      * @return bool
      */
-    public function isEqual(mixed $dataType): bool
+    final public function isEqual(mixed $dataType): bool
     {
         return is_a($dataType, DataType::class)
             ? $this->getValue() === $dataType->getValue()

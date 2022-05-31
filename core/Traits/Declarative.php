@@ -149,7 +149,10 @@ trait Declarative
         ): string {
             $descriptor = $descriptors[$descriptorKey];
             if (is_string($descriptor)) {
-                $toString .= "\n\x20\x20$descriptorIndent$descriptorPrefix$descriptor\e[0m";
+                $prepend = "\n\x20\x20$descriptorIndent";
+                // Each line needs to have the correct indentation, so for json strings we replace the newlines with indentation
+                $descriptor = str_replace("\n", $prepend, $descriptor);
+                $toString .= "$prepend$descriptorPrefix$descriptor\e[0m";
                 return $toString;
             }
             if (!count($descriptor)) {
@@ -221,7 +224,7 @@ trait Declarative
             }
             $memberValue = $classVars[$memberKey];
             if (is_string($memberValue)) {
-                $memberValue = '"' . $memberValue . '"';
+                $memberValue = "\x22$memberValue\x22";
             }
             if (is_array($memberValue) || is_object($memberValue)) {
                 $memberValue = json_encode($memberValue, JSON_PRETTY_PRINT);
