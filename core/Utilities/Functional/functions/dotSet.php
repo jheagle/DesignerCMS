@@ -19,7 +19,7 @@ if (!function_exists('dotSet')) {
             $key = $dotNotation;
         }
         if ($key === '*') {
-            foreach ($arrayObject as $wildKey => &$wildValue) {
+            foreach ($arrayObject as &$wildValue) {
                 if ($lastKey) {
                     $wildValue = $value;
                     continue;
