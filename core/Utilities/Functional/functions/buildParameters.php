@@ -10,7 +10,6 @@
  * @return array
  * @throws ReflectionException
  */
-
 $buildParameters = static function (string $className, string $method, ...$args): array {
     if (!method_exists($className, $method)) {
         return $args;

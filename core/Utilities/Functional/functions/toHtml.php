@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Provide a default that will be used if a given value is null.
+ * Convert terminal output to HTML format.
  *
  * @param string $string
  * @param string $fromFormat
