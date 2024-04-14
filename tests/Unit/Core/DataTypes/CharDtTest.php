@@ -5,19 +5,22 @@ namespace Tests\Unit\Core\DataTypes;
 use Core\DataTypes\DataType;
 use Core\DataTypes\Strings\CharDt;
 use Core\DataTypes\Strings\StringDt;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Small;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class CharDtTest
  *
  * @package Tests\Unit\Core\DataTypes
- *
- * @small
- *
- * @group Unit
- * @group DataType
- * @group CharDt
  */
+#[CoversClass(CharDt::class)]
+#[Small]
+#[Group('Unit')]
+#[Group('DataType')]
+#[Group('CharDt')]
 class CharDtTest extends TestCase
 {
     final public function setUp(): void
@@ -29,9 +32,8 @@ class CharDtTest extends TestCase
      * Given a newly created CharDt
      * When value is or is not provided
      * Then the four members should match default values
-     *
-     * @test
      */
+    #[Test]
     final public function createdCharDtInstanceHasCorrectProperties(): void
     {
         $char = new CharDt();

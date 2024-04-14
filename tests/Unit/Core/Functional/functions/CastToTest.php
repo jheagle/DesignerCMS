@@ -2,26 +2,26 @@
 
 namespace Tests\Unit\Core\Functional\functions;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class CastToTest
  * @package Tests\Unit\Core\Functional\functions
- *
- * @group Unit
- * @group Functional
- * @group Pure
- * @group castTo
  */
+#[Group('Unit')]
+#[Group('Functional')]
+#[Group('Pure')]
+#[Group('castTo')]
 class CastToTest extends TestCase
 {
     /**
      * Given a value
      * When cast to is used
      * Then the specified type will be applied to the value.
-     *
-     * @test
      */
+    #[Test]
     final public function castToAppliesSpecifiedTypeToTheValue(): void
     {
         $this->assertSame(1, castTo('1', 'int'));

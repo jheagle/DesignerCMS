@@ -2,27 +2,27 @@
 
 namespace Tests\Unit\Core\Functional\functions;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use stdClass;
 use Tests\TestCase;
 
 /**
  * Class BuildParametersTest
  * @package Tests\Unit\Core\Functional\functions
- *
- * @group Unit
- * @group Functional
- * @group Pure
- * @group buildParameters
  */
+#[Group('Unit')]
+#[Group('Functional')]
+#[Group('Pure')]
+#[Group('buildParameters')]
 class BuildParametersTest extends TestCase
 {
     /**
      * Given an associative array of parameters,
      * When passing this array to the buildParameters function,
      * Then the parameters will be sorted correctly.
-     *
-     * @test
      */
+    #[Test]
     final public function buildsParametersFromAssociativeArray(): void
     {
         $paramArray = [
@@ -47,9 +47,8 @@ class BuildParametersTest extends TestCase
      * Given an array of parameters,
      * When passing this array to the buildParameters function,
      * Then the parameters will used in-place.
-     *
-     * @test
      */
+    #[Test]
     final public function buildsParametersFromAnArray(): void
     {
         $paramArray = [

@@ -2,18 +2,18 @@
 
 namespace Tests\Unit;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Small;
 use Tests\TestCase;
 
 /**
  * Class ExampleTest
  *
  * @package Tests\Unit
- *
- * @small
- *
- * @group Unit
- * @group Example
  */
+#[Small]
+#[Group('Unit')]
+#[Group('Example')]
 class ExampleTest extends TestCase
 {
     /**
@@ -25,7 +25,7 @@ class ExampleTest extends TestCase
      *
      * @return void
      */
-    final public function testBasicTest()
+    final public function testBasicTest(): void
     {
         $this->assertTrue(true);
     }

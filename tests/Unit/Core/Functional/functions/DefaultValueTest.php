@@ -2,26 +2,26 @@
 
 namespace Tests\Unit\Core\Functional\functions;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class DefaultValueTest
  * @package Tests\Unit\Core\Functional\functions
- *
- * @group Unit
- * @group Functional
- * @group Pure
- * @group DefaultValue
  */
+#[Group('Unit')]
+#[Group('Functional')]
+#[Group('Pure')]
+#[Group('defaultValue')]
 class DefaultValueTest extends TestCase
 {
     /**
      * Given a default and a value
      * When using the defaultValue function on truthy or falsy values
      * Then if the value is truthy then return the value, otherwise return the default.
-     *
-     * @test
      */
+    #[Test]
     final public function defaultValueReturnsTheValueOrDefaultIfFalse(): void
     {
         $this->assertTrue(defaultValue('true is truthy', true));

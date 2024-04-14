@@ -2,6 +2,11 @@
 
 namespace Tests\Unit\Core\DataTypes;
 
+use Core\DataTypes\DataType;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Small;
+use PHPUnit\Framework\Attributes\Test;
 use stdClass;
 use Tests\Mocks\DataTypeMock;
 use Tests\TestCase;
@@ -10,13 +15,12 @@ use Tests\TestCase;
  * Class DataTypeTest
  *
  * @package Tests\Unit\Core\DataTypes
- *
- * @small
- *
- * @group Unit
- * @group DataType
- * @group DataTypeMock
  */
+#[CoversClass(DataType::class)]
+#[Small]
+#[Group('Unit')]
+#[Group('DataType')]
+#[Group('DataTypeMock')]
 class DataTypeTest extends TestCase
 {
     final public function setUp(): void
@@ -28,9 +32,8 @@ class DataTypeTest extends TestCase
      * Given a newly created DataTypeMock
      * When value is not provided or set
      * Then the three members should match default values
-     *
-     * @test
      */
+    #[Test]
     final public function createdDataTypeInstanceHasCorrectProperties(): void
     {
         $dataType = new DataTypeMock();
@@ -43,9 +46,8 @@ class DataTypeTest extends TestCase
      * Given a DataTypeMock instance
      * When checking equality
      * Then the isEqual method will return true with the same currently set value value and by the same DataType
-     *
-     * @test
      */
+    #[Test]
     final public function mockDtEqualsToNullOrSelf(): void
     {
         $dataType = new DataTypeMock();
@@ -60,9 +62,8 @@ class DataTypeTest extends TestCase
      * Given a DataTypeMock instance
      * When a value is provided with setValue
      * Then the DataType will be isEqual to the newly set value
-     *
-     * @test
      */
+    #[Test]
     final public function newlySetValueIsReturnedWithGetValue(): void
     {
         $dataType = new DataTypeMock();

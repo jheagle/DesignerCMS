@@ -2,27 +2,26 @@
 
 namespace Tests\Unit\Core\Functional\functions;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class EnvGetTest
  * @package Tests\Unit\Core\Functional\functions
- *
- * @group Unit
- * @group Functional
- * @group Pure
- * @group envGet
  */
+#[Group('Unit')]
+#[Group('Functional')]
+#[Group('Pure')]
+#[Group('envGet')]
 class EnvGetTest extends TestCase
 {
     /**
      * Given some environment variables
      * When calling envGet with the env path
      * Then the environment variables should be returned.
-     *
-     *
-     * @test
      */
+    #[Test]
     final public function envGetRetrievesValuesFromEnvGlobal(): void
     {
         $_ENV['TEST_ENV_GET_TEST'] = 'test';

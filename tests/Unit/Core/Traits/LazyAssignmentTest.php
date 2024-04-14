@@ -4,6 +4,9 @@ namespace Tests\Unit\Core\Traits;
 
 use Core\DataTypes\Interfaces\Potential;
 use Core\Traits\LazyAssignment;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 use Tests\Traits\IgnoreMethodScopes;
 
@@ -11,11 +14,11 @@ use Tests\Traits\IgnoreMethodScopes;
  * Class LazyAssignmentTest
  *
  * @package Tests\Unit\Core\Traits
- *
- * @group Unit
- * @group Traits
- * @group LazyAssignment
  */
+#[CoversClass(LazyAssignment::class)]
+#[Group('Unit')]
+#[Group('Traits')]
+#[Group('LazyAssignment')]
 class LazyAssignmentTest extends TestCase
 {
     use IgnoreMethodScopes;
@@ -29,10 +32,9 @@ class LazyAssignmentTest extends TestCase
      * Given a class having several differently scoped members
      * When calling applyMemberSettings with a keyed array for all existing members
      * Then all members which can be updated will be updated, only constants cannot be updated
-     *
-     * @test
      */
-    final public function allMembersTypesAssigned()
+    #[Test]
+    final public function allMemberTypesAssigned(): void
     {
         $implementor = $this->buildLazyAssignmentClass();
         $applyMemberSettings = $this->accessNonPublicMethod($implementor, 'applyMemberSettings');

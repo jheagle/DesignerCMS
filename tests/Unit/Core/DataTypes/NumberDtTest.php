@@ -3,19 +3,22 @@
 namespace Tests\Unit\Core\DataTypes;
 
 use Core\DataTypes\Numbers\NumberDt;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Small;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class NumberDtTest
  *
  * @package Tests\Unit\Core\DataTypes
- *
- * @small
- *
- * @group Unit
- * @group DataType
- * @group NumberDt
  */
+#[CoversClass(NumberDt::class)]
+#[Small]
+#[Group('Unit')]
+#[Group('DataType')]
+#[Group('NumberDt')]
 class NumberDtTest extends TestCase
 {
     final public function setUp(): void
@@ -27,9 +30,8 @@ class NumberDtTest extends TestCase
      * Given a newly created NumberDt
      * When value is or is not provided
      * Then the five members should match default values
-     *
-     * @test
      */
+    #[Test]
     final public function createdNumberDtInstanceHasCorrectProperties(): void
     {
         $number = new NumberDt();
@@ -47,9 +49,8 @@ class NumberDtTest extends TestCase
      * Given a newly created NumberDt
      * When value is or is not provided
      * Then the five members should match default values
-     *
-     * @test
      */
+    #[Test]
     final public function numberAddsCorrectly(): void
     {
         $number = new NumberDt(2);

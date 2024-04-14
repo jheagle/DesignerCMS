@@ -12,6 +12,10 @@ use Core\Controllers\Api\RequestDataSettings;
 use Core\Controllers\Api\RequestDetails;
 use Core\Controllers\Api\RequestHandler;
 use Core\Controllers\Api\RequestHandlerOptions;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Small;
+use PHPUnit\Framework\Attributes\Test;
 use Psr\Cache\InvalidArgumentException;
 use Tests\Mocks\CurlResponseMocker;
 use Tests\Mocks\GenericClass;
@@ -23,14 +27,13 @@ use TypeError;
  * Class RequestHandlerTest
  *
  * @package Tests\Unit\Core\Controllers\Api
- *
- * @small
- *
- * @group Unit
- * @group Controllers
- * @group Api
- * @group RequestHandler
  */
+#[CoversClass(RequestHandler::class)]
+#[Small]
+#[Group('Unit')]
+#[Group('Controllers')]
+#[Group('Api')]
+#[Group('RequestHandler')]
 class RequestHandlerTest extends TestCase
 {
     public string $cacheKey = 'test-key';
@@ -50,9 +53,8 @@ class RequestHandlerTest extends TestCase
      * @return void
      *
      * @throws Throwable
-     *
-     * @test
      */
+    #[Test]
     final public function createAndCompleteRequest(): void
     {
         $client = CurlResponseMocker::createMockClient(
@@ -87,9 +89,8 @@ class RequestHandlerTest extends TestCase
      * @return void
      *
      * @throws Throwable
-     *
-     * @test
      */
+    #[Test]
     final public function createFetchTokenSuccess(): void
     {
         $client = CurlResponseMocker::createMockClient(
@@ -121,9 +122,8 @@ class RequestHandlerTest extends TestCase
 
     /**
      * @return void
-     *
-     * @test
      */
+    #[Test]
     final public function createFetchTokenThrowException(): void
     {
         $client = CurlResponseMocker::createMockClient(
@@ -174,9 +174,8 @@ class RequestHandlerTest extends TestCase
      * Use the prepareApiHandler method to create a callable function.
      *
      * @return void
-     *
-     * @test
      */
+    #[Test]
     final public function prepareApiHandlerReturnsCallable(): void
     {
         $createApiHandler = RequestHandler::prepareApiHandler(RequestHandlerOptions::fromArray());
@@ -191,9 +190,8 @@ class RequestHandlerTest extends TestCase
      * Use the prepareApiHandler method to create a callable function and then try excluding or sending bad arguments.
      *
      * @return void
-     *
-     * @test
      */
+    #[Test]
     final public function prepareApiHandlerReturnedFunctionWithBadArguments(): void
     {
         /**
@@ -224,9 +222,8 @@ class RequestHandlerTest extends TestCase
      * there is an array and it contains a key of 'endpointUrl' which corresponds to a string value
      *
      * @return void
-     *
-     * @test
      */
+    #[Test]
     final public function prepareApiHandlerReturnedFunctionWithGoodArguments(): void
     {
         $createApiHandler = RequestHandler::prepareApiHandler(RequestHandlerOptions::fromArray());
@@ -239,9 +236,8 @@ class RequestHandlerTest extends TestCase
      * it will immediately return an instance of RequestHandler.
      *
      * @return void
-     *
-     * @test
      */
+    #[Test]
     final public function prepareApiHandlerWithAllParametersProvidedInitially(): void
     {
         $apiHandler = RequestHandler::prepareApiHandler(
@@ -255,9 +251,8 @@ class RequestHandlerTest extends TestCase
      * Use the prepareApiHandler method to create a callable function and then try excluding or sending bad arguments.
      *
      * @return void
-     *
-     * @test
      */
+    #[Test]
     final public function prepareApiHandlerWithBadParametersProvidedInitially(): void
     {
         $createApiHandler = RequestHandler::prepareApiHandler(
@@ -283,9 +278,8 @@ class RequestHandlerTest extends TestCase
      * @return void
      *
      * @throws Throwable
-     *
-     * @test
      */
+    #[Test]
     final public function creatClientCredentialsAuthorizedRequest(): void
     {
         $client = CurlResponseMocker::createMockClient(

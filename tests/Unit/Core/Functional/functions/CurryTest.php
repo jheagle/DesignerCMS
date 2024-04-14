@@ -2,26 +2,26 @@
 
 namespace Tests\Unit\Core\Functional\functions;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class CurryTest
  * @package Tests\Unit\Core\Functional\functions
- * 
- * @group Unit
- * @group Functional
- * @group Pure
- * @group curry
  */
+#[Group('Unit')]
+#[Group('Functional')]
+#[Group('Pure')]
+#[Group('curry')]
 class CurryTest extends TestCase
 {
     /**
      * Given a function that takes three parameters
      * When currying the function and passing less than three parameters
      * Then a function will be returned expecting the remaining parameters
-     *
-     * @test
      */
+    #[Test]
     final public function curryReturnsAFunctionFromMissingParameters(): void
     {
         // create a new test function
@@ -47,9 +47,8 @@ class CurryTest extends TestCase
      * Given a function that takes three parameters
      * When currying the function and passing all three parameters at once, or with consecutive calls
      * Then the final return value of the original function will be returned
-     *
-     * @test
      */
+    #[Test]
     final public function curryReturnsFunctionResultWithAllParameters(): void
     {
         // create a new test function

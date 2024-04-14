@@ -310,7 +310,8 @@ trait Declarative
                     );
                 }
             }
-            $parameters = array_reduce($method->getParameters(), 'self::buildParameterDeclaration', '');
+            $callable = self::class . '::buildParameterDeclaration';
+            $parameters = array_reduce($method->getParameters(), $callable, '');
 
             $arrayPointer = &$methods[$methodClass]['methods'];
             if ($method->isPublic()) {

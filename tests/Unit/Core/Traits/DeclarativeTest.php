@@ -2,6 +2,10 @@
 
 namespace Tests\Unit\Core\Traits;
 
+use Core\Traits\Declarative;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\Mocks\DataTypeMock;
 use Tests\TestCase;
 
@@ -9,11 +13,11 @@ use Tests\TestCase;
  * Class DeclarativeTest
  *
  * @package Tests\Unit\Core\Traits
- *
- * @group Unit
- * @group Traits
- * @group Declarative
  */
+#[CoversClass(Declarative::class)]
+#[Group('Unit')]
+#[Group('Traits')]
+#[Group('Declarative')]
 class DeclarativeTest extends TestCase
 {
     final public function setUp(): void
@@ -25,9 +29,8 @@ class DeclarativeTest extends TestCase
      * Given a class having several differently scoped members and inheriting from DataTypeMock
      * When has the Declarative trait and calling getClassDescription on the class
      * Then all class member a method declarations will be output, including relative inheritance
-     *
-     * @test
      */
+    #[Test]
     final public function toStringMethodReturnsDescriptionOfClass()
     {
         $implementor = $this->buildDeclarativeClass(0);

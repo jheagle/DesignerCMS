@@ -10,6 +10,7 @@
  * @return array
  * @throws ReflectionException
  */
+
 $buildParameters = static function (string $className, string $method, ...$args): array {
     if (!method_exists($className, $method)) {
         return $args;
@@ -28,7 +29,7 @@ $buildParameters = static function (string $className, string $method, ...$args)
     return array_reduce(
         $parameters,
         function (array $namedParams, ReflectionParameter $param) use ($method, $className, $args) {
-            $type = !is_null($param->getType()) ? $param->getType()->getName() : 'undefined';
+            $type = $param->getType() ?? 'undefined';
             $paramValue = castTo(
                 coalesce(
                     null,

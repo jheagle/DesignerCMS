@@ -4,19 +4,22 @@ namespace Tests\Unit\Core\DataTypes;
 
 use Core\DataTypes\DataType;
 use Core\DataTypes\Strings\StringDt;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Small;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class StringDtTest
  *
  * @package Tests\Unit\Core\DataTypes
- *
- * @small
- *
- * @group Unit
- * @group DataType
- * @group StringDt
  */
+#[CoversClass(StringDt::class)]
+#[Small]
+#[Group('Unit')]
+#[Group('DataType')]
+#[Group('StringDt')]
 class StringDtTest extends TestCase
 {
     final public function setUp(): void
@@ -28,9 +31,8 @@ class StringDtTest extends TestCase
      * Given a newly created StringDt
      * When value is or is not provided
      * Then the four members should match default values
-     *
-     * @test
      */
+    #[Test]
     final public function createdStringDtInstanceHasCorrectProperties(): void
     {
         $string = new StringDt();
@@ -47,9 +49,8 @@ class StringDtTest extends TestCase
      * Given a StringDt instance
      * When checking equality
      * Then the isEqual method will return true for a string matching the set value and for the same StringDt instance
-     *
-     * @test
      */
+    #[Test]
     final public function stringDtEqualsToStringOrSelf(): void
     {
         $string = new StringDt();

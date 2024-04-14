@@ -16,21 +16,21 @@ use Core\Utilities\Functional\Pure;
  */
 class Logger extends Adaptor implements LoggerInterface
 {
-    public const HANDLER_FILE_STREAM = 'file_stream';
+    public const string HANDLER_FILE_STREAM = 'file_stream';
 
-    public const HANDLERS = [
+    public const array HANDLERS = [
         self::HANDLER_FILE_STREAM => StreamHandler::class,
     ];
 
-    public const LEVEL_DEBUG = 'debug';
-    public const LEVEL_INFO = 'info';
-    public const LEVEL_NOTICE = 'notice';
-    public const LEVEL_WARNING = 'warning';
-    public const LEVEL_ERROR = 'error';
-    public const LEVEL_ALERT = 'alert';
-    public const LEVEL_CRITICAL = 'critical';
-    public const LEVEL_EMERGENCY = 'emergency';
-    public const LEVELS = [
+    public const string LEVEL_DEBUG = 'debug';
+    public const string LEVEL_INFO = 'info';
+    public const string LEVEL_NOTICE = 'notice';
+    public const string LEVEL_WARNING = 'warning';
+    public const string LEVEL_ERROR = 'error';
+    public const string LEVEL_ALERT = 'alert';
+    public const string LEVEL_CRITICAL = 'critical';
+    public const string LEVEL_EMERGENCY = 'emergency';
+    public const array LEVELS = [
         self::LEVEL_DEBUG,
         self::LEVEL_INFO,
         self::LEVEL_NOTICE,

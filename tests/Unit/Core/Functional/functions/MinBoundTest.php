@@ -2,17 +2,18 @@
 
 namespace Tests\Unit\Core\Functional\functions;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class MinBoundTest
  * @package Tests\Unit\Core\Functional\functions
- *
- * @group Unit
- * @group Functional
- * @group Pure
- * @group minBound
  */
+#[Group('Unit')]
+#[Group('Functional')]
+#[Group('Pure')]
+#[Group('minBound')]
 class MinBoundTest extends TestCase
 {
 
@@ -20,9 +21,8 @@ class MinBoundTest extends TestCase
      * Given a min value
      * When applying a number to minBound
      * Then the result can be the original number but not lower than min value
-     *
-     * @test
      */
+    #[Test]
     final public function minBoundCanLimitANumber(): void
     {
         $this->assertEquals(1, minBound(1, 1));

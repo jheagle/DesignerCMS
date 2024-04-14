@@ -2,26 +2,26 @@
 
 namespace Tests\Unit\Core\Functional\functions;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class PipeTest
  * @package Tests\Unit\Core\Functional\functions
- *
- * @group Unit
- * @group Functional
- * @group Pure
- * @group pipe
  */
+#[Group('Unit')]
+#[Group('Functional')]
+#[Group('Pure')]
+#[Group('pipe')]
 class PipeTest extends TestCase
 {
     /**
      * Given four string altering functions and a blank string variable
      * When passing any number of the functions to pipe in any order
      * Then pipe returns a callable function which will pass a parameter to all of the provided functions
-     *
-     * @test
      */
+    #[Test]
     final public function pipeCanReceiveMultipleFunctions(): void
     {
         // create new test functions to pass to pipe
@@ -54,9 +54,8 @@ class PipeTest extends TestCase
      * Given four string altering functions and a blank string variable
      * When passing any number of the functions to pipe in any order
      * Then the resulting string will have been altered by the functions in the order provided
-     *
-     * @test
      */
+    #[Test]
     final public function pipeCanAlterInputWithProvidedFunctions(): void
     {
         // create new test functions to pass to pipe

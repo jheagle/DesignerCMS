@@ -4,27 +4,27 @@ namespace Tests\Unit\Core\Adaptors;
 
 use Core\Adaptors\Config;
 use Core\Adaptors\Lang;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class LangTest
  *
  * @package Tests\Unit\Core\Adaptors
- *
- * @group Unit
- * @group Lang
- *
- * @coversDefaultClass Lang
  */
+#[CoversClass(Lang::class)]
+#[Group('Unit')]
+#[Group('Lang')]
 class LangTest extends TestCase
 {
     /**
      * Given any missing translation
      * When there is no translation or a default locale translation
      * Then either the last key will be returned otherwise the default local translation if available.
-     *
-     * @test
      */
+    #[Test]
     final public function getMissingTranslationsReturnsLastKeyAsTranslation(): void
     {
         $this->assertEquals(
@@ -46,9 +46,8 @@ class LangTest extends TestCase
      * Given defaultLocale of en-ca
      * When there are matching translations
      * Then the correct text will be returned.
-     *
-     * @test
      */
+    #[Test]
     final public function getCorrectEnglishTranslations(): void
     {
         Config::reset();
@@ -66,9 +65,8 @@ class LangTest extends TestCase
      * Given the set locale of fr-ca
      * When there are matching translations
      * Then the correct text will be returned.
-     *
-     * @test
      */
+    #[Test]
     final public function getCorrectFrenchTranslations(): void
     {
         Config::set('system.locale', 'fr-ca');
@@ -86,9 +84,8 @@ class LangTest extends TestCase
      * Given the set locale of es-mx
      * When there are matching translations
      * Then the correct text will be returned.
-     *
-     * @test
      */
+    #[Test]
     final public function getCorrectSpanishTranslations(): void
     {
         Config::set('system.locale', 'es-mx');

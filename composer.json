@@ -19,21 +19,20 @@
     }
   },
   "require": {
-    "php": "^8.0",
-    "guzzlehttp/guzzle": "*",
-    "league/oauth2-client": "*",
+    "php": "^8.3",
+    "guzzlehttp/guzzle": "^7.8",
+    "league/oauth2-client": "^2.7",
     "ext-json": "*",
-    "symfony/cache": "^5.2",
-    "monolog/monolog": "^2.2",
+    "symfony/cache": "^7.0",
+    "monolog/monolog": "^3.5",
     "ext-pdo": "*"
   },
   "require-dev": {
-    "codedungeon/phpunit-result-printer": "*",
-    "fzaninotto/faker": "*",
-    "mockery/mockery": "*",
-    "phpunit/phpunit": "*",
-    "twig/twig": "*",
-    "symfony/dotenv": "^5.3",
-    "symfony/var-dumper": "*"
+    "mockery/mockery": "^1.6",
+    "phpunit/phpunit": "^11.1",
+    "twig/twig": "^3.8",
+    "symfony/dotenv": "^7.0",
+    "symfony/var-dumper": "^7.0",
+    "fakerphp/faker": "^1.23"
   }
 }

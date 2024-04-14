@@ -4,19 +4,20 @@ namespace Tests\Unit\Core\Functional;
 
 use Core\Utilities\Functional\Pure;
 use Error;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class PureTest
  *
  * @package Tests\Unit\Core\Functional
- *
- * @group Unit
- * @group Functional
- * @group Pure
- *
- * @coversDefaultClass Pure
  */
+#[CoversClass(Pure::class)]
+#[Group('Unit')]
+#[Group('Functional')]
+#[Group('Pure')]
 class PureTest extends TestCase
 {
     final public function setUp(): void
@@ -30,9 +31,8 @@ class PureTest extends TestCase
      * Then an exception should be thrown
      *
      * @return void
-     *
-     * @test
      */
+    #[Test]
     final public function itShouldNotBeInstantiable(): void
     {
         $this->expectException(Error::class);
@@ -46,9 +46,8 @@ class PureTest extends TestCase
      * Then
      *
      * @return void
-     *
-     * @test
      */
+    #[Test]
     final public function aFunctionMayBeRetrievedFromPure(): void
     {
         $function = Pure::getFunction('defaultValue');

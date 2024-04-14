@@ -2,26 +2,26 @@
 
 namespace Tests\Unit\Core\Functional\functions;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class DotGetTest
  * @package Tests\Unit\Core\Functional\functions
- *
- * @group Unit
- * @group Functional
- * @group Pure
- * @group dotGet
  */
+#[Group('Unit')]
+#[Group('Functional')]
+#[Group('Pure')]
+#[Group('dotGet')]
 class DotGetTest extends TestCase
 {
     /**
      * Given an object
      * When fetching a property with dot-notation,
      * Then the property is returned or default.
-     *
-     * @test
      */
+    #[Test]
     final public function dotGetRetrievesValueFromObject(): void
     {
         $object = (object)[
@@ -40,9 +40,8 @@ class DotGetTest extends TestCase
      * Given a class instance
      * When fetching a property with dot-notation,
      * Then the property is returned or default.
-     *
-     * @test
      */
+    #[Test]
     final public function dotGetRetrievesValueFromClass(): void
     {
         $nestedObject = (object)[
@@ -67,9 +66,8 @@ class DotGetTest extends TestCase
      * Given an array
      * When fetching a property with dot-notation,
      * Then the property is returned or default.
-     *
-     * @test
      */
+    #[Test]
     final public function dotGetRetrievesValuesWithArrays(): void
     {
         $array = [
@@ -92,9 +90,8 @@ class DotGetTest extends TestCase
      * Given an array
      * When fetching a property with dot-notation containing wildcard (*),
      * Then it will find any match within the array or object.
-     *
-     * @test
      */
+    #[Test]
     final public function dotGetRetrievesValuesWithWildcard(): void
     {
         $array = [

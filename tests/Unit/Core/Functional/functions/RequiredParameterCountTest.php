@@ -3,26 +3,26 @@
 namespace Tests\Unit\Core\Functional\functions;
 
 use Core\Utilities\Functional\Pure;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class RequiredParameterCountTest
  * @package Tests\Unit\Core\Functional\functions
- *
- * @group Unit
- * @group Functional
- * @group Pure
- * @group requiredParameterCount
  */
+#[Group('Unit')]
+#[Group('Functional')]
+#[Group('Pure')]
+#[Group('requiredParameterCount')]
 class RequiredParameterCountTest extends TestCase
 {
     /**
      * Given any function or method (with class)
      * When passing the function or method to requiredParameterCount
      * Then the number of arguments which are needed to use the function will be returned.
-     *
-     * @test
      */
+    #[Test]
     final public function countRequiredParametersReturnsCorrectNumberOfParameters(): void
     {
         $this->assertEquals(2, requiredParameterCount([Pure::class, 'add']));

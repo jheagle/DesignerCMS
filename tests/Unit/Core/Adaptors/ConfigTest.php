@@ -3,6 +3,8 @@
 namespace Tests\Unit\Core\Adaptors;
 
 use Core\Adaptors\Config;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\Mocks\GenericClass;
 use Tests\TestCase;
 
@@ -10,10 +12,9 @@ use Tests\TestCase;
  * Class ConfigTest
  *
  * @package Tests\Unit\Core\Adaptors
- *
- * @group Unit
- * @group Config
  */
+#[Group('Unit')]
+#[Group('Config')]
 class ConfigTest extends TestCase
 {
     /**
@@ -29,9 +30,8 @@ class ConfigTest extends TestCase
      * Given some existing config data
      * When calling reset with an empty array
      * Then the new config data will be empty.
-     *
-     * @test
      */
+    #[Test]
     final public function resetWithEmptyConfigClearsConfigData(): void
     {
         $this->assertNotEmpty(Config::get());
@@ -43,9 +43,8 @@ class ConfigTest extends TestCase
      * Given empty config data
      * When setting config data
      * Then the new data will be stored.
-     *
-     * @test
      */
+    #[Test]
     final public function setConfigDataStoresIt(): void
     {
         Config::reset([]);
@@ -64,9 +63,8 @@ class ConfigTest extends TestCase
      * Given existing config data
      * When calling get on the config data with dot-notation
      * Then expected value will be returned.
-     *
-     * @test
      */
+    #[Test]
     final public function getConfigRetrievesData(): void
     {
         Config::reset(
@@ -86,9 +84,8 @@ class ConfigTest extends TestCase
      * Given an external class using Config
      * When we set the config here and call it in the external class
      * Then the same config data will be used.
-     *
-     * @test
      */
+    #[Test]
     final public function manageConfigFromExternalClass(): void
     {
         Config::reset(

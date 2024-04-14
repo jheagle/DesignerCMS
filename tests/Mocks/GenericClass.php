@@ -2,11 +2,14 @@
 
 namespace Tests\Mocks;
 
+use AllowDynamicProperties;
+
 /**
  * Class GenericClass
  *
  * @package Tests\mocks
  */
+#[AllowDynamicProperties]
 class GenericClass
 {
     /**

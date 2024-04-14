@@ -2,6 +2,7 @@
 
 namespace Core\Adaptors;
 
+use AllowDynamicProperties;
 use Core\Adaptors\Vendor\Logger\Logger;
 use Core\Contracts\Adaptable;
 use Core\Contracts\Castable;
@@ -18,6 +19,7 @@ use ReflectionException;
  *
  * @method classInstance(array $args)
  */
+#[AllowDynamicProperties]
 class Adaptor extends GenericType implements Adaptable
 {
     use MakeAdaptable;

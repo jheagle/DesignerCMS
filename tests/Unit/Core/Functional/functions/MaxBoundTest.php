@@ -2,27 +2,27 @@
 
 namespace Tests\Unit\Core\Functional\functions;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class MaxBoundTest
  *
  * @package Tests\Unit\Core\Functional\functions
- *
- * @group Unit
- * @group Functional
- * @group Pure
- * @group maxBound
  */
+#[Group('Unit')]
+#[Group('Functional')]
+#[Group('Pure')]
+#[Group('maxBound')]
 class MaxBoundTest extends TestCase
 {
     /**
      * Given a max value
      * When applying a number to maxBound
      * Then the result can be the original number but not higher than max value.
-     *
-     * @test
      */
+    #[Test]
     final public function maxBoundCanLimitANumber(): void
     {
         $this->assertEquals(1, maxBound(1, 1));

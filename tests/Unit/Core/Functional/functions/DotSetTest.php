@@ -3,26 +3,27 @@
 namespace Tests\Unit\Core\Functional\functions;
 
 use JetBrains\PhpStorm\ArrayShape;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
  * Class DotSetTest
  * @package Tests\Unit\Core\Functional\functions
- *
- * @group Unit
- * @group Functional
- * @group Pure
- * @group dotSet
  */
+#[Group('Unit')]
+#[Group('Functional')]
+#[Group('Pure')]
+#[Group('dotSet')]
 class DotSetTest extends TestCase
 {
     /**
      * Given an object
      * When fetching a property with dot-notation,
      * Then the property is returned or default.
-     *
-     * @test
      */
+    #[Test]
     final public function dotSetRetrievesValueFromObject(): void
     {
         $object = (object)[
@@ -42,9 +43,8 @@ class DotSetTest extends TestCase
      * Given a class instance
      * When fetching a property with dot-notation,
      * Then the property is returned or default.
-     *
-     * @test
      */
+    #[Test]
     final public function dotSetRetrievesValueFromClass(): void
     {
         $nestedObject = (object)[
@@ -70,9 +70,8 @@ class DotSetTest extends TestCase
      * Given an array
      * When fetching a property with dot-notation,
      * Then the property is returned or default.
-     *
-     * @test
      */
+    #[Test]
     final public function dotSetRetrievesValuesWithArrays(): void
     {
         $array = [
@@ -95,11 +94,9 @@ class DotSetTest extends TestCase
      * Given an array
      * When fetching a property with dot-notation containing wildcard (*),
      * Then it will find any match within the array or object.
-     *
-     * @dataProvider dotSetWildcardProvider
-     *
-     * @test
      */
+    #[Test]
+    #[DataProvider('dotSetWildcardProvider')]
     final public function dotSetRetrievesValuesWithWildcard(string $path, string $getPath, mixed $expected): void
     {
         $array = [
@@ -127,7 +124,8 @@ class DotSetTest extends TestCase
         'sets all second level values' => "array",
         'sets all third level values' => "array",
         'sets values in the middle of the array' => "array"
-    ])] final public function dotSetWildcardProvider(): array
+    ])]
+    final public static function dotSetWildcardProvider(): array
     {
         return [
             'sets all first level values' => [
