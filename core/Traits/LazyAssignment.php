@@ -9,7 +9,7 @@ use Core\Database\DbConnect;
 use Core\DataTypes\DataType;
 use Core\DataTypes\GenericType;
 use Core\Objects\DataTransferObject;
-use Error;
+use ReflectionProperty;
 
 /**
  * Trait LazyAssignment
@@ -87,11 +87,10 @@ trait LazyAssignment
         if (!property_exists($this, $memberKey)) {
             return null;
         }
-        try {
+        if ($this->isStaticMember($memberKey)) {
             return $this::$$memberKey;
-        } catch (Error) {
-            return $this->$memberKey ?? null;
         }
+        return $this->$memberKey ?? null;
     }
 
     /**
@@ -128,11 +127,6 @@ trait LazyAssignment
      */
     private function isStaticMember(string $memberKey): bool
     {
-        try {
-            $test = $this::$$memberKey;
-            return true;
-        } catch (Error $error) {
-            return false;
-        }
+        return (new ReflectionProperty($this, $memberKey))->isStatic();
     }
 }
