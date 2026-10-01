@@ -82,4 +82,4 @@ dump('Field', $field);
 dump('Field: getValue', $field->getValue());
 
 $providerTest = Provider::instantiate();
-echo toHtml(string: $providerTest);
+echo toHtml(string: $providerTest->getClassDescription());
