@@ -10,7 +10,7 @@
 $toHtml = static function (string $string, string $fromFormat = 'terminal'): string {
     $colourLookup = fn($code) => match ($code) {
         '0;30', '40' => 'black',
-        '0;31', '41' => 'red',
+        '0;31', '41' => 'crimson',
         '0;32', '42' => 'green',
         '0;33', '43' => 'brown',
         '0;34', '44' => 'blue',
@@ -18,11 +18,11 @@ $toHtml = static function (string $string, string $fromFormat = 'terminal'): str
         '0;36', '46' => 'cyan',
         '0;37', '47' => 'lightgray',
         '1;30' => 'darkgray',
-        '1;31' => 'lightred',
+        '1;31' => 'red',
         '1;32' => 'lightgreen',
         '1;33' => 'yellow',
         '1;34' => 'lightblue',
-        '1;35' => 'lightmagenta',
+        '1;35' => 'hotpink',
         '1;36' => 'lightcyan',
         '1;37' => 'white',
     };

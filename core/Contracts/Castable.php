@@ -28,7 +28,7 @@ interface Castable extends LazyAssignable
      *
      * @return Castable
      */
-    public function assignTransferableProperties(mixed $castable): Castable;
+    public function assignTransferableProperties(mixed $castable): static;
 
     /**
      * Apply this class to another Castable.
