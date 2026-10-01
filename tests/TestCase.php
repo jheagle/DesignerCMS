@@ -89,7 +89,7 @@ abstract class TestCase extends BaseTestCase
      *
      * @return Generator
      */
-    public function faker(string $locale = null): Generator
+    public function faker(?string $locale = null): Generator
     {
         return is_null($locale) ? $this->faker : $this->makeFaker($locale);
     }
@@ -101,7 +101,7 @@ abstract class TestCase extends BaseTestCase
      *
      * @return Generator
      */
-    public function makeFaker(string $locale = null): Generator
+    public function makeFaker(?string $locale = null): Generator
     {
         return Factory::create($locale ?? Factory::DEFAULT_LOCALE);
     }

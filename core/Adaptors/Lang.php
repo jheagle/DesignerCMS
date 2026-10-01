@@ -22,7 +22,7 @@ class Lang
      *
      * @return mixed
      */
-    public static function get(string $dotNotation = null, array $values = []): mixed
+    public static function get(?string $dotNotation = null, array $values = []): mixed
     {
         if (is_null($dotNotation)) {
             return self::getTranslations();

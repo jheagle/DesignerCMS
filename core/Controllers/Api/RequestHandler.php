@@ -123,7 +123,7 @@ class RequestHandler implements LazyAssignable
      */
     public static function prepareApiHandler(
         RequestHandlerOptions $config,
-        RequestDetails $requestDetails = null
+        ?RequestDetails $requestDetails = null
     ): callable|RequestHandler {
         /**
          * Pre-loaded with config and base URL, this function will take the array of request details having endpointUrl
@@ -160,7 +160,7 @@ class RequestHandler implements LazyAssignable
      *
      * @return Response
      */
-    final public function completeRequest(RequestDataSettings $requestSettings = null): Response
+    final public function completeRequest(?RequestDataSettings $requestSettings = null): Response
     {
         if (is_null($requestSettings)) {
             $requestSettings = RequestDataSettings::fromArray();

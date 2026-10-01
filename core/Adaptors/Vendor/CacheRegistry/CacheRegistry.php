@@ -58,7 +58,7 @@ class CacheRegistry extends Adaptor implements CacheRegistryInterface
      *
      * @throws InvalidArgumentException|Throwable
      */
-    final public function get(string $key, callable $callback, float $beta = null, array $metadata = null): mixed
+    final public function get(string $key, callable $callback, ?float $beta = null, ?array $metadata = null): mixed
     {
         return $this->useThrowable(
             fn() => $this->classInstance->get(

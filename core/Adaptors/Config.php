@@ -22,7 +22,7 @@ class Config
      *
      * @return mixed
      */
-    public static function get(string $dotNotation = null, mixed $default = null): mixed
+    public static function get(?string $dotNotation = null, mixed $default = null): mixed
     {
         if (is_null($dotNotation)) {
             return self::getConfig();
@@ -51,7 +51,7 @@ class Config
      *
      * @return array
      */
-    public static function reset(array $configOverride = null): array
+    public static function reset(?array $configOverride = null): array
     {
         self::$config = $configOverride;
         return self::$config ?? [];
