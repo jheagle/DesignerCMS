@@ -285,7 +285,7 @@ abstract class DbConnect implements LazyAssignable, Potential
      * @param string|null $name
      * @return string
      */
-    final public function lastInsertId(string $name = null): string
+    final public function lastInsertId(?string $name = null): string
     {
         return self::$pdoInstance[$this->database]->lastInsertId($name);
     }

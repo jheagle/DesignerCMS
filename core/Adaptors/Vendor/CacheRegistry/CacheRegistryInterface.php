@@ -40,7 +40,7 @@ interface CacheRegistryInterface
      *
      * @throws InvalidArgumentException|Throwable
      */
-    public function get(string $key, callable $callback, float $beta = null, array $metadata = null): mixed;
+    public function get(string $key, callable $callback, ?float $beta = null, ?array $metadata = null): mixed;
 
     /**
      * Reset all static properties and clear the cache.

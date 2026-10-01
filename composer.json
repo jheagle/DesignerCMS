@@ -19,8 +19,8 @@
     }
   },
   "require": {
-    "php": "^8.3",
-    "guzzlehttp/guzzle": "^7.8",
+    "php": "^8.4",
+    "guzzlehttp/guzzle": "^8.2",
     "league/oauth2-client": "^2.7",
     "ext-json": "*",
     "symfony/cache": "^7.0",
