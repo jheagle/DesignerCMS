@@ -34,5 +34,9 @@
     "symfony/dotenv": "^7.0",
     "symfony/var-dumper": "^7.0",
     "fakerphp/faker": "^1.23"
+  },
+  "scripts": {
+    "release": "npx --yes release-it",
+    "release:dry-run": "npx --yes release-it --dry-run"
   }
 }
