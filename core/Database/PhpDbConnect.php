@@ -64,7 +64,7 @@ class PhpDbConnect extends DbConnect
             $this->query($queryRaw);
         }
 
-        return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
+        return $this->pdo() !== null && $this->result ? $this->result->fetch(
             PDO::FETCH_ASSOC
         ) : $this->result;
     }
@@ -79,7 +79,7 @@ class PhpDbConnect extends DbConnect
             $this->query($queryRaw);
         }
 
-        return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
+        return $this->pdo() !== null && $this->result ? $this->result->fetch(
             PDO::FETCH_COLUMN
         ) : $this->result;
     }
@@ -94,7 +94,7 @@ class PhpDbConnect extends DbConnect
             $this->query($queryRaw);
         }
 
-        return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
+        return $this->pdo() !== null && $this->result ? $this->result->fetch(
             PDO::FETCH_NUM
         ) : $this->result;
     }
@@ -109,7 +109,7 @@ class PhpDbConnect extends DbConnect
             $this->query($queryRaw);
         }
 
-        return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
+        return $this->pdo() !== null && $this->result ? $this->result->fetch(
             PDO::FETCH_BOTH
         ) : $this->result;
     }
@@ -124,7 +124,7 @@ class PhpDbConnect extends DbConnect
             $this->query($queryRaw);
         }
 
-        return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
+        return $this->pdo() !== null && $this->result ? $this->result->fetch(
             PDO::FETCH_OBJ
         ) : $this->result;
     }
@@ -139,8 +139,8 @@ class PhpDbConnect extends DbConnect
             $this->query($queryRaw);
         }
 
-        return isset(self::$pdoInstance[$this->database]) && $this->result ? $this->result->fetch(
-            self::$pdoInstance[$this->database]->FETCH_LAZY
+        return $this->pdo() !== null && $this->result ? $this->result->fetch(
+            PDO::FETCH_LAZY
         ) : $this->result;
     }
 

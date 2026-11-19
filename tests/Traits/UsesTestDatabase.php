@@ -13,7 +13,9 @@ use Symfony\Component\Dotenv\Dotenv;
 /**
  * For tests that need MySQL: the test database named in phpunit.xml (DB_DATABASE, designercms_test), reached with the
  * user and password from .env. phpunit.xml's values win over .env's, so a test never touches the app's own database.
- * When no test database can be reached (no .env, MySQL down), the test is skipped with the reason. Logging goes to a
+ * The test is skipped (with the reason) only when there is nothing to test against: no database user configured, or
+ * no MySQL server reachable. Anything else, such as a wrong password or a missing test database, fails the test, so a
+ * broken setup can't pass by skipping. Logging goes to a
  * quiet stand-in, as in the other tests that log (the real Logger is not set up under PHPUnit).
  *
  * @package Tests\Traits
@@ -39,10 +41,17 @@ trait UsesTestDatabase
             $quiet
         )));
         DbConnect::disconnectAll();
+        if (PhpDbConnect::configuredSettings()['username'] === '') {
+            $this->markTestSkipped('No database user configured (DB_USERNAME in .env)');
+        }
         try {
             return PhpDbConnect::instantiateDB();
         } catch (PDOException $e) {
-            $this->markTestSkipped('No MySQL test database (' . $e->getMessage() . ')');
+            // 2002: no server at that address or socket; 2006: the server went away
+            if (in_array((int)$e->getCode(), [2002, 2006], true)) {
+                $this->markTestSkipped('No MySQL server reachable (' . $e->getMessage() . ')');
+            }
+            throw $e;
         }
     }
 

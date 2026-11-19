@@ -10,6 +10,7 @@ use Core\Traits\LazyAssignment;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
+use SensitiveParameter;
 
 /**
  *
@@ -28,7 +29,16 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     public static array $pdoInstance = [];
 
-    private static string $staticDatabase;
+    /**
+     * Which shared PDO the static calls (__callStatic) use: the last connection made.
+     */
+    private static string $staticPdoKey = '';
+
+    /**
+     * This connection's key in $pdoInstance: driver, host and database, so two servers with the same database name
+     * never share a PDO.
+     */
+    protected string $pdoKey = '';
 
     public string $connection = 'mysql'; // the PDO driver
 
@@ -53,30 +63,38 @@ abstract class DbConnect implements LazyAssignable, Potential
      * reuses the connection.
      *
      * @param array $settings connection, hostname, database, username, password, testing, production. Only the
-     *  class members are kept; username and password are used to connect and never stored.
+     *  class members are kept; username and password are used to connect and never stored or logged.
      *
-     * @throws InvalidArgumentException When no database is named.
+     * @throws InvalidArgumentException When no database or no user is named.
      * @throws PDOException When the connection fails (logged first).
      */
-    public function __construct(array $settings = [])
+    public function __construct(#[SensitiveParameter] array $settings = [])
     {
         $this->applyMemberSettings($settings);
         if ($this->database === '') {
             throw new InvalidArgumentException('No database to connect to: set DB_DATABASE, or pass "database"');
         }
-        self::$staticDatabase = $this->database;
+        $username = (string)($settings['username'] ?? '');
+        if ($username === '') {
+            throw new InvalidArgumentException('No database user: set DB_USERNAME, or pass "username"');
+        }
+        $this->pdoKey = "$this->connection|$this->hostname|$this->database";
+        self::$staticPdoKey = $this->pdoKey;
         try {
-            self::$pdoInstance[$this->database] ??= new PDO(
+            self::$pdoInstance[$this->pdoKey] ??= new PDO(
                 "$this->connection:host=$this->hostname;dbname=$this->database",
-                (string)($settings['username'] ?? ''),
+                $username,
                 (string)($settings['password'] ?? ''),
                 [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
             );
         } catch (PDOException $e) {
+            // Only the message and code: the exception's trace holds the call arguments, which include the password
+            // wherever zend.exception_ignore_args is off (#[SensitiveParameter] hides it from new traces)
             Logger::error("Unable to connect to $this->database@$this->hostname", [
-                'Exception' => $e
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
             ]);
-            throw $e;
+            throw new PDOException($e->getMessage(), (int)$e->getCode());
         }
         if ($this->testing || !$this->production) {
             $this->consoleOut("Connected to database ($this->database)");
@@ -152,13 +170,13 @@ abstract class DbConnect implements LazyAssignable, Potential
      *
      * @return static
      *
-     * @throws InvalidArgumentException When no database is named.
+     * @throws InvalidArgumentException When no database or no user is named.
      * @throws PDOException When the connection fails.
      */
-    final public static function instantiateDB(array $settings = []): static
+    final public static function instantiateDB(#[SensitiveParameter] array $settings = []): static
     {
         $settings = array_replace(static::configuredSettings(), $settings);
-        $key = static::class . ':' . $settings['database'];
+        $key = static::class . "|{$settings['connection']}|{$settings['hostname']}|{$settings['database']}";
 
         return self::$instance[$key] ??= new static($settings);
     }
@@ -194,6 +212,17 @@ abstract class DbConnect implements LazyAssignable, Potential
     {
         self::$instance = [];
         self::$pdoInstance = [];
+        self::$staticPdoKey = '';
+    }
+
+    /**
+     * This connection's PDO, or null when there is none.
+     *
+     * @return PDO|null
+     */
+    final public function pdo(): ?PDO
+    {
+        return self::$pdoInstance[$this->pdoKey] ?? null;
     }
 
     /**
@@ -210,29 +239,27 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     public function __call(string $name, array $arguments = []): mixed
     {
-        return (!method_exists($this, $name) && method_exists(
-                self::$pdoInstance[$this->database],
-                $name
-            )) ? call_user_func_array(
-            [self::$pdoInstance[$this->database], $name],
-            $arguments
-        ) : false;
+        $pdo = $this->pdo();
+
+        return $pdo !== null && !method_exists($this, $name) && method_exists($pdo, $name)
+            ? $pdo->$name(...$arguments)
+            : false;
     }
 
     /**
+     * Call a PDO method on the last connection made, e.g. PhpDbConnect::setAttribute(...).
+     *
      * @param string $name
      * @param array $arguments
      * @return mixed
      */
     public static function __callStatic(string $name, array $arguments = []): mixed
     {
-        return (!method_exists(DbConnect::class, $name) && method_exists(
-                self::$pdoInstance[self::$staticDatabase],
-                $name
-            )) ? call_user_func_array(
-            [self::$pdoInstance[self::$staticDatabase], $name],
-            $arguments
-        ) : false;
+        $pdo = self::$pdoInstance[self::$staticPdoKey] ?? null;
+
+        return $pdo !== null && !method_exists(DbConnect::class, $name) && method_exists($pdo, $name)
+            ? $pdo->$name(...$arguments)
+            : false;
     }
 
     /**
@@ -257,8 +284,8 @@ abstract class DbConnect implements LazyAssignable, Potential
             Logger::info("Running query:", [
                 'Query' => $query,
             ]);
-            if (!$this->testing && self::$pdoInstance[$this->database]) {
-                $count = self::$pdoInstance[$this->database]->exec($query);
+            if (!$this->testing && $this->pdo()) {
+                $count = $this->pdo()->exec($query);
             }
             Logger::info("Query complete:", [
                 'Query' => $query,
@@ -285,7 +312,7 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     final public function lastInsertId(?string $name = null): string
     {
-        return self::$pdoInstance[$this->database]->lastInsertId($name);
+        return $this->pdo()->lastInsertId($name);
     }
 
     /**
@@ -293,7 +320,7 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     final public function rowCount(): int
     {
-        return self::$pdoInstance[$this->database]->rowCount();
+        return $this->pdo()->rowCount();
     }
 
     /**
@@ -311,8 +338,8 @@ abstract class DbConnect implements LazyAssignable, Potential
             return 0;
         }
         try {
-            if ($queryRaw === $this->queryRaw && isset(self::$pdoInstance[$this->database])) {
-                $this->result = self::$pdoInstance[$this->database]->query(
+            if ($queryRaw === $this->queryRaw && $this->pdo() !== null) {
+                $this->result = $this->pdo()->query(
                     $this->query
                 );
             }

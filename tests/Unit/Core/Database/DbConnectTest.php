@@ -3,12 +3,15 @@
 namespace Tests\Unit\Core\Database;
 
 use Core\Adaptors\Config;
+use Core\Adaptors\Vendor\Logger\Logger;
 use Core\Database\DbConnect;
 use Core\Database\PhpDbConnect;
 use InvalidArgumentException;
 use PDOException;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
+use ReflectionObject;
+use Tests\Mocks\GenericClass;
 use Tests\TestCase;
 use Tests\Traits\UsesTestDatabase;
 
@@ -145,13 +148,79 @@ class DbConnectTest extends TestCase
 
     /**
      * Given a connection
-     * When it is turned into a string or settings are applied
-     * Then the password is nowhere on the object.
+     * When looking at every property, public or not
+     * Then the password is in none of them.
      */
     #[Test]
     final public function passwordIsNotKept(): void
     {
-        $this->assertArrayNotHasKey('password', get_object_vars($this->db));
-        $this->assertArrayNotHasKey('username', get_object_vars($this->db));
+        $password = PhpDbConnect::configuredSettings()['password'];
+        $this->assertNotSame('', $password, 'The test database needs a password for this check to mean anything');
+        $values = [];
+        foreach ((new ReflectionObject($this->db))->getProperties() as $property) {
+            if (!$property->isStatic() && $property->isInitialized($this->db)) {
+                $values[$property->getName()] = $property->getValue($this->db);
+            }
+        }
+        $this->assertStringNotContainsString($password, print_r($values, true));
+    }
+
+    /**
+     * Given no database user
+     * When connecting
+     * Then it throws a clear error instead of trying an anonymous login.
+     */
+    #[Test]
+    final public function noUserThrows(): void
+    {
+        DbConnect::disconnectAll();
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('DB_USERNAME');
+        PhpDbConnect::instantiateDB(['username' => '']);
+    }
+
+    /**
+     * Given a failed connection, with exception arguments switched on (as in many dev setups)
+     * When it is logged and thrown
+     * Then the password is in neither the log nor the exception's trace.
+     */
+    #[Test]
+    final public function failedConnectionDoesNotLeakThePassword(): void
+    {
+        $password = 'not-the-password-' . bin2hex(random_bytes(4));
+        $logged = [];
+        Logger::setResource(new GenericClass([
+            'error' => function ($message, $context = []) use (&$logged) {
+                $logged[] = [$message, $context];
+            },
+            'info' => fn() => null,
+        ]));
+        $ignoreArgs = ini_get('zend.exception_ignore_args');
+        ini_set('zend.exception_ignore_args', '0');
+        DbConnect::disconnectAll();
+        try {
+            PhpDbConnect::instantiateDB(['password' => $password]);
+            $this->fail('The connection should have failed');
+        } catch (PDOException $e) {
+            $this->assertStringNotContainsString($password, print_r($e->getTrace(), true));
+            $this->assertStringNotContainsString($password, (string)$e);
+        } finally {
+            ini_set('zend.exception_ignore_args', (string)$ignoreArgs);
+        }
+        $this->assertNotEmpty($logged);
+        $this->assertStringNotContainsString($password, print_r($logged, true));
+    }
+
+    /**
+     * Given two connections with the same database name on different hosts
+     * When the second is made
+     * Then it does not borrow the first one's PDO.
+     */
+    #[Test]
+    final public function sameDatabaseNameOnAnotherHostIsAnotherConnection(): void
+    {
+        $this->expectException(PDOException::class);
+        // Same database name, another host (nothing listens on this port): must try to connect, not reuse
+        PhpDbConnect::instantiateDB(['hostname' => '127.0.0.1;port=1']);
     }
 }
