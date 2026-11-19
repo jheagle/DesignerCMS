@@ -32,7 +32,7 @@ in code (migrations) is a possible later feature, not part of this epic.
 - [x] **1. DbConnect clean-up (DESI-14).** (#21) Keyed settings from config, throws on a missing database or user and on
   a failed connect (no password in logs or traces), one PDO per driver, host and database, testing mode only from
   config, `system.php` reads boolean strings; MySQL tests through `UsesTestDatabase`.
-- [ ] **2. Database as an adaptor (DESI-25).** PDO behind the adaptor layer, so it can be swapped and faked like the
+- [x] **2. Database as an adaptor (DESI-25).** (#29) PDO behind the adaptor layer, so it can be swapped and faked like the
   others. `DB_CONNECTION` picks the driver: `mysql`, the test database (from slice 1), and `log` (a fake that records
   queries and runs nothing, replacing the old testing flag).
 - [ ] **3. Prepared statements and transactions (DESI-15).** `query($sql, $params)` with prepare/execute behind every
