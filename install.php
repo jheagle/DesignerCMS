@@ -1,10 +1,9 @@
 <?php
 
-use Core\Adaptors\Config;
 use Core\Database\PhpDbConnect;
 
 require __DIR__ . '/bootstrap.php';
-$db = PhpDbConnect::instantiateDB(Config::get('system.testing'), Config::get('system.production'));
+$db = PhpDbConnect::instantiateDB();
 
 $selectTables = "SELECT CONCAT(TABLE_SCHEMA, '.', TABLE_NAME) as name FROM information_schema.TABLES WHERE TABLE_SCHEMA <> 'mysql' AND ENGINE = 'MyISAM' AND TABLE_TYPE = 'BASE TABLE'";
 

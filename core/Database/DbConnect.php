@@ -7,7 +7,7 @@ use Core\Adaptors\Vendor\Logger\Logger;
 use Core\Contracts\LazyAssignable;
 use Core\DataTypes\Interfaces\Potential;
 use Core\Traits\LazyAssignment;
-use Core\Utilities\Functional\Pure;
+use InvalidArgumentException;
 use PDO;
 use PDOException;
 
@@ -30,11 +30,15 @@ abstract class DbConnect implements LazyAssignable, Potential
 
     private static string $staticDatabase;
 
-    public string $database;
+    public string $connection = 'mysql'; // the PDO driver
 
-    public bool $production; // environment
+    public string $hostname = 'localhost';
 
-    public bool $testing; // mode (truly run a query or not)
+    public string $database = '';
+
+    public bool $production = true; // environment
+
+    public bool $testing = false; // mode (truly run a query or not)
 
     public int $queries = 0;
 
@@ -45,54 +49,39 @@ abstract class DbConnect implements LazyAssignable, Potential
     public string $query = '';
 
     /**
-     * @param array $settings
+     * Connect with keyed settings. instantiateDB() is the usual way in: it fills in what is left out from config and
+     * reuses the connection.
+     *
+     * @param array $settings connection, hostname, database, username, password, testing, production. Only the
+     *  class members are kept; username and password are used to connect and never stored.
+     *
+     * @throws InvalidArgumentException When no database is named.
+     * @throws PDOException When the connection fails (logged first).
      */
     public function __construct(array $settings = [])
     {
         $this->applyMemberSettings($settings);
-        $localHosts = ['127.0.0.1', '::1'];
-        if (in_array(Pure::dotGet($_SERVER, 'SERVER_ADDR', ''), $localHosts, true) && in_array(
-                $_SERVER['REMOTE_ADDR'],
-                $localHosts,
-                true
-            )) {
-            //    header('Content-Type: application/json'); This is my debugging trick, but if I have xdebug then this ruins it
-            $this->testing = true;
-            $this->production = false;
+        if ($this->database === '') {
+            throw new InvalidArgumentException('No database to connect to: set DB_DATABASE, or pass "database"');
         }
-        $connection = Pure::dotGet($settings, 'connection', 'mysql');
-        $username = Pure::dotGet($settings, 'username', 'root');
-        $password = Pure::dotGet($settings, 'password', '');
-        $hostname = Pure::dotGet($settings, 'hostname', 'localhost');
-        $this->database = Pure::dotGet($settings, 'database', '127.0.0.1');
         self::$staticDatabase = $this->database;
-        if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password) && $this->production) {
-            global $RESOURCES;
-            include_once $RESOURCES['dbInfo'];
-        }
-        if (empty(self::$pdoInstance) || !is_array(self::$pdoInstance)) {
-            self::$pdoInstance = [];
-        }
         try {
-            if (empty(self::$pdoInstance[$this->database])) {
-                self::$pdoInstance[$this->database] = new PDO(
-                    "$connection:host=$hostname;dbname=$this->database",
-                    $username,
-                    $password
-                );
-            }
-            if ($this->testing || !$this->production) {
-                $this->consoleOut("Connected to database ($this->database)");
-            }
-            Logger::info("Connected to database ($this->database@$hostname)");
+            self::$pdoInstance[$this->database] ??= new PDO(
+                "$this->connection:host=$this->hostname;dbname=$this->database",
+                (string)($settings['username'] ?? ''),
+                (string)($settings['password'] ?? ''),
+                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+            );
         } catch (PDOException $e) {
-            if ($this->testing || !$this->production) {
-                $this->consoleOut($e->getMessage());
-            }
-            Logger::error("Unable to connect to $this->database@$hostname", [
+            Logger::error("Unable to connect to $this->database@$this->hostname", [
                 'Exception' => $e
             ]);
+            throw $e;
         }
+        if ($this->testing || !$this->production) {
+            $this->consoleOut("Connected to database ($this->database)");
+        }
+        Logger::info("Connected to database ($this->database@$this->hostname)");
     }
 
     /**
@@ -156,46 +145,55 @@ abstract class DbConnect implements LazyAssignable, Potential
     }
 
     /**
+     * The shared connection to a database: made once per class and database, then reused.
+     *
+     * @param array $settings Keyed: connection, hostname, database, username, password, testing, production. What is
+     *  left out comes from config (core/config/database.php and system.php, so from .env).
+     *
      * @return static
+     *
+     * @throws InvalidArgumentException When no database is named.
+     * @throws PDOException When the connection fails.
      */
-    final public static function instantiateDB(): self
+    final public static function instantiateDB(array $settings = []): static
     {
-        $args = func_get_args();
-        $defaultArgs = [
-            'string' => [
-                'connection' => 'mysql',
-                'hostname' => 'localhost',
-                'database' => '',
-                'username' => 'root',
-                'password' => '',
-            ],
-            'boolean' => [
-                'testing' => false,
-                'production' => true,
-            ],
+        $settings = array_replace(static::configuredSettings(), $settings);
+        $key = static::class . ':' . $settings['database'];
+
+        return self::$instance[$key] ??= new static($settings);
+    }
+
+    /**
+     * The connection settings config gives: the current connection's from database.php, testing and production from
+     * system.php.
+     *
+     * @return array
+     */
+    public static function configuredSettings(): array
+    {
+        $connection = Config::get('database.connection', 'mysql');
+
+        return [
+            'connection' => $connection,
+            'hostname' => (string)Config::get("database.connections.$connection.hostname", 'localhost'),
+            'database' => (string)Config::get("database.connections.$connection.database", ''),
+            'username' => (string)Config::get("database.connections.$connection.username", ''),
+            'password' => (string)Config::get("database.connections.$connection.password", ''),
+            'testing' => (bool)Config::get('system.testing', false),
+            'production' => (bool)Config::get('system.production', true),
         ];
-        $settings = [];
-        if (count($args) === 1 and is_array($args[0])) {
-            $settings = array_shift($args);
-        }
-        foreach ($args as $val) {
-            $type = gettype($val);
-            if (array_key_exists($type, $defaultArgs)) {
-                $key = key($defaultArgs[$type]);
-                array_shift($defaultArgs[$type]);
-                $settings[$key] = $val;
-            }
-        }
-        foreach ($defaultArgs as $defaults) {
-            $settings = array_merge($defaults, $settings);
-        }
+    }
 
-        if (empty(self::$instance[$settings['database']])) {
-            $class = get_called_class();
-            self::$instance[$settings['database']] = new $class($settings);
-        }
-
-        return self::$instance[$settings['database']];
+    /**
+     * Forget every shared connection (tests, or a long-running process that changes its settings). The next
+     * instantiateDB() connects again.
+     *
+     * @return void
+     */
+    public static function disconnectAll(): void
+    {
+        self::$instance = [];
+        self::$pdoInstance = [];
     }
 
     /**
@@ -351,7 +349,7 @@ abstract class DbConnect implements LazyAssignable, Potential
     final public function sanitizeInput(
         mixed $input,
         bool $escape = true,
-        string &$type = null
+        mixed &$type = null
     ): string|array|bool|int|null|object|float {
         if (is_array($input)) {
             $type = [];
@@ -389,7 +387,7 @@ abstract class DbConnect implements LazyAssignable, Potential
     final public function filterVarType(
         string $val,
         bool $escape = true,
-        int &$type = null
+        ?int &$type = null
     ): string|array|bool|int|null|object|float {
         $input = trim($val);
         $length = strlen($input);

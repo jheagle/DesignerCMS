@@ -5,9 +5,9 @@ return [
 
     'connections' => [
         'mysql' => [
-            'database' => envGet('DB_DATABASE', '127.0.0.1'),
+            'database' => envGet('DB_DATABASE', ''),
             'hostname' => envGet('DB_HOSTNAME', 'localhost'),
-            'username' => envGet('DB_USERNAME', 'root'),
+            'username' => envGet('DB_USERNAME', ''),
             'password' => envGet('DB_PASSWORD', ''),
         ]
     ]
