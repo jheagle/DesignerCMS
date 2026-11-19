@@ -98,7 +98,8 @@ class VarCharDt extends StringDt
      */
     public function setValue(mixed $value): string
     {
-        if (strlen($value) >= $this->length) {
+        // Only a value longer than the column is cut; one exactly as long fits
+        if (strlen($value) > $this->length) {
             trigger_error("Truncating VarChar value: \"{$value}\"", E_USER_WARNING);
         }
         $value = substr($value, 0, $this->length);

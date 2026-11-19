@@ -29,7 +29,8 @@ class BigIntDt extends NumberDt
         );
         self::setMin();
         self::setMax();
-        self::setLength($settings['length']);
+        // The length given, else the default (0): $settings is the unmerged input, so 'length' may be absent
+        self::setLength($settings['length'] ?? 0);
         self::setValue($this->value);
     }
 
