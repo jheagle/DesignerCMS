@@ -4,8 +4,10 @@ namespace Core\Adaptors\Vendor\Logger;
 
 use Core\Adaptors\Adaptor;
 use Core\Adaptors\Config;
+use Core\Adaptors\Fakes\LoggerFake;
 use Core\Adaptors\Vendor\Logger\Handlers\StreamHandler;
 use Core\Utilities\Functional\Pure;
+use LogicException;
 
 /**
  * Class Logger
@@ -186,6 +188,75 @@ class Logger extends Adaptor implements LoggerInterface
     }
 
     /**
+     * Swap in a fake logger that records each line instead of writing it, at every level (logger.logLevel is not
+     * applied while faked). Check it with Logger::assertLogged() or on the returned fake.
+     *
+     * @param array<string, mixed> $returns
+     *
+     * @return LoggerFake
+     */
+    public static function fake(array $returns = []): LoggerFake
+    {
+        $fake = new LoggerFake($returns);
+        static::setResource($fake);
+
+        return $fake;
+    }
+
+    /**
+     * Check a line was logged at a level, its text containing $contains. Needs Logger::fake() first.
+     *
+     * @param string $level e.g. Logger::LEVEL_ERROR ('error').
+     * @param string $contains
+     *
+     * @return LoggerFake
+     */
+    public static function assertLogged(string $level, string $contains = ''): LoggerFake
+    {
+        return self::currentFake()->assertLogged($level, $contains);
+    }
+
+    /**
+     * Check no line was logged at a level containing $contains. Needs Logger::fake() first.
+     *
+     * @param string $level
+     * @param string $contains
+     *
+     * @return LoggerFake
+     */
+    public static function assertNotLogged(string $level, string $contains = ''): LoggerFake
+    {
+        return self::currentFake()->assertNotLogged($level, $contains);
+    }
+
+    /**
+     * Check nothing was logged. Needs Logger::fake() first.
+     *
+     * @return LoggerFake
+     */
+    public static function assertNothingLogged(): LoggerFake
+    {
+        return self::currentFake()->assertNothingLogged();
+    }
+
+    /**
+     * The fake in use.
+     *
+     * @return LoggerFake
+     *
+     * @throws LogicException When Logger::fake() wasn't called.
+     */
+    private static function currentFake(): LoggerFake
+    {
+        $logger = self::singleton()->classInstance;
+        if (!$logger instanceof LoggerFake) {
+            throw new LogicException('Call Logger::fake() before checking what was logged');
+        }
+
+        return $logger;
+    }
+
+    /**
      * Check if the current type of log should be ignored and skipped.
      *
      * @param string $level
@@ -194,6 +265,11 @@ class Logger extends Adaptor implements LoggerInterface
      */
     private static function ignoreLevel(string $level): bool
     {
+        // A fake records every line the code logs, whatever the configured level, so tests check the code, not the
+        // config (and assertNotLogged can't pass just because the level filtered a line out)
+        if ((self::$customInstances[self::class] ?? null) instanceof LoggerFake) {
+            return false;
+        }
         return array_search($level, self::LEVELS) < array_search(
                 Config::get('logger.logLevel', self::LEVEL_ERROR),
                 self::LEVELS

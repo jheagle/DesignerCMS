@@ -6,6 +6,7 @@ use Core\Adaptors\Adaptor;
 use Core\Adaptors\Config;
 use Core\Adaptors\ErrorAdaptor;
 use Core\Adaptors\ExceptionAdaptor;
+use Core\Adaptors\Fakes\RecordingFake;
 use Core\Adaptors\Lang;
 use Core\Contracts\Adaptable;
 use Core\Contracts\Castable;
@@ -87,6 +88,27 @@ trait MakeAdaptable
             self::$staticInstances[$className] = new static(true);
         }
         return self::$staticInstances[$className];
+    }
+
+    /**
+     * Swap in a recording stand-in for what this adaptor wraps, and return it to check afterwards. Static calls and
+     * newly built instances use it until the next reset (each test starts with a reset).
+     *
+     * Meant for adaptors that wrap a service (Logger, the Curl client, the cache, OAuth). ErrorAdaptor and
+     * ExceptionAdaptor inherit it too, but their wrapped objects are Throwables, which a fake is not. A wrapped class's
+     * own static fake() is shadowed by this one; reach it through the class itself.
+     *
+     * @param array<string, mixed> $returns What each method returns, by name: a value, or a callable given the
+     *  arguments. Methods not named return null.
+     *
+     * @return RecordingFake
+     */
+    public static function fake(array $returns = []): RecordingFake
+    {
+        $fake = new RecordingFake($returns);
+        static::setResource($fake);
+
+        return $fake;
     }
 
     /**
@@ -227,6 +249,10 @@ trait MakeAdaptable
                 ...array_values(Pure::buildParameters($className, $name, ...$arguments))
             );
         }
+        // A fake (fake()) answers any method, so it gets every call as made
+        if (($this->classInstance ?? null) instanceof RecordingFake) {
+            return $this->classInstance->$name(...$arguments);
+        }
         $instanceClass = $this->classInstance ?? $this->castedClass->className;
         if (method_exists($instanceClass, $name)) {
             return $this->classInstance->$name(
@@ -256,6 +282,10 @@ trait MakeAdaptable
             return self::$staticInstances::$name(
                 ...array_values(Pure::buildParameters($className, $name, ...$arguments))
             );
+        }
+        $instance = self::$staticInstances[$className]->classInstance ?? null;
+        if ($instance instanceof RecordingFake) {
+            return $instance->$name(...$arguments);
         }
         if (!method_exists(self::$staticInstances[$className]->classInstance, $name)) {
             throw new Error(

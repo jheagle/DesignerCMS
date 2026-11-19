@@ -3,7 +3,6 @@
 namespace Tests\Unit\Core\Controllers\Api;
 
 use ArgumentCountError;
-use Core\Adaptors\Config;
 use Core\Adaptors\Vendor\CacheRegistry\CacheRegistry;
 use Core\Adaptors\Vendor\Curl\Exceptions\RequestException;
 use Core\Adaptors\Vendor\Curl\Request;
@@ -18,7 +17,6 @@ use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Cache\InvalidArgumentException;
 use Tests\Mocks\CurlResponseMocker;
-use Tests\Mocks\GenericClass;
 use Tests\TestCase;
 use Throwable;
 use TypeError;
@@ -146,16 +144,7 @@ class RequestHandlerTest extends TestCase
                 ),
             ]
         );
-        Config::set('logger.handlers', []);
-        Logger::setResource(
-            new GenericClass(
-                [
-                    'error' => function ($message) {
-                        $this->assertEquals('Unable to reach the specified endpoint', $message);
-                    },
-                ]
-            )
-        );
+        Logger::fake();
         $response = RequestHandler::prepareApiHandler(
             RequestHandlerOptions::fromArray(
                 [
@@ -168,6 +157,7 @@ class RequestHandlerTest extends TestCase
             ->completeRequest();
         $this->assertEquals(503, $response->getStatusCode());
         $this->assertEquals('Invalid submission destination.', $response->getBody()->getContents());
+        Logger::assertLogged('error', 'Unable to reach the specified endpoint');
     }
 
     /**
