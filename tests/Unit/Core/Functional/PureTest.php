@@ -2,10 +2,12 @@
 
 namespace Tests\Unit\Core\Functional;
 
+use BadFunctionCallException;
 use Core\Utilities\Functional\Pure;
 use Error;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -48,10 +50,25 @@ class PureTest extends TestCase
      * @return void
      */
     #[Test]
+    #[RunInSeparateProcess] // a fresh PHP process: nothing has used Pure yet (it only passed after another test had)
     final public function aFunctionMayBeRetrievedFromPure(): void
     {
         $function = Pure::getFunction('defaultValue');
 
         $this->assertIsCallable($function);
+    }
+
+    /**
+     * Given a name that is not one of Pure's functions
+     * When retrieving it
+     * Then the exception names it.
+     */
+    #[Test]
+    #[RunInSeparateProcess]
+    final public function anUnknownFunctionIsNamedInTheException(): void
+    {
+        $this->expectException(BadFunctionCallException::class);
+        $this->expectExceptionMessage('No Pure function named notAFunction');
+        Pure::getFunction('notAFunction');
     }
 }

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          backupGlobals="false"
-         bootstrap="vendor/autoload.php"
+         bootstrap="tests/bootstrap.php"
          colors="true"
          processIsolation="false"
          stopOnFailure="false"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.1/phpunit.xsd"
          cacheDirectory=".phpunit.cache"
          backupStaticProperties="false"
+         executionOrder="random"
          displayDetailsOnTestsThatTriggerDeprecations="true"
          displayDetailsOnTestsThatTriggerErrors="true"
          displayDetailsOnTestsThatTriggerNotices="true"
@@ -29,6 +30,8 @@
     <env name="DB_HOSTNAME" value="localhost"/>
     <env name="TESTING" value="false"/>
     <env name="PRODUCTION" value="true"/>
+    <!-- Tests log here (emptied at the start of each run by tests/bootstrap.php), never to logs/all.log -->
+    <env name="LOG_FILE" value="logs/test.log"/>
     <env name="FILESYSTEM_DRIVER" value="testing"/>
   </php>
   <source>
