@@ -14,6 +14,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
+use RuntimeException;
 use Tests\TestCase;
 use Tests\Traits\UsesTestDatabase;
 
@@ -26,6 +27,9 @@ class EntityTestOrder extends Entity
 
     /** @var string[] The hooks called, in order. */
     public array $hooks = [];
+
+    /** Make afterCreate() throw, as a failing hook would. */
+    public bool $failAfterCreate = false;
 
     protected static function fieldList(): array
     {
@@ -41,6 +45,9 @@ class EntityTestOrder extends Entity
 
     protected function afterCreate(): void
     {
+        if ($this->failAfterCreate) {
+            throw new RuntimeException('hook failed');
+        }
         $this->hooks[] = 'created';
     }
 
@@ -422,5 +429,48 @@ class EntityTest extends TestCase
         $this->assertSame(1, $order->compareTo(null));
         $this->assertSame(1, $order->compareTo('text'));
         $this->assertSame(-$order->compareTo($country), $country->compareTo($order));
+    }
+
+    /**
+     * Given a new order, then the same order saved, then changed
+     * When its changed columns are asked for
+     * Then a new one lists every set column, a saved one none, and a changed one only those changed (values are
+     * compared as text, so an integer set as '1' is the same as the 1 read back).
+     */
+    #[Test]
+    final public function changedColumnsComparesWithTheDatabase(): void
+    {
+        $order = $this->order(['customer' => 'Ada', 'total' => '9.50']);
+        $this->assertSame(['customer', 'total', 'quantity'], $order->changedColumns());
+        $order->save();
+        $this->assertSame([], $order->changedColumns());
+        $order->quantity = '1';
+        $order->note = 'gift';
+        $this->assertSame(['note'], $order->changedColumns());
+        $order->note = null;
+        $this->assertSame([], $order->changedColumns());
+    }
+
+    /**
+     * Given an order whose afterCreate() hook throws
+     * When it is saved
+     * Then the insert is rolled back with it, and the entity is still a new one (a later save inserts it).
+     */
+    #[Test]
+    final public function aFailingHookUndoesTheWrite(): void
+    {
+        $order = $this->order(['customer' => 'Ada']);
+        $order->failAfterCreate = true;
+        try {
+            $order->save();
+            $this->fail('the hook should throw');
+        } catch (RuntimeException) {
+        }
+        $this->assertSame([], EntityTestOrder::findWhere($this->db), 'the insert was rolled back');
+        $this->assertNull($order->id());
+        $order->failAfterCreate = false;
+        $order->save();
+        $this->assertSame(['created'], $order->hooks);
+        $this->assertCount(1, EntityTestOrder::findWhere($this->db));
     }
 }
