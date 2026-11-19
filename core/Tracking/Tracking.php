@@ -105,6 +105,24 @@ class Tracking extends Entity
     }
 
     /**
+     * Move row $from's history of $class to $to (the row's key changed).
+     *
+     * @param DbConnect $db
+     * @param string $class
+     * @param int $from
+     * @param int $to
+     *
+     * @return int How many records moved.
+     */
+    public static function moveHistory(DbConnect $db, string $class, int $from, int $to): int
+    {
+        return (int)$db->update(
+            'UPDATE `' . static::TABLE . '` SET `class_id` = ? WHERE `acting_class` = ? AND `class_id` = ?',
+            [$to, $class, $from]
+        );
+    }
+
+    /**
      * The changes to row $id of $class, newest first.
      *
      * @param DbConnect $db

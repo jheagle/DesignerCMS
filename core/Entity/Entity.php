@@ -337,8 +337,9 @@ abstract class Entity implements EntityObject
     }
 
     /**
-     * Run $write; when it throws (and the transaction rolled back), put this entity back as it was, so it doesn't
-     * believe a write that was undone. (Inside a caller's own transaction, a later rollback of theirs isn't seen.)
+     * Run $write; when it throws, put this entity back as it was, so it doesn't believe a write that was undone. The
+     * write was undone either way: its own transaction rolled back, or, inside a caller's transaction, its savepoint
+     * (DbConnect::transaction()). A later rollback of the caller's own transaction isn't seen here.
      *
      * @param callable $write
      *
@@ -408,9 +409,10 @@ abstract class Entity implements EntityObject
             }
             return $this;
         }
+        // onChange() first, while persistedKey is still the key the row had (tracking moves its history when it changed)
+        $this->onChange(self::UPDATED, $columns);
         $this->persistedKey = $this->id();
         $this->persistedValues = $this->values;
-        $this->onChange(self::UPDATED, $columns);
         $this->afterUpdate();
 
         return $this;
@@ -501,7 +503,7 @@ abstract class Entity implements EntityObject
 
     /**
      * Called after every change, before the after* hook: what changed (CREATED, UPDATED, DELETED) and, for created
-     * and updated, the columns written. Empty here: it is for framework behaviours such as tracking (MakeTrackable),
+     * and updated, the columns written. For UPDATED, persistedKey is still the key the row had before. Empty here: it is for framework behaviours such as tracking (MakeTrackable),
      * so a model's own afterCreate()/afterUpdate()/afterDelete() never replace them.
      *
      * @param string $action

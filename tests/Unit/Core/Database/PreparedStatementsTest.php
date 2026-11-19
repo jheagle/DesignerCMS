@@ -188,10 +188,10 @@ class PreparedStatementsTest extends TestCase
     /**
      * Given a transaction inside another
      * When both finish
-     * Then the inner one joined the outer, and everything is kept.
+     * Then the inner one was part of the outer, and everything is kept.
      */
     #[Test]
-    final public function nestedTransactionsJoinTheOuterOne(): void
+    final public function nestedTransactionsArePartOfTheOuterOne(): void
     {
         $this->db->transaction(function (PhpDbConnect $db) {
             $db->insert('INSERT INTO people (name) VALUES (?)', ['outer']);
@@ -222,5 +222,30 @@ class PreparedStatementsTest extends TestCase
             $this->assertSame('inner failed', $e->getMessage());
         }
         $this->assertSame(0, (int)$this->db->fetchValue('SELECT COUNT(*) FROM people'));
+    }
+
+    /**
+     * Given an inner transaction that fails, and outer work that catches the error and carries on
+     * When the outer one commits
+     * Then only the inner work is undone (a savepoint): the outer work, before and after it, is kept.
+     */
+    #[Test]
+    final public function aCaughtNestedFailureUndoesOnlyItsOwnPart(): void
+    {
+        $this->db->transaction(function (PhpDbConnect $db) {
+            $db->insert('INSERT INTO people (name) VALUES (?)', ['before']);
+            try {
+                $db->transaction(function (PhpDbConnect $inner) {
+                    $inner->insert('INSERT INTO people (name) VALUES (?)', ['inner']);
+                    throw new RuntimeException('inner failed');
+                });
+            } catch (RuntimeException) {
+            }
+            $db->insert('INSERT INTO people (name) VALUES (?)', ['after']);
+        });
+        $this->assertSame(
+            ['before', 'after'],
+            array_column($this->db->fetchAll('SELECT name FROM people ORDER BY id'), 'name')
+        );
     }
 }

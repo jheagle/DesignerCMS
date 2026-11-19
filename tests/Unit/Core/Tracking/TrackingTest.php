@@ -292,4 +292,64 @@ class TrackingTest extends TestCase
         }
         $this->assertNull(TrackingTestTag::find($this->db, 'php'));
     }
+
+    /**
+     * Given the tracking table is gone
+     * When a saved note is deleted
+     * Then the delete fails and is undone: the row is still there, and the entity still knows it is saved.
+     */
+    #[Test]
+    final public function aDeleteIsUndoneWhenItsRecordCantBeWritten(): void
+    {
+        $note = $this->note(['title' => 'Kept'])->save();
+        $this->db->alter('DROP TABLE tracking');
+        try {
+            $note->delete();
+            $this->fail('the delete should fail without a tracking table');
+        } catch (PDOException) {
+        }
+        $this->assertNotNull(TrackingTestNote::find($this->db, $note->id()), 'the delete was rolled back');
+        $this->db->alter(self::trackingTableSql());
+        $this->assertTrue($note->delete(), 'still saved, so it deletes once tracking works again');
+    }
+
+    /**
+     * Given a caller's own transaction, and a note whose tracking write fails inside it
+     * When the caller catches the error and commits
+     * Then the note isn't stored (its savepoint was undone), and the entity is still new, so a retry inserts once.
+     */
+    #[Test]
+    final public function aFailureInsideACallersTransactionIsUndoneToo(): void
+    {
+        $this->db->alter('DROP TABLE tracking');
+        $note = $this->note(['title' => 'Once']);
+        $this->db->transaction(function () use ($note) {
+            try {
+                $note->save();
+                $this->fail('the insert should fail without a tracking table');
+            } catch (PDOException) {
+            }
+        });
+        $this->assertSame([], TrackingTestNote::findWhere($this->db), 'nothing stored by the commit');
+        $this->assertNull($note->id());
+        $this->db->alter(self::trackingTableSql());
+        $note->save();
+        $this->assertCount(1, TrackingTestNote::findWhere($this->db), 'the retry inserted it once');
+    }
+
+    /**
+     * Given a note with history
+     * When its key changes
+     * Then the history moves with it: all of it is under the new key, none left under the old one.
+     */
+    #[Test]
+    final public function historyFollowsAChangedKey(): void
+    {
+        $note = $this->note(['title' => 'Plan'])->save();
+        $oldId = $note->id();
+        $note->id = 40;
+        $note->save();
+        $this->assertSame(['updated: id', 'created'], self::actions($note->history()));
+        $this->assertSame([], Tracking::history($this->db, TrackingTestNote::class, $oldId));
+    }
 }

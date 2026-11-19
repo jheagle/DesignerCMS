@@ -8,7 +8,8 @@ use LogicException;
 
 /**
  * Records every change to an Entity's rows in the tracking table: created, "updated: " with the columns changed (names
- * only, never values, which can be personal data), and deleted, by the acting user (Tracking::actingAs()). Each row is
+ * only, never values, which can be personal data), and deleted, by the acting user (Tracking::actingAs()). When a
+ * row's key changes, its history moves to the new key. Each row is
  * written in the same transaction as the change, so there is never a change without its record, or a record without
  * its change.
  *
@@ -44,6 +45,10 @@ trait MakeTrackable
     protected function onChange(string $action, array $columns = []): void
     {
         parent::onChange($action, $columns);
+        if ($action === Entity::UPDATED && is_int($this->persistedKey) && $this->persistedKey !== $this->id()) {
+            // The key changed: the row's earlier history goes with it
+            Tracking::moveHistory($this->db, static::class, $this->persistedKey, $this->trackedId());
+        }
         $text = $action === Entity::UPDATED && $columns !== [] ? $action . ': ' . implode(', ', $columns) : $action;
         Tracking::record($this->db, $text, static::class, $this->trackedId());
     }
