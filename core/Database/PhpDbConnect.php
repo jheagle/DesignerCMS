@@ -10,195 +10,146 @@ use PDO;
 class PhpDbConnect extends DbConnect
 {
     /**
+     * Add rows: the SQL with ? or :name placeholders, the values bound separately.
+     *
      * @param string $queryRaw
-     * @return int
+     * @param array $params
+     *
+     * @return int The rows affected.
      */
-    public function insert(string $queryRaw = ''): int
+    public function insert(string $queryRaw = '', array $params = []): int
     {
-        return $this->exec($queryRaw);
+        return $this->exec($queryRaw, $params);
     }
 
     /**
+     * Change rows: the SQL with ? or :name placeholders, the values bound separately.
+     *
      * @param string $queryRaw
-     * @return int
+     * @param array $params
+     *
+     * @return int The rows affected.
      */
-    public function update(string $queryRaw = ''): int
+    public function update(string $queryRaw = '', array $params = []): int
     {
-        return $this->exec($queryRaw, 'update');
+        return $this->exec($queryRaw, $params);
     }
 
     /**
+     * Remove rows: the SQL with ? or :name placeholders, the values bound separately.
+     *
      * @param string $queryRaw
-     * @return int
+     * @param array $params
+     *
+     * @return int The rows affected.
      */
-    public function delete(string $queryRaw = ''): int
+    public function delete(string $queryRaw = '', array $params = []): int
     {
-        return $this->exec($queryRaw, 'delete');
+        return $this->exec($queryRaw, $params);
     }
 
     /**
+     * Change the schema (ALTER, CREATE, DROP...): the SQL with ? or :name placeholders, the values bound separately.
+     *
      * @param string $queryRaw
-     * @return int
+     * @param array $params
+     *
+     * @return int The rows affected.
      */
-    public function alter(string $queryRaw = ''): int
+    public function alter(string $queryRaw = '', array $params = []): int
     {
-        return $this->exec($queryRaw, 'alter');
+        return $this->exec($queryRaw, $params);
     }
 
     /**
+     * Run a query and keep its result (read it with the select* methods, or use fetchAll()/fetchOne()).
+     *
      * @param string $queryRaw
+     * @param array $params
+     *
+     * @return object The executed statement.
+     */
+    public function select(string $queryRaw = '', array $params = []): mixed
+    {
+        return $this->query($queryRaw, $params);
+    }
+
+    /**
+     * The next row of a query, keyed by column name: `while ($row = $db->selectAssoc($sql, $params))`. False when there are no more.
+     *
+     * @param string $queryRaw
+     * @param array $params
+     *
      * @return mixed
      */
-    public function select(string $queryRaw = ''): mixed
+    public function selectAssoc(string $queryRaw = '', array $params = []): mixed
     {
-        return $this->query($queryRaw);
+        return $this->nextRow($queryRaw, $params, PDO::FETCH_ASSOC);
     }
 
     /**
+     * The next row of a query, its first column only: `while ($row = $db->selectColumn($sql, $params))`. False when there are no more.
+     *
      * @param string $queryRaw
+     * @param array $params
+     *
      * @return mixed
      */
-    public function selectAssoc(string $queryRaw = ''): mixed
+    public function selectColumn(string $queryRaw = '', array $params = []): mixed
     {
-        if (empty($this->result) || $queryRaw !== $this->queryRaw) {
-            $this->query($queryRaw);
-        }
-
-        return $this->connection() !== null && $this->result ? $this->result->fetch(
-            PDO::FETCH_ASSOC
-        ) : $this->result;
+        return $this->nextRow($queryRaw, $params, PDO::FETCH_COLUMN);
     }
 
     /**
+     * The next row of a query, as a list: `while ($row = $db->selectNum($sql, $params))`. False when there are no more.
+     *
      * @param string $queryRaw
+     * @param array $params
+     *
      * @return mixed
      */
-    public function selectColumn(string $queryRaw = ''): mixed
+    public function selectNum(string $queryRaw = '', array $params = []): mixed
     {
-        if (empty($this->result) || $queryRaw !== $this->queryRaw) {
-            $this->query($queryRaw);
-        }
-
-        return $this->connection() !== null && $this->result ? $this->result->fetch(
-            PDO::FETCH_COLUMN
-        ) : $this->result;
+        return $this->nextRow($queryRaw, $params, PDO::FETCH_NUM);
     }
 
     /**
+     * The next row of a query, keyed by name and by position: `while ($row = $db->selectBoth($sql, $params))`. False when there are no more.
+     *
      * @param string $queryRaw
+     * @param array $params
+     *
      * @return mixed
      */
-    public function selectNum(string $queryRaw = ''): mixed
+    public function selectBoth(string $queryRaw = '', array $params = []): mixed
     {
-        if (empty($this->result) || $queryRaw !== $this->queryRaw) {
-            $this->query($queryRaw);
-        }
-
-        return $this->connection() !== null && $this->result ? $this->result->fetch(
-            PDO::FETCH_NUM
-        ) : $this->result;
+        return $this->nextRow($queryRaw, $params, PDO::FETCH_BOTH);
     }
 
     /**
+     * The next row of a query, as an object: `while ($row = $db->selectObject($sql, $params))`. False when there are no more.
+     *
      * @param string $queryRaw
+     * @param array $params
+     *
      * @return mixed
      */
-    public function selectBoth(string $queryRaw = ''): mixed
+    public function selectObject(string $queryRaw = '', array $params = []): mixed
     {
-        if (empty($this->result) || $queryRaw !== $this->queryRaw) {
-            $this->query($queryRaw);
-        }
-
-        return $this->connection() !== null && $this->result ? $this->result->fetch(
-            PDO::FETCH_BOTH
-        ) : $this->result;
+        return $this->nextRow($queryRaw, $params, PDO::FETCH_OBJ);
     }
 
     /**
+     * The next row of a query, as a lazy row object: `while ($row = $db->selectLazy($sql, $params))`. False when there are no more.
+     *
      * @param string $queryRaw
+     * @param array $params
+     *
      * @return mixed
      */
-    public function selectObject(string $queryRaw = ''): mixed
+    public function selectLazy(string $queryRaw = '', array $params = []): mixed
     {
-        if (empty($this->result) || $queryRaw !== $this->queryRaw) {
-            $this->query($queryRaw);
-        }
-
-        return $this->connection() !== null && $this->result ? $this->result->fetch(
-            PDO::FETCH_OBJ
-        ) : $this->result;
-    }
-
-    /**
-     * @param string $queryRaw
-     * @return mixed
-     */
-    public function selectLazy(string $queryRaw = ''): mixed
-    {
-        if (empty($this->result) || $queryRaw !== $this->queryRaw) {
-            $this->query($queryRaw);
-        }
-
-        return $this->connection() !== null && $this->result ? $this->result->fetch(
-            PDO::FETCH_LAZY
-        ) : $this->result;
-    }
-
-    /**
-     * @param string $queryRaw
-     * @param string $type
-     * @return string
-     */
-    public function queryValidation(string $queryRaw, string $type): string
-    {
-        if ($queryRaw === $this->queryRaw) {
-            return $this->query;
-        }
-        $this->queryRaw = $queryRaw;
-
-        return $this->query = $this->queryRaw; // remove this once complete function
-        /*        if (!preg_match("`?\d*[a-zA-Z][0-9a-zA-Z$_]*`?", $tableName)) {
-          return;
-          }
-          if (!preg_match("(`?\d*[a-zA-Z][0-9,a-z,A-Z$_]*`?,?)+", $columnNames) && !is_array($columnNames)) {
-          return;
-          }
-          if (!preg_match("('?\d*[a-zA-Z][0-9,a-z,A-Z$_]*'?,?)+", $whereClauses) && !is_array($whereClauses)) {
-          return;
-          }
-          if (!preg_match("('?\d*[a-zA-Z][0-9,a-z,A-Z$_]*'?,?)+", $newValues) && !is_array($newValues)) {
-          return;
-          }
-          $table = sanitize_input($tableName, false);
-          $columns = sanitize_input($columnNames, false);
-          $values = sanitize_input($newValues, false);
-          $where = sanitize_input($whereClauses, false);
-          if (is_array($columns)) {
-          $columns = implode(',', $columns);
-          }
-          if (is_array($where)) {
-          $where = implode(',', $where);
-          }
-          if (is_array($values)) {
-          $values = implode('),(', $values);
-          }
-          if (!empty($where)) {
-          $where = " WHERE {$where}";
-          }
-          switch ($type) {
-          case 'select':
-          $query = "SELECT {$columns} FROM {$table}{$where}{$orderBy}{$offset}{$limit}";
-          break;
-          case 'insert':
-          $query = "INSERT INTO {$table}({$columns}) VALUES ({$values}){$where}";
-          break;
-          case 'update':
-          break;
-          case 'delete':
-          break;
-          default:
-          }
-          return $this->query; */
+        return $this->nextRow($queryRaw, $params, PDO::FETCH_LAZY);
     }
 
     /**

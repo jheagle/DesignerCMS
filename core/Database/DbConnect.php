@@ -9,9 +9,11 @@ use Core\Contracts\LazyAssignable;
 use Core\DataTypes\Interfaces\Potential;
 use Core\Traits\LazyAssignment;
 use InvalidArgumentException;
+use LogicException;
 use PDO;
 use PDOException;
 use SensitiveParameter;
+use Throwable;
 
 /**
  *
@@ -70,6 +72,11 @@ abstract class DbConnect implements LazyAssignable, Potential
     public string $query = '';
 
     /**
+     * The values bound to the last query (with $queryRaw, it says whether nextRow() continues or starts again).
+     */
+    public array $queryParams = [];
+
+    /**
      * Connect with keyed settings. instantiateDB() is the usual way in: it fills in what is left out from config and
      * reuses the connection.
      *
@@ -124,38 +131,31 @@ abstract class DbConnect implements LazyAssignable, Potential
      * @param string $queryRaw
      * @return mixed
      */
-    abstract public function insert(string $queryRaw): mixed;
+    abstract public function insert(string $queryRaw, array $params = []): mixed;
 
     /**
      * @param string $queryRaw
      * @return mixed
      */
-    abstract public function update(string $queryRaw): mixed;
+    abstract public function update(string $queryRaw, array $params = []): mixed;
 
     /**
      * @param string $queryRaw
      * @return mixed
      */
-    abstract public function delete(string $queryRaw): mixed;
+    abstract public function delete(string $queryRaw, array $params = []): mixed;
 
     /**
      * @param string $queryRaw
      * @return mixed
      */
-    abstract public function alter(string $queryRaw): mixed;
+    abstract public function alter(string $queryRaw, array $params = []): mixed;
 
     /**
      * @param string $queryRaw
      * @return mixed
      */
-    abstract public function select(string $queryRaw): mixed;
-
-    /**
-     * @param string $queryRaw
-     * @param string $type
-     * @return string
-     */
-    abstract public function queryValidation(string $queryRaw, string $type): string;
+    abstract public function select(string $queryRaw, array $params = []): mixed;
 
     /**
      * @param string $outputIn
@@ -309,49 +309,205 @@ abstract class DbConnect implements LazyAssignable, Potential
     }
 
     /**
-     * @param string $queryRaw
-     * @param string $type
-     * @return int
+     * Run one statement: prepare it, then execute it with its values bound, so a value never becomes part of the SQL
+     * (no injection, no quoting). Every query in DbConnect goes through here.
+     *
+     * @param string $sql With ? or :name placeholders for the values.
+     * @param array $params The values: a list for ?, keyed by name for :name.
+     *
+     * @return object The executed statement (a PDOStatement, or the log driver's or a fake's stand-in).
+     *
+     * @throws PDOException When the statement fails (logged with the SQL, never the values).
+     * @throws LogicException When there is no connection.
      */
-    final public function exec(string $queryRaw = '', string $type = 'insert'): int
+    final public function statement(string $sql, array $params = []): object
     {
-        $count = 0;
-        $query = empty($queryRaw) ? $this->query : $this->queryValidation(
-            $queryRaw,
-            $type
-        );
-        if (empty($query)) {
-            return 0;
+        $connection = $this->requireConnection();
+        if ($this->testing || !$this->production) {
+            $this->consoleOut($sql);
         }
         try {
-            if ($this->testing || !$this->production) {
-                $this->consoleOut($query);
-            }
-            Logger::info("Running query:", [
-                'Query' => $query,
-            ]);
-            // The log driver records the statement and reports 0 rows; it no longer needs a testing check here
-            if ($this->connection()) {
-                $count = (int)$this->connection()->exec($query);
-            }
-            $this->lastRowCount = $count;
-            Logger::info("Query complete:", [
-                'Query' => $query,
-            ]);
-            $this->queries += $count;
-
-            return $count;
+            $statement = $connection->prepare($sql);
+            $statement->execute($params);
         } catch (PDOException $e) {
-            if ($this->testing || !$this->production) {
-                $this->consoleOut($e->getMessage());
-            }
-            Logger::error("Failed to execute query", [
-                'Query' => $query,
-                'Exception' => $e,
-                'Raw' => $queryRaw,
-            ]);
-            return 0;
+            // The values are left out on purpose: they can be personal data or secrets
+            Logger::error('Statement failed', ['sql' => $sql, 'message' => $e->getMessage(), 'code' => $e->getCode()]);
+            throw $e;
         }
+        $this->lastRowCount = (int)$statement->rowCount();
+        $this->queries++;
+        Logger::debug('Statement run', ['sql' => $sql]);
+
+        return $statement;
+    }
+
+    /**
+     * Run a statement that changes data or schema (INSERT, UPDATE, DELETE, ALTER...).
+     *
+     * @param string $sql
+     * @param array $params
+     *
+     * @return int The rows it affected.
+     */
+    final public function exec(string $sql, array $params = []): int
+    {
+        return (int)$this->statement($sql, $params)->rowCount();
+    }
+
+    /**
+     * Run a query and keep its result for reading row by row (the select* methods do this).
+     *
+     * @param string $sql
+     * @param array $params
+     *
+     * @return object The executed statement, also kept in $this->result.
+     */
+    final public function query(string $sql, array $params = []): object
+    {
+        $this->result = $this->statement($sql, $params);
+        $this->queryRaw = $this->query = $sql;
+        $this->queryParams = $params;
+
+        return $this->result;
+    }
+
+    /**
+     * The next row of a query, read one call at a time: `while ($row = $db->nextRow($sql)) { ... }`. A different SQL
+     * or different values start the query again; when the rows run out it returns false.
+     *
+     * @param string $sql
+     * @param array $params
+     * @param int $mode A PDO::FETCH_* mode.
+     *
+     * @return mixed The row, or false when there are no more.
+     */
+    final public function nextRow(string $sql, array $params = [], int $mode = PDO::FETCH_ASSOC): mixed
+    {
+        if (!isset($this->result) || $sql !== $this->queryRaw || $params !== $this->queryParams) {
+            $this->query($sql, $params);
+        }
+
+        return $this->result->fetch($mode);
+    }
+
+    /**
+     * All rows of a query, each keyed by column name.
+     *
+     * @param string $sql
+     * @param array $params
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    final public function fetchAll(string $sql, array $params = []): array
+    {
+        return $this->statement($sql, $params)->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    /**
+     * The first row of a query, keyed by column name, or null when there is none.
+     *
+     * @param string $sql
+     * @param array $params
+     *
+     * @return array<string, mixed>|null
+     */
+    final public function fetchOne(string $sql, array $params = []): ?array
+    {
+        return $this->statement($sql, $params)->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    /**
+     * The first column of the first row (e.g. a COUNT), or null when there is no row.
+     *
+     * @param string $sql
+     * @param array $params
+     *
+     * @return mixed
+     */
+    final public function fetchValue(string $sql, array $params = []): mixed
+    {
+        $value = $this->statement($sql, $params)->fetchColumn();
+
+        return $value === false ? null : $value;
+    }
+
+    /**
+     * Start a transaction: nothing until commit() is kept.
+     *
+     * @return bool
+     */
+    final public function begin(): bool
+    {
+        return (bool)$this->requireConnection()->beginTransaction();
+    }
+
+    /**
+     * Keep everything since begin().
+     *
+     * @return bool
+     */
+    final public function commit(): bool
+    {
+        return (bool)$this->requireConnection()->commit();
+    }
+
+    /**
+     * Undo everything since begin().
+     *
+     * @return bool
+     */
+    final public function rollBack(): bool
+    {
+        return (bool)$this->requireConnection()->rollBack();
+    }
+
+    /**
+     * Whether a transaction is open.
+     *
+     * @return bool
+     */
+    final public function inTransaction(): bool
+    {
+        return (bool)$this->requireConnection()->inTransaction();
+    }
+
+    /**
+     * Run $work as one unit: all of it is kept, or none of it. Commits when $work returns; rolls back and rethrows
+     * when it throws. $work is given this DbConnect; transaction() returns what $work returns.
+     *
+     * @param callable $work
+     *
+     * @return mixed
+     *
+     * @throws Throwable Whatever $work threw, after the rollback.
+     */
+    final public function transaction(callable $work): mixed
+    {
+        $this->begin();
+        try {
+            $result = $work($this);
+            $this->commit();
+
+            return $result;
+        } catch (Throwable $e) {
+            if ($this->inTransaction()) {
+                $this->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * The connection, or a clear error when there is none.
+     *
+     * @return Connection
+     *
+     * @throws LogicException
+     */
+    private function requireConnection(): Connection
+    {
+        return $this->connection()
+            ?? throw new LogicException('No database connection: connect with instantiateDB() first');
     }
 
     /**
@@ -370,51 +526,6 @@ abstract class DbConnect implements LazyAssignable, Potential
     {
         // Only a statement has a row count (PDO has no rowCount()), so this is the last statement's
         return $this->lastRowCount;
-    }
-
-    /**
-     * @param string $queryRaw
-     * @param string $type
-     * @return mixed
-     */
-    final public function query(string $queryRaw = '', string $type = 'select'): mixed
-    {
-        $query = empty($queryRaw) ? $this->query : $this->queryValidation(
-            $queryRaw,
-            $type
-        );
-        if (empty($query)) {
-            return 0;
-        }
-        try {
-            if ($queryRaw === $this->queryRaw && $this->connection() !== null) {
-                $this->result = $this->connection()->query(
-                    $this->query
-                );
-                $this->lastRowCount = is_object($this->result) ? (int)$this->result->rowCount() : 0;
-            }
-            Logger::info("Running query:", [
-                'Query' => $query,
-            ]);
-            if ($this->testing || !$this->production) {
-                $this->consoleOut($this->query);
-            }
-            Logger::info("Query complete:", [
-                'Query' => $query,
-            ]);
-
-            return $this->result;
-        } catch (PDOException $e) {
-            if ($this->testing || !$this->production) {
-                $this->consoleOut($e->getMessage());
-            }
-            Logger::error("Failed to execute query", [
-                'Query' => $query,
-                'Exception' => $e,
-                'Raw' => $queryRaw,
-            ]);
-            return 0;
-        }
     }
 
     /**

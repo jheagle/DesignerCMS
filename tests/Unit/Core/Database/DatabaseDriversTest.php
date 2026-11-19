@@ -84,15 +84,19 @@ class DatabaseDriversTest extends TestCase
     #[Test]
     final public function theConnectionCanBeFaked(): void
     {
+        // Every statement is prepared, then executed with its values: the fake answers prepare() with a statement
         $fake = Connection::fake([
-            'exec' => 3,
-            'query' => fn() => new RecordingFake(['fetch' => ['id' => 7]]),
+            'prepare' => fn(string $sql) => new RecordingFake(
+                str_starts_with($sql, 'UPDATE')
+                    ? ['execute' => true, 'rowCount' => 3]
+                    : ['execute' => true, 'rowCount' => 1, 'fetch' => ['id' => 7]]
+            ),
         ]);
         $db = PhpDbConnect::instantiateDB(['database' => 'shop', 'username' => 'shop_user']);
-        $this->assertSame(3, $db->update('UPDATE orders SET paid = 1'));
-        $this->assertSame(['id' => 7], $db->selectAssoc('SELECT id FROM orders'));
-        $fake->assertCalled('exec', fn(string $sql) => str_starts_with($sql, 'UPDATE orders'), 1)
-            ->assertCalled('query', times: 1);
+        $this->assertSame(3, $db->update('UPDATE orders SET paid = ? WHERE id = ?', [1, 7]));
+        $this->assertSame(['id' => 7], $db->selectAssoc('SELECT id FROM orders WHERE id = ?', [7]));
+        $fake->assertCalled('prepare', fn(string $sql) => str_starts_with($sql, 'UPDATE orders'), 1)
+            ->assertCalled('prepare', fn(string $sql) => str_starts_with($sql, 'SELECT id'), 1);
     }
 
     /**
@@ -158,7 +162,11 @@ class DatabaseDriversTest extends TestCase
     #[Test]
     final public function rowCountIsTheLastStatements(): void
     {
-        Connection::fake(['exec' => 3, 'query' => fn() => new RecordingFake(['rowCount' => 2, 'fetch' => false])]);
+        Connection::fake([
+            'prepare' => fn(string $sql) => new RecordingFake(
+                ['execute' => true, 'rowCount' => str_starts_with($sql, 'UPDATE') ? 3 : 2, 'fetch' => false]
+            ),
+        ]);
         $db = PhpDbConnect::instantiateDB(['database' => 'shop', 'username' => 'shop_user']);
         $db->update('UPDATE orders SET paid = 1');
         $this->assertSame(3, $db->rowCount());
