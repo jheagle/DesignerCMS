@@ -56,6 +56,35 @@ class EntityTestOrder extends Entity
 }
 
 /**
+ * An entity whose key the caller supplies (a code, not auto-increment).
+ */
+class EntityTestCountry extends Entity
+{
+    public const TABLE = 'entity_test_countries';
+
+    /** @var string[] */
+    public array $hooks = [];
+
+    protected static function fieldList(): array
+    {
+        return [
+            new Field('code', VarCharDt::class, null, 2, Field::PRIMARY_KEY | Field::NOT_NULL),
+            new Field('name', VarCharDt::class, null, 50, Field::NOT_NULL),
+        ];
+    }
+
+    protected function afterCreate(): void
+    {
+        $this->hooks[] = 'created';
+    }
+
+    protected function afterUpdate(): void
+    {
+        $this->hooks[] = 'updated';
+    }
+}
+
+/**
  * An entity with no TABLE and no primary key, for the naming and key rules.
  */
 class LineItemNote extends Entity
@@ -92,6 +121,7 @@ class EntityTest extends TestCase
             quantity SMALLINT UNSIGNED NOT NULL DEFAULT 1,
             created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         )');
+        $this->db->alter('CREATE TEMPORARY TABLE entity_test_countries (code CHAR(2) NOT NULL PRIMARY KEY, name VARCHAR(50) NOT NULL)');
     }
 
     public function tearDown(): void
@@ -278,5 +308,119 @@ class EntityTest extends TestCase
         $first = EntityTestOrder::find($this->db, 1);
         $this->assertSame(0, $first->compareTo(EntityTestOrder::find($this->db, 1)));
         $this->assertSame(-1, $first->compareTo(EntityTestOrder::find($this->db, 2)));
+    }
+
+    /**
+     * Given an entity whose key the caller supplies
+     * When it is saved, changed, re-keyed and found
+     * Then the first save inserts (it used to run an UPDATE that matched nothing), later saves update that row.
+     */
+    #[Test]
+    final public function aCallerSuppliedKeyInsertsThenUpdates(): void
+    {
+        $country = (new EntityTestCountry($this->db, ['code' => 'CA', 'name' => 'Canada']))->save();
+        $this->assertSame('Canada', EntityTestCountry::find($this->db, 'CA')->name);
+        $country->name = 'Canada (CA)';
+        $country->save();
+        $country->code = 'CN';
+        $country->save();
+        $this->assertNull(EntityTestCountry::find($this->db, 'CA'), 're-keyed: the same row, under its new key');
+        $this->assertSame('Canada (CA)', EntityTestCountry::find($this->db, 'CN')->name);
+        $this->assertSame(['created', 'updated', 'updated'], $country->hooks);
+        $this->assertSame(1, (int)$this->db->fetchValue('SELECT COUNT(*) FROM entity_test_countries'));
+    }
+
+    /**
+     * Given an explicit id for an auto-increment key
+     * When saving a new order with it
+     * Then it is inserted with that id.
+     */
+    #[Test]
+    final public function anExplicitIdIsInserted(): void
+    {
+        $this->order(['id' => 42, 'customer' => 'Ada'])->save();
+        $this->assertSame('Ada', EntityTestOrder::find($this->db, 42)->customer);
+    }
+
+    /**
+     * Given a loaded order saved again with nothing changed
+     * When saving
+     * Then nothing is written and afterUpdate doesn't run (there was no change to record).
+     */
+    #[Test]
+    final public function anUnchangedSaveRunsNoHook(): void
+    {
+        $this->order(['customer' => 'Ada'])->save();
+        $order = EntityTestOrder::find($this->db, 1);
+        $order->save();
+        $this->assertSame([], $order->hooks);
+    }
+
+    /**
+     * Given a loaded order whose row is deleted by someone else
+     * When saving it
+     * Then it says the row no longer exists (and no hook runs).
+     */
+    #[Test]
+    final public function updatingAMissingRowIsAnError(): void
+    {
+        $this->order(['customer' => 'Ada'])->save();
+        $order = EntityTestOrder::find($this->db, 1);
+        $this->db->delete('DELETE FROM entity_test_orders WHERE id = ?', [1]);
+        $order->quantity = 5;
+        try {
+            $order->save();
+            $this->fail('The save should have been refused');
+        } catch (\LogicException $e) {
+            $this->assertStringContainsString('no longer exists', $e->getMessage());
+        }
+        $this->assertSame([], $order->hooks);
+    }
+
+    /**
+     * Given a deleted order
+     * When it is saved again
+     * Then it is inserted again.
+     */
+    #[Test]
+    final public function savingADeletedRowInsertsItAgain(): void
+    {
+        $order = $this->order(['customer' => 'Ada'])->save();
+        $order->delete();
+        $order->save();
+        $this->assertSame('Ada', EntityTestOrder::find($this->db, $order->id())->customer);
+    }
+
+    /**
+     * Given a saved order changed in the database behind it
+     * When refreshed
+     * Then it holds the database's values; toArray and isset reflect them. A row never saved can't be refreshed.
+     */
+    #[Test]
+    final public function refreshToArrayAndIsset(): void
+    {
+        $order = $this->order(['customer' => 'Ada'])->save();
+        $this->db->update('UPDATE entity_test_orders SET note = ? WHERE id = ?', ['changed', 1]);
+        $this->assertFalse(isset($order->note));
+        $order->refresh();
+        $this->assertSame('changed', $order->toArray()['note']);
+        $this->assertTrue(isset($order->note));
+        $this->expectException(\LogicException::class);
+        $this->order(['customer' => 'never saved'])->refresh();
+    }
+
+    /**
+     * Given things that aren't an entity of the same class
+     * When comparing
+     * Then it never crashes, and the comparison is the same both ways round.
+     */
+    #[Test]
+    final public function compareToCopesWithAnything(): void
+    {
+        $order = $this->order(['customer' => 'Ada']);
+        $country = new EntityTestCountry($this->db, ['code' => 'CA', 'name' => 'Canada']);
+        $this->assertSame(1, $order->compareTo(null));
+        $this->assertSame(1, $order->compareTo('text'));
+        $this->assertSame(-$order->compareTo($country), $country->compareTo($order));
     }
 }

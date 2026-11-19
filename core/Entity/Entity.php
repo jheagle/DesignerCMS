@@ -6,6 +6,7 @@ use Core\Database\DbConnect;
 use Core\DataTypes\Numbers\Integers\BigIntDt;
 use Core\Entity\Interfaces\EntityObject;
 use InvalidArgumentException;
+use LogicException;
 
 /**
  * One row of a table, built from the table's Fields. A subclass only declares what the table is:
@@ -49,6 +50,12 @@ abstract class Entity implements EntityObject
      * @var array<string, mixed>
      */
     protected array $values = [];
+
+    /**
+     * The primary key this row has in the database, or null while it isn't there (new, or deleted). Updates and
+     * deletes find the row by it.
+     */
+    protected mixed $persistedKey = null;
 
     /**
      * @param DbConnect $db The connection this row is read from and written to.
@@ -188,6 +195,7 @@ abstract class Entity implements EntityObject
                 $entity->values[$name] = static::fromDatabase(static::fields()[$name], $value);
             }
         }
+        $entity->persistedKey = $entity->id();
 
         return $entity;
     }
@@ -268,52 +276,75 @@ abstract class Entity implements EntityObject
     }
 
     /**
-     * Insert the row (no primary key yet) or update it (it has one). After an insert, an auto-increment key is filled
-     * in from the database. Checks the values first.
+     * Insert the row when it isn't in the database yet, otherwise update it. A row is in the database once it was
+     * loaded (find, findWhere) or saved, until it is deleted; so a key the caller sets (a code, or an explicit id)
+     * still inserts. After an insert an empty auto-increment key is filled in, and the row is read back. Checks the
+     * values first.
      *
      * @return static
      *
      * @throws InvalidArgumentException When a value breaks its Field's rules (all the problems, in one message).
+     * @throws LogicException When updating a row that no longer exists.
      */
     public function save(): static
     {
         $this->validate();
-        $key = static::primaryKey();
-        $isNew = $this->id() === null;
-        $columns = [];
-        foreach (static::fields() as $name => $field) {
-            if ($name === $key->getName() && ($isNew ? $field->hasAttr(Field::AUTO_INCREMENT) : true)) {
-                continue;
-            }
-            // A new row leaves out what has no value, so the database applies the column's own default (or says
-            // the column needs one); an update writes NULL where a value was cleared
-            if ($isNew && $this->values[$name] === null) {
-                continue;
-            }
-            $columns[$name] = $this->values[$name];
-        }
-        if ($isNew) {
-            $placeholders = implode(', ', array_fill(0, count($columns), '?'));
-            $this->db->insert(
-                'INSERT INTO ' . self::quote(static::table()) . ' (' . implode(', ', array_map(self::quote(...), array_keys($columns)))
-                . ") VALUES ($placeholders)",
-                array_values($columns)
-            );
-            if ($key->hasAttr(Field::AUTO_INCREMENT)) {
-                $this->values[$key->getName()] = static::fromDatabase($key, $this->db->lastInsertId());
-            }
-            // Read the row back: the database may have filled columns itself (defaults such as CURRENT_TIMESTAMP),
-            // and a later update would otherwise write the stale nulls over them
-            $this->refresh();
-            $this->afterCreate();
 
+        return $this->persistedKey === null ? $this->insertRow() : $this->updateRow();
+    }
+
+    /**
+     * INSERT the row. Columns without a value are left out, so the database applies its own defaults; an
+     * auto-increment key left empty is generated.
+     *
+     * @return static
+     */
+    private function insertRow(): static
+    {
+        $key = static::primaryKey();
+        $columns = array_filter($this->values, fn(mixed $value) => $value !== null);
+        $placeholders = implode(', ', array_fill(0, count($columns), '?'));
+        $this->db->insert(
+            'INSERT INTO ' . self::quote(static::table()) . ' (' . implode(', ', array_map(self::quote(...), array_keys($columns)))
+            . ") VALUES ($placeholders)",
+            array_values($columns)
+        );
+        if ($this->id() === null && $key->hasAttr(Field::AUTO_INCREMENT)) {
+            $this->values[$key->getName()] = static::fromDatabase($key, $this->db->lastInsertId());
+        }
+        $this->persistedKey = $this->id();
+        // Read the row back: the database may have filled columns itself (defaults such as CURRENT_TIMESTAMP),
+        // and a later update would otherwise write the stale nulls over them
+        $this->refresh();
+        $this->afterCreate();
+
+        return $this;
+    }
+
+    /**
+     * UPDATE the row, found by the key it was loaded or saved with (so changing the key updates the same row).
+     * afterUpdate() runs only when the row changed.
+     *
+     * @return static
+     *
+     * @throws LogicException When the row no longer exists.
+     */
+    private function updateRow(): static
+    {
+        $key = static::primaryKey()->getName();
+        $assignments = implode(', ', array_map(fn(string $name) => self::quote($name) . ' = ?', array_keys($this->values)));
+        $changed = $this->db->update(
+            'UPDATE ' . self::quote(static::table()) . " SET $assignments WHERE " . self::quote($key) . ' = ?',
+            [...array_values($this->values), $this->persistedKey]
+        );
+        if ($changed === 0) {
+            // MySQL also reports 0 when nothing changed: only a missing row is an error
+            if (static::find($this->db, $this->persistedKey) === null) {
+                throw new LogicException(static::class . ' row ' . $this->persistedKey . ' no longer exists');
+            }
             return $this;
         }
-        $assignments = implode(', ', array_map(fn(string $name) => self::quote($name) . ' = ?', array_keys($columns)));
-        $this->db->update(
-            'UPDATE ' . self::quote(static::table()) . " SET $assignments WHERE " . self::quote($key->getName()) . ' = ?',
-            [...array_values($columns), $this->id()]
-        );
+        $this->persistedKey = $this->id();
         $this->afterUpdate();
 
         return $this;
@@ -324,15 +355,15 @@ abstract class Entity implements EntityObject
      *
      * @return static
      *
-     * @throws InvalidArgumentException When the row has no key yet, or no longer exists.
+     * @throws LogicException When the row isn't saved yet, or no longer exists.
      */
     public function refresh(): static
     {
-        if ($this->id() === null) {
-            throw new InvalidArgumentException(static::class . ': a row not saved yet has nothing to refresh');
+        if ($this->persistedKey === null) {
+            throw new LogicException(static::class . ': a row not saved yet has nothing to refresh');
         }
-        $fresh = static::find($this->db, $this->id())
-            ?? throw new InvalidArgumentException(static::class . ' row ' . $this->id() . ' no longer exists');
+        $fresh = static::find($this->db, $this->persistedKey)
+            ?? throw new LogicException(static::class . ' row ' . $this->persistedKey . ' no longer exists');
         $this->values = $fresh->values;
 
         return $this;
@@ -345,13 +376,15 @@ abstract class Entity implements EntityObject
      */
     public function delete(): bool
     {
-        if ($this->id() === null) {
+        if ($this->persistedKey === null) {
             return false;
         }
         $deleted = $this->db->delete(
             'DELETE FROM ' . self::quote(static::table()) . ' WHERE ' . self::quote(static::primaryKey()->getName()) . ' = ?',
-            [$this->id()]
+            [$this->persistedKey]
         ) > 0;
+        // Not in the database any more either way: a later save() inserts it again
+        $this->persistedKey = null;
         if ($deleted) {
             $this->afterDelete();
         }
@@ -426,8 +459,12 @@ abstract class Entity implements EntityObject
      */
     public function compareTo($p): int
     {
-        if (!$p instanceof static) {
-            return static::class <=> get_class($p);
+        if (!is_object($p)) {
+            return 1;
+        }
+        // The same class on both sides (not instanceof), so a->compareTo(b) and b->compareTo(a) always agree
+        if ($p::class !== static::class) {
+            return static::class <=> $p::class;
         }
 
         return $this->id() <=> $p->id();
