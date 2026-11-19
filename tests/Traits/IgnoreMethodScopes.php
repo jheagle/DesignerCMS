@@ -35,7 +35,6 @@ trait IgnoreMethodScopes
         }
         try {
             $method = new ReflectionMethod($className, $methodName);
-            $method->setAccessible(true);
             // The returned method signature will match that of the provided method name yet having public scope.
             return function (...$args) use ($class, $method) {
                 return $method->invokeArgs($class, $args);

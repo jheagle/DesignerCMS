@@ -6,6 +6,7 @@ use ArrayAccess;
 use Core\Contracts\Arrayable;
 use Core\Contracts\Castable;
 use Core\Contracts\Jsonable;
+use Core\Contracts\LazyAssignable;
 use Core\Traits\LazyAssignment;
 use Core\Traits\MakeCastable;
 use Core\Utilities\Functional\Pure;
@@ -15,7 +16,7 @@ use Core\Utilities\Functional\Pure;
  *
  * @package Core\Objects
  */
-abstract class DataTransferObject implements ArrayAccess, Arrayable, Castable, Jsonable
+abstract class DataTransferObject implements ArrayAccess, Arrayable, Castable, Jsonable, LazyAssignable
 {
     use LazyAssignment;
     use MakeCastable;

@@ -40,7 +40,8 @@ class CastedClassProperty extends DataTransferObject
     {
         $scope = static::getReflectionScope($property);
         $property = [
-            'default' => $property->getDefaultValue(),
+            // No default (a typed property without one) reads as null, without 8.5's deprecation
+            'default' => $property->hasDefaultValue() ? $property->getDefaultValue() : null,
             'isStatic' => $property->isStatic(),
             'name' => Pure::dotGet($property, 'name'),
             'value' => $scope === self::SCOPE_PUBLIC ? $property->getValue() : null,
