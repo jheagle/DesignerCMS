@@ -14,7 +14,8 @@ if (!function_exists('dotGet')) {
     {
         $isArray = is_array($arrayObject);
         $key = strBefore($dotNotation, '.');
-        $lastKey = !$key;
+        // strBefore gives '' when there is no dot left; not !$key, since a '0' segment (a list index) is falsy
+        $lastKey = $key === '';
         if ($lastKey) {
             $key = $dotNotation;
         }

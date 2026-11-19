@@ -14,7 +14,10 @@ if (!function_exists('dotNotate')) {
         $results = [];
 
         foreach ($arrayObject as $key => $value) {
-            if (is_array($value) || is_object($value)) {
+            // An empty array or object is a value of its own: recursing into it would leave nothing, and a round trip
+            // (dotNotate, then dotSet each key) would lose it
+            $isContainer = is_array($value) || is_object($value);
+            if ($isContainer && !empty((array)$value)) {
                 $results = array_merge($results, dotNotate($value, $prepend . $key . '.'));
                 continue;
             }
