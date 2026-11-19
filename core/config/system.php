@@ -2,7 +2,8 @@
 
 return [
     'defaultLocale' => envGet('DEFAULT_LANG', 'en-ca'),
-    'langPath' => envGet('LANG_PATH', __DIR__ . '/core/lang'),
+    // This file is in core/config, so the translations are one folder up (core/lang)
+    'langPath' => envGet('LANG_PATH', dirname(__DIR__) . '/lang'),
     'testing' => (bool) envGet('TESTING', false),
     'production' => (bool) envGet('PRODUCTION', true),
 ];

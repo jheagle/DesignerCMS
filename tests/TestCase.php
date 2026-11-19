@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Core\Adaptors\SharedState;
 use Core\Utilities\Functional\Pure;
 use Faker\Factory;
 use Faker\Generator;
@@ -50,6 +51,8 @@ abstract class TestCase extends BaseTestCase
      */
     public function setUp(): void
     {
+        // Every test starts from nothing: no config, translations or adaptor instances left by an earlier test
+        SharedState::reset();
         $this->setUpFaker();
 
         Pure::extractAll();
