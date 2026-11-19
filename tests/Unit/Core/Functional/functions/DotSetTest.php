@@ -163,4 +163,20 @@ class DotSetTest extends TestCase
             ],
         ];
     }
+
+    /**
+     * Given an array
+     * When setting through index 0 (a falsy segment in PHP)
+     * Then the value lands in the list, not under a literal '0.name' key.
+     */
+    #[Test]
+    final public function dotSetFollowsIndexZero(): void
+    {
+        $data = ['list' => [['name' => 'first']]];
+        dotSet($data, 'list.0.name', 'changed');
+        $this->assertEquals(['list' => [['name' => 'changed']]], $data);
+        $empty = [];
+        dotSet($empty, '0.name', 'new');
+        $this->assertEquals([['name' => 'new']], $empty);
+    }
 }
