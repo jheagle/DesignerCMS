@@ -90,6 +90,18 @@ trait MakeAdaptable
     }
 
     /**
+     * Forget every cached and custom instance of every adaptor that shares this root (Adaptor, ExceptionAdaptor or
+     * ErrorAdaptor each hold their own). The next use builds fresh. SharedState::reset() calls this for all three.
+     *
+     * @return void
+     */
+    public static function resetAll(): void
+    {
+        self::$customInstances = [];
+        self::$staticInstances = [];
+    }
+
+    /**
      * Clear any statically set attributes associated with this child class.
      *
      * @return Adaptable

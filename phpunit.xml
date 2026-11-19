@@ -8,6 +8,7 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.1/phpunit.xsd"
          cacheDirectory=".phpunit.cache"
          backupStaticProperties="false"
+         executionOrder="random"
          displayDetailsOnTestsThatTriggerDeprecations="true"
          displayDetailsOnTestsThatTriggerErrors="true"
          displayDetailsOnTestsThatTriggerNotices="true"
