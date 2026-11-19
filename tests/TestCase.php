@@ -116,6 +116,8 @@ abstract class TestCase extends BaseTestCase
      */
     public function tearDown(): void
     {
+        // And leaves nothing behind for code that runs outside setUp (data providers, setUpBeforeClass)
+        SharedState::reset();
         $this->setUpHasRun = false;
 
         if (property_exists($this, 'serverVariables')) {

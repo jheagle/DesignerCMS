@@ -39,17 +39,22 @@ class SharedStateTest extends TestCase
 
     /**
      * Given translations loaded from one path
-     * When the path changes and state is reset
+     * When the path changes (in the environment, as config reads it) and state is reset
      * Then the translations are read from the new path.
      */
     #[Test]
     final public function resetRereadsTranslations(): void
     {
         $this->assertSame('this is a test', Lang::get('test.test'));
-        Config::set('system.langPath', '/nowhere');
-        $this->assertSame('this is a test', Lang::get('test.test'), 'still the translations loaded first');
-        Lang::reset();
-        $this->assertSame('test', Lang::get('test.test'), 'nothing to load: the key itself');
+        $_ENV['LANG_PATH'] = '/nowhere';
+        try {
+            Config::reset();
+            $this->assertSame('this is a test', Lang::get('test.test'), 'still the translations loaded first');
+            SharedState::reset();
+            $this->assertSame('test', Lang::get('test.test'), 'nothing to load: the key itself');
+        } finally {
+            unset($_ENV['LANG_PATH']);
+        }
     }
 
     /**
@@ -75,7 +80,19 @@ class SharedStateTest extends TestCase
     #[Test]
     final public function defaultLangPathExists(): void
     {
-        $this->assertDirectoryExists(Config::get('system.langPath'));
-        $this->assertSame(realpath('core/lang'), realpath(Config::get('system.langPath')));
+        $saved = $_ENV['LANG_PATH'] ?? null;
+        unset($_ENV['LANG_PATH']);
+        try {
+            SharedState::reset();
+            $this->assertDirectoryExists(Config::get('system.langPath'));
+            $this->assertSame(
+                realpath(dirname(__DIR__, 4) . '/core/lang'),
+                realpath(Config::get('system.langPath'))
+            );
+        } finally {
+            if ($saved !== null) {
+                $_ENV['LANG_PATH'] = $saved;
+            }
+        }
     }
 }
