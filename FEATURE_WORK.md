@@ -35,7 +35,7 @@ in code (migrations) is a possible later feature, not part of this epic.
 - [x] **2. Database as an adaptor (DESI-25).** (#29) PDO behind the adaptor layer, so it can be swapped and faked like the
   others. `DB_CONNECTION` picks the driver: `mysql`, the test database (from slice 1), and `log` (a fake that records
   queries and runs nothing, replacing the old testing flag).
-- [ ] **3. Prepared statements and transactions (DESI-15).** `query($sql, $params)` with prepare/execute behind every
+- [x] **3. Prepared statements and transactions (DESI-15).** (#31) `query($sql, $params)` with prepare/execute behind every
   query type; `begin` / `commit` / `rollback` and a `transaction(callable)` helper.
 - [ ] **4. Schema to Fields (DESI-16).** Read a table's columns, keys and indexes from `INFORMATION_SCHEMA` into
   `Field` objects. Tests against tables in the test database.
