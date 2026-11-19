@@ -1,4 +1,7 @@
 # DesignerCMS
+
+[![tests](https://github.com/jheagle/DesignerCMS/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/jheagle/DesignerCMS/actions/workflows/tests.yml)
+
 This project was inspired by a picky client and evolved in later jobs where I became frustrated recreating database queries and data validation.
 
 The intention is that the database structure can be defined in PHP classes and to auto generate these classes. With this improved integration it would be easier to manipulate data and this would create the foundation of a dynamic application. I am currently creating the building blocks which can later be pieced together to form any project imaginable.
