@@ -9,7 +9,8 @@ return [
             'type' => Logger::HANDLER_FILE_STREAM,
             'context' => [
                 'stream' => envGet('LOG_FILE', 'logs/all.log'),
-                'filePermission' => '0644'
+                // An octal number: the string '0644' became decimal 644 (octal 1204), a file its owner couldn't read
+                'filePermission' => 0644
             ],
         ],
     ],

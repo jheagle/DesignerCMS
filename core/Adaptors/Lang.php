@@ -15,6 +15,18 @@ class Lang
     private static ?array $translations = null;
 
     /**
+     * Forget the loaded translations, so the next get() reads them again (after the locale path changes, or between
+     * tests).
+     *
+     * @return void
+     */
+    public static function reset(): void
+    {
+        self::$locales = null;
+        self::$translations = null;
+    }
+
+    /**
      * Retrieve class or instance.
      *
      * @param string|null $dotNotation
