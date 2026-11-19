@@ -2,6 +2,7 @@
 
 namespace Core\Adaptors\Fakes;
 
+use Closure;
 use LogicException;
 use PHPUnit\Framework\Assert;
 
@@ -9,8 +10,8 @@ use PHPUnit\Framework\Assert;
  * A stand-in for whatever an adaptor wraps (Monolog, Guzzle, Symfony Cache...): it records every method called on it,
  * returns what it was told to, and can check afterwards what happened. Made by an adaptor's fake(), e.g. Logger::fake().
  *
- * Checks use PHPUnit's assertions when PHPUnit is loaded (so they count and fail like any other assertion); outside
- * PHPUnit a failed check throws a LogicException. Nothing here needs PHPUnit to run.
+ * Checks use PHPUnit's assertions when PHPUnit is already loaded, as it is in a test run (so they count and fail like
+ * any other assertion); anywhere else a failed check throws a LogicException. Nothing here needs PHPUnit to run.
  *
  * @package Core\Adaptors\Fakes
  */
@@ -24,8 +25,9 @@ class RecordingFake
     private array $calls = [];
 
     /**
-     * @param array<string, mixed> $returns What each method returns, by name: a value, or a callable given the call's
-     *  arguments. Methods not named return null.
+     * @param array<string, mixed> $returns What each method returns, by name: a value, or a Closure given the call's
+     *  arguments. Only a Closure is called: a string such as 'time' is returned as it is, even though it names a
+     *  function. Methods not named return null.
      */
     public function __construct(private readonly array $returns = [])
     {
@@ -44,7 +46,7 @@ class RecordingFake
         $this->calls[] = ['method' => $name, 'arguments' => $arguments];
         $answer = $this->returns[$name] ?? null;
 
-        return is_callable($answer) ? $answer(...$arguments) : $answer;
+        return $answer instanceof Closure ? $answer(...$arguments) : $answer;
     }
 
     /**
@@ -114,7 +116,7 @@ class RecordingFake
     }
 
     /**
-     * The methods called so far, for failure messages.
+     * The methods called so far, for failure messages (empty, or ' (calls: a(), b())').
      *
      * @return string
      */
@@ -135,7 +137,8 @@ class RecordingFake
      */
     protected static function check(bool $passed, string $message): void
     {
-        if (class_exists(Assert::class)) {
+        // false: don't autoload PHPUnit just because it is installed; only use it when a test run already has
+        if (class_exists(Assert::class, false)) {
             Assert::assertTrue($passed, $message);
             return;
         }

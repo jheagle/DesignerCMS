@@ -94,6 +94,10 @@ trait MakeAdaptable
      * Swap in a recording stand-in for what this adaptor wraps, and return it to check afterwards. Static calls and
      * newly built instances use it until the next reset (each test starts with a reset).
      *
+     * Meant for adaptors that wrap a service (Logger, the Curl client, the cache, OAuth). ErrorAdaptor and
+     * ExceptionAdaptor inherit it too, but their wrapped objects are Throwables, which a fake is not. A wrapped class's
+     * own static fake() is shadowed by this one; reach it through the class itself.
+     *
      * @param array<string, mixed> $returns What each method returns, by name: a value, or a callable given the
      *  arguments. Methods not named return null.
      *

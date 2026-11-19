@@ -99,4 +99,48 @@ class LoggerFakeTest extends TestCase
         SharedState::reset();
         $this->assertInstanceOf(\Monolog\Logger::class, Logger::singleton()->classInstance);
     }
+
+    /**
+     * Given a log level that would drop info lines
+     * When the Logger is faked
+     * Then every line is recorded anyway, so the checks see what the code logged, not what the config kept.
+     */
+    #[Test]
+    final public function fakeRecordsEveryLevel(): void
+    {
+        Config::set('logger.logLevel', Logger::LEVEL_ERROR);
+        Logger::fake();
+        Logger::info('below the configured level');
+        Logger::assertLogged('info', 'below the configured level');
+    }
+
+    /**
+     * Given a line that was logged
+     * When checking assertNotLogged for it
+     * Then it fails, listing what was logged.
+     */
+    #[Test]
+    final public function failedNotLoggedListsWhatWasLogged(): void
+    {
+        Logger::fake();
+        Logger::error('Unable to connect');
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage('Expected no line logged at error containing "Unable"; logged: error: Unable to connect');
+        Logger::assertNotLogged('error', 'Unable');
+    }
+
+    /**
+     * Given a call on the fake with no arguments
+     * When a check fails and lists what was logged
+     * Then the listing copes (it read the first argument of every call).
+     */
+    #[Test]
+    final public function listingCopesWithCallsWithoutArguments(): void
+    {
+        $fake = Logger::fake();
+        $fake->reset();
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage('logged: reset: ');
+        $fake->assertLogged('error');
+    }
 }

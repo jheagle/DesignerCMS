@@ -188,8 +188,8 @@ class Logger extends Adaptor implements LoggerInterface
     }
 
     /**
-     * Swap in a fake logger that records each line instead of writing it. Check it with Logger::assertLogged() or on
-     * the returned fake.
+     * Swap in a fake logger that records each line instead of writing it, at every level (logger.logLevel is not
+     * applied while faked). Check it with Logger::assertLogged() or on the returned fake.
      *
      * @param array<string, mixed> $returns
      *
@@ -265,6 +265,11 @@ class Logger extends Adaptor implements LoggerInterface
      */
     private static function ignoreLevel(string $level): bool
     {
+        // A fake records every line the code logs, whatever the configured level, so tests check the code, not the
+        // config (and assertNotLogged can't pass just because the level filtered a line out)
+        if ((self::$customInstances[self::class] ?? null) instanceof LoggerFake) {
+            return false;
+        }
         return array_search($level, self::LEVELS) < array_search(
                 Config::get('logger.logLevel', self::LEVEL_ERROR),
                 self::LEVELS

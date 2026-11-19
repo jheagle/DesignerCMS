@@ -107,4 +107,64 @@ class RecordingFakeTest extends TestCase
         $this->assertSame(['base_uri' => 'https://example.test'], Client::getConfig());
         $fake->assertCalled('getConfig', times: 2);
     }
+
+    /**
+     * Given return values that happen to name functions (a string like 'time', a [class, method] array)
+     * When the method is called
+     * Then they are returned as they are; only a Closure is called.
+     */
+    #[Test]
+    final public function onlyClosuresAreCalled(): void
+    {
+        $fake = new RecordingFake(['name' => 'time', 'pair' => [self::class, 'class'], 'answer' => fn() => 'called']);
+        $this->assertSame('time', $fake->name());
+        $this->assertSame([self::class, 'class'], $fake->pair());
+        $this->assertSame('called', $fake->answer());
+    }
+
+    /**
+     * Given a call that shouldn't have happened
+     * When checking assertNotCalled
+     * Then it fails saying how many times it was called.
+     */
+    #[Test]
+    final public function failedNotCalledSaysTheCount(): void
+    {
+        $fake = new RecordingFake();
+        $fake->delete('a');
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage('Expected delete() not to be called; it was called 1 times');
+        $fake->assertNotCalled('delete');
+    }
+
+    /**
+     * Given some calls
+     * When checking assertNothingCalled
+     * Then it fails naming them.
+     */
+    #[Test]
+    final public function failedNothingCalledNamesTheCalls(): void
+    {
+        $fake = new RecordingFake();
+        $fake->send('a');
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage('Expected no calls (calls: send())');
+        $fake->assertNothingCalled();
+    }
+
+    /**
+     * Given a faked adaptor
+     * When calling a method the wrapped class doesn't have (on a built instance, and statically)
+     * Then the call reaches the fake (adaptors only forwarded methods that exist on the wrapped class).
+     */
+    #[Test]
+    final public function callsReachTheFakeEvenForUnknownMethods(): void
+    {
+        $fake = Client::fake(['somethingUnknown' => 42]);
+        $this->assertFalse(method_exists(\GuzzleHttp\Client::class, 'somethingUnknown'));
+        $this->assertSame(42, Client::instantiate()->build()->somethingUnknown('instance'));
+        $this->assertSame(42, Client::somethingUnknown('static'));
+        $fake->assertCalled('somethingUnknown', fn(string $how) => $how === 'instance', 1)
+            ->assertCalled('somethingUnknown', fn(string $how) => $how === 'static', 1);
+    }
 }
