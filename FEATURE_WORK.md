@@ -37,7 +37,7 @@ in code (migrations) is a possible later feature, not part of this epic.
   queries and runs nothing, replacing the old testing flag).
 - [x] **3. Prepared statements and transactions (DESI-15).** (#31) `query($sql, $params)` with prepare/execute behind every
   query type; `begin` / `commit` / `rollback` and a `transaction(callable)` helper.
-- [ ] **4. Schema to Fields (DESI-16).** Read a table's columns, keys and indexes from `INFORMATION_SCHEMA` into
+- [x] **4. Schema to Fields (DESI-16).** (#32) Read a table's columns, keys and indexes from `INFORMATION_SCHEMA` into
   `Field` objects. Tests against tables in the test database.
 - [ ] **5. Generic Entity (DESI-17).** A subclass declares its table and `Field`s; create, read, update and delete come
   from them through slice 3; `LazyAssignment` replaces the positional constructor. The address-book contact methods
