@@ -75,10 +75,10 @@ class DbConnectTest extends TestCase
     final public function keyedSettingsReplaceConfig(): void
     {
         DbConnect::disconnectAll();
-        $db = PhpDbConnect::instantiateDB(['production' => false, 'testing' => true]);
+        $db = PhpDbConnect::instantiateDB(['production' => false, 'hostname' => '127.0.0.1']);
         $this->expectOutputRegex('/Connected to database \(designercms_test\)/');
-        $this->assertTrue($db->testing);
         $this->assertFalse($db->production);
+        $this->assertSame('127.0.0.1', $db->hostname);
         $this->assertSame('designercms_test', $db->database);
         // Its "Completed 0 Queries" goodbye is printed now, inside this test, not after it
         unset($db);
@@ -116,7 +116,7 @@ class DbConnectTest extends TestCase
             PhpDbConnect::instantiateDB(['password' => 'not-the-password']);
         } finally {
             $this->assertSame([], DbConnect::$instance);
-            $this->assertSame([], DbConnect::$pdoInstance);
+            $this->assertSame([], DbConnect::$connections);
         }
     }
 
@@ -222,5 +222,34 @@ class DbConnectTest extends TestCase
         $this->expectException(PDOException::class);
         // Same database name, another host (nothing listens on this port): must try to connect, not reuse
         PhpDbConnect::instantiateDB(['hostname' => '127.0.0.1;port=1']);
+    }
+
+    /**
+     * Given a real table
+     * When inserting rows
+     * Then rowCount() is the rows the insert affected and lastInsertId() the new id (rowCount used to call a
+     * method PDO doesn't have).
+     */
+    #[Test]
+    final public function rowCountAndLastInsertIdAgainstMysql(): void
+    {
+        $this->db->alter('CREATE TEMPORARY TABLE row_count_check (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20))');
+        $this->assertSame(2, $this->db->insert("INSERT INTO row_count_check (name) VALUES ('a'), ('b')"));
+        $this->assertSame(2, $this->db->rowCount());
+        $this->db->insert("INSERT INTO row_count_check (name) VALUES ('c')");
+        $this->assertSame('3', $this->db->lastInsertId());
+    }
+
+    /**
+     * Given a real connection
+     * When calling a method PDO doesn't have
+     * Then it is PHP's undefined-method error (the same as under the log driver).
+     */
+    #[Test]
+    final public function unknownMethodIsAnError(): void
+    {
+        $this->expectException(\Error::class);
+        $this->expectExceptionMessage('undefined method PDO::setAtribute()');
+        $this->db->setAtribute(\PDO::ATTR_EMULATE_PREPARES, false);
     }
 }

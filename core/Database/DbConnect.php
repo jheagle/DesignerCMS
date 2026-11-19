@@ -3,6 +3,7 @@
 namespace Core\Database;
 
 use Core\Adaptors\Config;
+use Core\Adaptors\Vendor\Database\Connection;
 use Core\Adaptors\Vendor\Logger\Logger;
 use Core\Contracts\LazyAssignable;
 use Core\DataTypes\Interfaces\Potential;
@@ -25,22 +26,27 @@ abstract class DbConnect implements LazyAssignable, Potential
     public static array $instance = [];
 
     /**
-     * @var PDO[] $pdoInstance
+     * The open connections (adaptors around PDO, or the log driver), shared by key.
+     *
+     * @var Connection[] $connections
      */
-    public static array $pdoInstance = [];
+    public static array $connections = [];
 
     /**
-     * Which shared PDO the static calls (__callStatic) use: the last connection made.
+     * Which shared connection the static calls (__callStatic) use: the last one made.
      */
-    private static string $staticPdoKey = '';
+    private static string $staticConnectionKey = '';
 
     /**
-     * This connection's key in $pdoInstance: driver, host and database, so two servers with the same database name
-     * never share a PDO.
+     * This object's key in $connections: driver, host and database, so two servers with the same database name never
+     * share a connection.
      */
-    protected string $pdoKey = '';
+    protected string $connectionKey = '';
 
-    public string $connection = 'mysql'; // the PDO driver
+    /**
+     * The driver: a PDO driver such as 'mysql', or 'log' (record and log statements, run nothing; see QueryLog).
+     */
+    public string $connection = 'mysql';
 
     public string $hostname = 'localhost';
 
@@ -48,9 +54,14 @@ abstract class DbConnect implements LazyAssignable, Potential
 
     public bool $production = true; // environment
 
-    public bool $testing = false; // mode (truly run a query or not)
+    public bool $testing = false; // testing mode: statements are not run (it uses the log driver)
 
     public int $queries = 0;
+
+    /**
+     * Rows affected or returned by the last statement (rowCount() reads it; PDO itself has no row count).
+     */
+    protected int $lastRowCount = 0;
 
     public mixed $result;
 
@@ -71,6 +82,14 @@ abstract class DbConnect implements LazyAssignable, Potential
     public function __construct(#[SensitiveParameter] array $settings = [])
     {
         $this->applyMemberSettings($settings);
+        // Testing mode means the log driver: statements are recorded and logged, never run
+        if ($this->testing) {
+            $this->connection = self::LOG_DRIVER;
+        }
+        if ($this->connection === self::LOG_DRIVER) {
+            $this->openLog();
+            return;
+        }
         if ($this->database === '') {
             throw new InvalidArgumentException('No database to connect to: set DB_DATABASE, or pass "database"');
         }
@@ -78,10 +97,9 @@ abstract class DbConnect implements LazyAssignable, Potential
         if ($username === '') {
             throw new InvalidArgumentException('No database user: set DB_USERNAME, or pass "username"');
         }
-        $this->pdoKey = "$this->connection|$this->hostname|$this->database";
-        self::$staticPdoKey = $this->pdoKey;
+        $this->useConnectionKey();
         try {
-            self::$pdoInstance[$this->pdoKey] ??= new PDO(
+            self::$connections[$this->connectionKey] ??= Connection::instantiate()->connect(
                 "$this->connection:host=$this->hostname;dbname=$this->database",
                 $username,
                 (string)($settings['password'] ?? ''),
@@ -203,6 +221,34 @@ abstract class DbConnect implements LazyAssignable, Potential
     }
 
     /**
+     * The driver name that records and logs statements instead of running them.
+     */
+    public const LOG_DRIVER = 'log';
+
+    /**
+     * Key this object's connection by driver, host and database, and make it the one static calls use.
+     *
+     * @return void
+     */
+    private function useConnectionKey(): void
+    {
+        $this->connectionKey = "$this->connection|$this->hostname|$this->database";
+        self::$staticConnectionKey = $this->connectionKey;
+    }
+
+    /**
+     * Open the log driver: no server, no credentials.
+     *
+     * @return void
+     */
+    private function openLog(): void
+    {
+        $this->useConnectionKey();
+        self::$connections[$this->connectionKey] ??= Connection::instantiate()->useLog();
+        Logger::info("Using the log driver: statements are recorded and logged, not run ($this->database)");
+    }
+
+    /**
      * Forget every shared connection (tests, or a long-running process that changes its settings). The next
      * instantiateDB() connects again.
      *
@@ -211,18 +257,18 @@ abstract class DbConnect implements LazyAssignable, Potential
     public static function disconnectAll(): void
     {
         self::$instance = [];
-        self::$pdoInstance = [];
-        self::$staticPdoKey = '';
+        self::$connections = [];
+        self::$staticConnectionKey = '';
     }
 
     /**
-     * This connection's PDO, or null when there is none.
+     * This object's connection (the adaptor around PDO, or the log driver), or null when there is none.
      *
-     * @return PDO|null
+     * @return Connection|null
      */
-    final public function pdo(): ?PDO
+    final public function connection(): ?Connection
     {
-        return self::$pdoInstance[$this->pdoKey] ?? null;
+        return self::$connections[$this->connectionKey] ?? null;
     }
 
     /**
@@ -239,15 +285,15 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     public function __call(string $name, array $arguments = []): mixed
     {
-        $pdo = $this->pdo();
+        $connection = $this->connection();
 
-        return $pdo !== null && !method_exists($this, $name) && method_exists($pdo, $name)
-            ? $pdo->$name(...$arguments)
+        return $connection !== null && !method_exists($this, $name)
+            ? $connection->$name(...$arguments)
             : false;
     }
 
     /**
-     * Call a PDO method on the last connection made, e.g. PhpDbConnect::setAttribute(...).
+     * Call a connection method on the last connection made, e.g. PhpDbConnect::setAttribute(...).
      *
      * @param string $name
      * @param array $arguments
@@ -255,10 +301,10 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     public static function __callStatic(string $name, array $arguments = []): mixed
     {
-        $pdo = self::$pdoInstance[self::$staticPdoKey] ?? null;
+        $connection = self::$connections[self::$staticConnectionKey] ?? null;
 
-        return $pdo !== null && !method_exists(DbConnect::class, $name) && method_exists($pdo, $name)
-            ? $pdo->$name(...$arguments)
+        return $connection !== null && !method_exists(DbConnect::class, $name)
+            ? $connection->$name(...$arguments)
             : false;
     }
 
@@ -284,9 +330,11 @@ abstract class DbConnect implements LazyAssignable, Potential
             Logger::info("Running query:", [
                 'Query' => $query,
             ]);
-            if (!$this->testing && $this->pdo()) {
-                $count = $this->pdo()->exec($query);
+            // The log driver records the statement and reports 0 rows; it no longer needs a testing check here
+            if ($this->connection()) {
+                $count = (int)$this->connection()->exec($query);
             }
+            $this->lastRowCount = $count;
             Logger::info("Query complete:", [
                 'Query' => $query,
             ]);
@@ -312,7 +360,7 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     final public function lastInsertId(?string $name = null): string
     {
-        return $this->pdo()->lastInsertId($name);
+        return (string)$this->connection()?->lastInsertId($name);
     }
 
     /**
@@ -320,7 +368,8 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     final public function rowCount(): int
     {
-        return $this->pdo()->rowCount();
+        // Only a statement has a row count (PDO has no rowCount()), so this is the last statement's
+        return $this->lastRowCount;
     }
 
     /**
@@ -338,10 +387,11 @@ abstract class DbConnect implements LazyAssignable, Potential
             return 0;
         }
         try {
-            if ($queryRaw === $this->queryRaw && $this->pdo() !== null) {
-                $this->result = $this->pdo()->query(
+            if ($queryRaw === $this->queryRaw && $this->connection() !== null) {
+                $this->result = $this->connection()->query(
                     $this->query
                 );
+                $this->lastRowCount = is_object($this->result) ? (int)$this->result->rowCount() : 0;
             }
             Logger::info("Running query:", [
                 'Query' => $query,
