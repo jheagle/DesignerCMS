@@ -4,7 +4,7 @@ use Core\Database\AjaxDbConnect;
 
 header('Content-Type: application/json');
 
-$db = AjaxDbConnect::instantiateDB('', '', '', '', true, false);
+$db = AjaxDbConnect::instantiateDB(['testing' => true, 'production' => false]);
 
 if (empty($_POST['DBQueries'])) {
     unset($db);

@@ -113,6 +113,8 @@ trait MakeAdaptable
     {
         $className = get_called_class();
         self::$customInstances[$className] = $resource;
+        // Drop the cached static instance, or a resource set after first use would never take effect
+        self::$staticInstances[$className] = null;
         return self::initialize();
     }
 
