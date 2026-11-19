@@ -24,9 +24,13 @@ is removed before the epic merges to `main`.
   order (fixes DESI-20), and `phpunit.xml` then runs in random order so it stays that way.
 - [x] **2. The real Logger in tests, with a test log (DESI-23).** (#24) Fix the path that leaves a bare class name instead
   of a Monolog instance after a reset. `phpunit.xml` sets `LOG_FILE=logs/test.log`, emptied at the start of each run.
-- [ ] **3. Fakes for every adaptor (DESI-24).** `fake()` on `MakeAdaptable` swaps in a recording stand-in and
+- [x] **3. Fakes for every adaptor (DESI-24).** (#26) `fake()` on `MakeAdaptable` swaps in a recording stand-in and
   returns it; checks such as `Logger::assertLogged('error', 'Unable to connect')` and `assertNothingLogged()`.
   Existing tests move from hand-built `GenericClass` mocks to fakes where it reads better.
+
+## Found along the way
+
+- `Pure::getFunction()` failed as the first use of Pure (DESI-38, #27): exposed once tests ran in random order.
 
 ## Out of scope
 
