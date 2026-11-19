@@ -12,6 +12,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use ReflectionObject;
+use Error;
+use PDOException;
 use Tests\TestCase;
 
 /**
@@ -113,5 +115,73 @@ class DatabaseDriversTest extends TestCase
         }
         $this->assertArrayHasKey('constructorArgs', $values);
         $this->assertStringNotContainsString($password, print_r($values, true));
+    }
+
+    /**
+     * Given the log driver
+     * When asking for the row count and the last insert id, or preparing a statement
+     * Then they answer as an empty connection would: 0, '0', a statement with no rows (and prepare is recorded).
+     */
+    #[Test]
+    final public function logDriverAnswersCountsAndStatements(): void
+    {
+        $db = PhpDbConnect::instantiateDB(['connection' => 'log', 'database' => 'shop', 'username' => '']);
+        $db->insert('INSERT INTO orders (id) VALUES (1)');
+        $this->assertSame(0, $db->rowCount());
+        $this->assertSame('0', $db->lastInsertId());
+        $statement = $db->connection()->prepare('SELECT id FROM orders WHERE id = ?');
+        $this->assertTrue($statement->execute([1]));
+        $this->assertSame([], $statement->fetchAll());
+        $this->assertContains('SELECT id FROM orders WHERE id = ?', $db->connection()->classInstance->statements());
+        $this->assertTrue($db->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false));
+    }
+
+    /**
+     * Given the log driver
+     * When calling a method PDO doesn't have (a typo)
+     * Then it is an error, as it would be against a real database, not a quiet null.
+     */
+    #[Test]
+    final public function logDriverRejectsMethodsPdoDoesNotHave(): void
+    {
+        $db = PhpDbConnect::instantiateDB(['connection' => 'log', 'database' => 'shop', 'username' => '']);
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Call to undefined method PDO::setAtribute()');
+        $db->setAtribute(\PDO::ATTR_EMULATE_PREPARES, false);
+    }
+
+    /**
+     * Given a faked connection
+     * When statements report rows
+     * Then rowCount() is the last statement's count (exec's, or the query result's).
+     */
+    #[Test]
+    final public function rowCountIsTheLastStatements(): void
+    {
+        Connection::fake(['exec' => 3, 'query' => fn() => new RecordingFake(['rowCount' => 2, 'fetch' => false])]);
+        $db = PhpDbConnect::instantiateDB(['database' => 'shop', 'username' => 'shop_user']);
+        $db->update('UPDATE orders SET paid = 1');
+        $this->assertSame(3, $db->rowCount());
+        $db->select('SELECT id FROM orders');
+        $this->assertSame(2, $db->rowCount());
+    }
+
+    /**
+     * Given a connection that fails to open (nothing listens on port 1)
+     * When connect() throws
+     * Then the adaptor still forgets the password (the finally clears its stored arguments).
+     */
+    #[Test]
+    final public function failedConnectForgetsThePassword(): void
+    {
+        $password = 'failed-' . bin2hex(random_bytes(4));
+        $connection = Connection::instantiate();
+        try {
+            $connection->connect('mysql:host=127.0.0.1;port=1;dbname=shop', 'shop_user', $password);
+            $this->fail('The connection should have failed');
+        } catch (PDOException) {
+        }
+        $arguments = (new ReflectionObject($connection))->getProperty('constructorArgs')->getValue($connection);
+        $this->assertSame([], $arguments);
     }
 }

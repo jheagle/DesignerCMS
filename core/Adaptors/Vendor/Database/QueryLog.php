@@ -4,6 +4,8 @@ namespace Core\Adaptors\Vendor\Database;
 
 use Core\Adaptors\Fakes\RecordingFake;
 use Core\Adaptors\Vendor\Logger\Logger;
+use Error;
+use PDO;
 
 /**
  * The log driver (DB_CONNECTION=log, or testing mode): stands in for the database connection, records every statement
@@ -38,6 +40,11 @@ class QueryLog extends RecordingFake
             'commit' => true,
             'rollBack' => true,
             'inTransaction' => false,
+            'setAttribute' => true,
+            'getAttribute' => null,
+            'quote' => fn(string $value) => "'" . addslashes($value) . "'",
+            'errorCode' => '00000',
+            'errorInfo' => ['00000', null, null],
         ]);
     }
 
@@ -51,6 +58,10 @@ class QueryLog extends RecordingFake
      */
     public function __call(string $name, array $arguments): mixed
     {
+        // Behave like the PDO it stands in for: a method PDO doesn't have is an error here too, not a quiet null
+        if (!method_exists(PDO::class, $name)) {
+            throw new Error('Call to undefined method ' . PDO::class . "::$name()");
+        }
         if (in_array($name, self::STATEMENT_METHODS, true)) {
             Logger::info('Not run (log driver): ' . ($arguments[0] ?? ''));
         }

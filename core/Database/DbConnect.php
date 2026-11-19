@@ -58,6 +58,11 @@ abstract class DbConnect implements LazyAssignable, Potential
 
     public int $queries = 0;
 
+    /**
+     * Rows affected or returned by the last statement (rowCount() reads it; PDO itself has no row count).
+     */
+    protected int $lastRowCount = 0;
+
     public mixed $result;
 
     public string $queryRaw = '';
@@ -329,6 +334,7 @@ abstract class DbConnect implements LazyAssignable, Potential
             if ($this->connection()) {
                 $count = (int)$this->connection()->exec($query);
             }
+            $this->lastRowCount = $count;
             Logger::info("Query complete:", [
                 'Query' => $query,
             ]);
@@ -354,7 +360,7 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     final public function lastInsertId(?string $name = null): string
     {
-        return $this->connection()->lastInsertId($name);
+        return (string)$this->connection()?->lastInsertId($name);
     }
 
     /**
@@ -362,7 +368,8 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     final public function rowCount(): int
     {
-        return $this->connection()->rowCount();
+        // Only a statement has a row count (PDO has no rowCount()), so this is the last statement's
+        return $this->lastRowCount;
     }
 
     /**
@@ -384,6 +391,7 @@ abstract class DbConnect implements LazyAssignable, Potential
                 $this->result = $this->connection()->query(
                     $this->query
                 );
+                $this->lastRowCount = is_object($this->result) ? (int)$this->result->rowCount() : 0;
             }
             Logger::info("Running query:", [
                 'Query' => $query,

@@ -223,4 +223,33 @@ class DbConnectTest extends TestCase
         // Same database name, another host (nothing listens on this port): must try to connect, not reuse
         PhpDbConnect::instantiateDB(['hostname' => '127.0.0.1;port=1']);
     }
+
+    /**
+     * Given a real table
+     * When inserting rows
+     * Then rowCount() is the rows the insert affected and lastInsertId() the new id (rowCount used to call a
+     * method PDO doesn't have).
+     */
+    #[Test]
+    final public function rowCountAndLastInsertIdAgainstMysql(): void
+    {
+        $this->db->alter('CREATE TEMPORARY TABLE row_count_check (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20))');
+        $this->assertSame(2, $this->db->insert("INSERT INTO row_count_check (name) VALUES ('a'), ('b')"));
+        $this->assertSame(2, $this->db->rowCount());
+        $this->db->insert("INSERT INTO row_count_check (name) VALUES ('c')");
+        $this->assertSame('3', $this->db->lastInsertId());
+    }
+
+    /**
+     * Given a real connection
+     * When calling a method PDO doesn't have
+     * Then it is PHP's undefined-method error (the same as under the log driver).
+     */
+    #[Test]
+    final public function unknownMethodIsAnError(): void
+    {
+        $this->expectException(\Error::class);
+        $this->expectExceptionMessage('undefined method PDO::setAtribute()');
+        $this->db->setAtribute(\PDO::ATTR_EMULATE_PREPARES, false);
+    }
 }

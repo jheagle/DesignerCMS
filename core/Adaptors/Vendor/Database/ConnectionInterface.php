@@ -2,6 +2,8 @@
 
 namespace Core\Adaptors\Vendor\Database;
 
+use SensitiveParameter;
+
 /**
  * What DbConnect needs from a database connection.
  *
@@ -19,7 +21,12 @@ interface ConnectionInterface
      *
      * @return static
      */
-    public function connect(string $dsn, string $username, string $password, array $options = []): static;
+    public function connect(
+        string $dsn,
+        string $username,
+        #[SensitiveParameter] string $password,
+        array $options = []
+    ): static;
 
     /**
      * Use the log driver: record and log statements instead of running them.
