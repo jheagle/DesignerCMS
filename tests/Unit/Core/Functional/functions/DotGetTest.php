@@ -120,4 +120,20 @@ class DotGetTest extends TestCase
             dotGet($array, '1.willHaveDefaults.*.hasValue')
         );
     }
+
+    /**
+     * Given a list inside an array or object
+     * When reading through index 0 (a falsy segment in PHP)
+     * Then the path continues past it ('list.0.name' used to stop at '0' and look up '0.name').
+     */
+    #[Test]
+    final public function dotGetFollowsIndexZero(): void
+    {
+        $data = ['list' => [['name' => 'first'], ['name' => 'second']]];
+        $this->assertEquals('first', dotGet($data, 'list.0.name'));
+        $this->assertEquals('second', dotGet($data, 'list.1.name'));
+        $this->assertEquals('first', dotGet((object)$data, 'list.0.name'));
+        $this->assertEquals('first', dotGet([['name' => 'first']], '0.name'));
+        $this->assertEquals('default', dotGet($data, 'list.0.missing', 'default'));
+    }
 }
