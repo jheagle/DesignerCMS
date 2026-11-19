@@ -69,10 +69,15 @@ class Pure implements Functional
      */
     public static function getFunction(string $name): callable
     {
-        if (!is_callable(self::$instance->importedFunctions[$name] ?? false)) {
-            throw new BadFunctionCallException();
+        // Set Pure up if nothing has yet (as __callStatic does), so this works as the first call too
+        $pure = self::$instance ?? self::instantiatePure();
+        if (!array_key_exists($name, $pure->importedFunctions)) {
+            $pure->importedFunctions = $pure->importFunctions();
         }
-        return self::$instance->importedFunctions[$name];
+        if (!is_callable($pure->importedFunctions[$name] ?? false)) {
+            throw new BadFunctionCallException("No Pure function named $name");
+        }
+        return $pure->importedFunctions[$name];
     }
 
     /**
