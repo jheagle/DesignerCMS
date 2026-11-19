@@ -5,8 +5,10 @@ namespace Tests\Unit\Core\Adaptors\Vendor;
 use Core\Adaptors\Config;
 use Core\Adaptors\Vendor\Logger\Logger;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Mocks\GenericClass;
 use Tests\TestCase;
 
 /**
@@ -32,12 +34,12 @@ class LoggerTest extends TestCase
     /**
      * Given the test settings
      * When reading where the Logger writes
-     * Then it is the test log, not the app's.
+     * Then it is the test log, not the app's, as an absolute path (the same file whatever directory PHPUnit runs from).
      */
     #[Test]
     final public function writesToTheTestLog(): void
     {
-        $this->assertSame('logs/test.log', $this->logFile());
+        $this->assertSame(dirname(__DIR__, 5) . '/logs/test.log', $this->logFile());
     }
 
     /**
@@ -59,13 +61,49 @@ class LoggerTest extends TestCase
      * Then the real Monolog logger is built and writes (it used to be left as a bare class name).
      */
     #[Test]
-    final public function logsAfterResetOrInitialize(): void
+    #[DataProvider('firstCalls')]
+    final public function logsAfterResetOrInitialize(string $firstCall): void
     {
-        Logger::reset();
-        $marker = 'after reset ' . bin2hex(random_bytes(4));
+        Logger::$firstCall();
+        $marker = "after $firstCall " . bin2hex(random_bytes(4));
         Logger::info($marker);
         $this->assertInstanceOf(\Monolog\Logger::class, Logger::singleton()->classInstance);
         $this->assertStringContainsString($marker, file_get_contents($this->logFile()));
+    }
+
+    /**
+     * The calls that cache an instance naming only the class.
+     *
+     * @return array
+     */
+    public static function firstCalls(): array
+    {
+        return ['reset' => ['reset'], 'initialize' => ['initialize']];
+    }
+
+    /**
+     * Given a custom resource set with setResource(), even one that is a string
+     * When asking for the singleton again and again
+     * Then the same instance comes back, carrying that resource.
+     */
+    #[Test]
+    #[DataProvider('customResources')]
+    final public function customResourceIsKept(mixed $resource): void
+    {
+        Logger::setResource($resource);
+        $first = Logger::singleton();
+        $this->assertSame($resource, $first->classInstance);
+        $this->assertSame($first, Logger::singleton());
+    }
+
+    /**
+     * A stand-in object, and a string.
+     *
+     * @return array
+     */
+    public static function customResources(): array
+    {
+        return ['object' => [new GenericClass(['info' => fn() => null])], 'string' => ['a-string-resource']];
     }
 
     /**
