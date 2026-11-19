@@ -1,0 +1,72 @@
+# Run the test suite on every pull request (to main and to epic branches) and on every push to main. DesignerCMS is
+# public, so GitHub Actions on standard runners is free. Make the "tests" checks required in the ruleset for main so
+# a PR can't merge while they fail.
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  phpunit:
+    name: tests (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # composer.json requires ^8.4: test the oldest supported and the newest
+        php: ['8.4', '8.5']
+
+    # The MySQL test database the DB tests use (tests/Traits/UsesTestDatabase.php)
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root-ci-only
+          MYSQL_DATABASE: designercms_test
+          MYSQL_USER: designercms_ci
+          MYSQL_PASSWORD: ci-only-password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot-ci-only"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    # Throwaway CI credentials (the container lives only for this job). DB_HOSTNAME is 127.0.0.1, not localhost:
+    # for MySQL, localhost means the Unix socket, which the service container doesn't share.
+    env:
+      DB_CONNECTION: mysql
+      DB_DATABASE: designercms_test
+      DB_HOSTNAME: 127.0.0.1
+      DB_USERNAME: designercms_ci
+      DB_PASSWORD: ci-only-password
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo, pdo_mysql, json
+          coverage: none
+          # The app reads its settings from $_ENV; with the default GPCS the job's env vars would only reach getenv().
+          # With E first, phpunit.xml's <env> values only fill in what the job doesn't set.
+          ini-values: variables_order=EGPCS
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ matrix.php }}-
+
+      - run: composer install --no-interaction --no-progress --prefer-dist
+
+      # --fail-on-skipped: a DB test that skips (no database reached) fails the run instead of passing quietly
+      - run: vendor/bin/phpunit --fail-on-skipped
