@@ -4,6 +4,7 @@ use Core\Adaptors\Vendor\CacheRegistry\CacheItem;
 use Core\Adaptors\Vendor\CacheRegistry\CacheRegistry;
 use Core\Adaptors\Vendor\CacheRegistry\Exceptions\InvalidArgumentException;
 use Core\Adaptors\Vendor\Curl\Client;
+use Core\Adaptors\Vendor\Database\Connection;
 use Core\Adaptors\Vendor\Curl\Exceptions\CurlException;
 use Core\Adaptors\Vendor\Curl\Exceptions\RequestException;
 use Core\Adaptors\Vendor\Curl\HandlerStack;
@@ -26,6 +27,7 @@ return [
     CacheItem::class => \Symfony\Component\Cache\CacheItem::class,
     CacheRegistry::class => FilesystemAdapter::class,
     Client::class => \GuzzleHttp\Client::class,
+    Connection::class => \PDO::class,
     HandlerStack::class => \GuzzleHttp\HandlerStack::class,
     Handler::class => MockHandler::class,
     Response::class => \GuzzleHttp\Psr7\Response::class,

@@ -7,7 +7,6 @@ use Core\Database\DbConnect;
 use Core\Adaptors\Vendor\Logger\Logger;
 use Core\Database\PhpDbConnect;
 use PDOException;
-use Tests\Mocks\GenericClass;
 use Symfony\Component\Dotenv\Dotenv;
 
 /**
@@ -15,8 +14,8 @@ use Symfony\Component\Dotenv\Dotenv;
  * user and password from .env. phpunit.xml's values win over .env's, so a test never touches the app's own database.
  * The test is skipped (with the reason) only when there is nothing to test against: no database user configured, or
  * no MySQL server reachable. Anything else, such as a wrong password or a missing test database, fails the test, so a
- * broken setup can't pass by skipping. Logging goes to a
- * quiet stand-in, as in the other tests that log (the real Logger is not set up under PHPUnit).
+ * broken setup can't pass by skipping. Logging goes to
+ * Logger::fake(), so tests can check what was logged with Logger::assertLogged().
  *
  * @package Tests\Traits
  */
@@ -34,12 +33,7 @@ trait UsesTestDatabase
             (new Dotenv())->load($envFile);
         }
         Config::reset();
-        Config::set('logger.handlers', []);
-        $quiet = fn() => null;
-        Logger::setResource(new GenericClass(array_fill_keys(
-            ['emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'],
-            $quiet
-        )));
+        Logger::fake();
         DbConnect::disconnectAll();
         if (PhpDbConnect::configuredSettings()['username'] === '') {
             $this->markTestSkipped('No database user configured (DB_USERNAME in .env)');

@@ -64,7 +64,7 @@ class PhpDbConnect extends DbConnect
             $this->query($queryRaw);
         }
 
-        return $this->pdo() !== null && $this->result ? $this->result->fetch(
+        return $this->connection() !== null && $this->result ? $this->result->fetch(
             PDO::FETCH_ASSOC
         ) : $this->result;
     }
@@ -79,7 +79,7 @@ class PhpDbConnect extends DbConnect
             $this->query($queryRaw);
         }
 
-        return $this->pdo() !== null && $this->result ? $this->result->fetch(
+        return $this->connection() !== null && $this->result ? $this->result->fetch(
             PDO::FETCH_COLUMN
         ) : $this->result;
     }
@@ -94,7 +94,7 @@ class PhpDbConnect extends DbConnect
             $this->query($queryRaw);
         }
 
-        return $this->pdo() !== null && $this->result ? $this->result->fetch(
+        return $this->connection() !== null && $this->result ? $this->result->fetch(
             PDO::FETCH_NUM
         ) : $this->result;
     }
@@ -109,7 +109,7 @@ class PhpDbConnect extends DbConnect
             $this->query($queryRaw);
         }
 
-        return $this->pdo() !== null && $this->result ? $this->result->fetch(
+        return $this->connection() !== null && $this->result ? $this->result->fetch(
             PDO::FETCH_BOTH
         ) : $this->result;
     }
@@ -124,7 +124,7 @@ class PhpDbConnect extends DbConnect
             $this->query($queryRaw);
         }
 
-        return $this->pdo() !== null && $this->result ? $this->result->fetch(
+        return $this->connection() !== null && $this->result ? $this->result->fetch(
             PDO::FETCH_OBJ
         ) : $this->result;
     }
@@ -139,7 +139,7 @@ class PhpDbConnect extends DbConnect
             $this->query($queryRaw);
         }
 
-        return $this->pdo() !== null && $this->result ? $this->result->fetch(
+        return $this->connection() !== null && $this->result ? $this->result->fetch(
             PDO::FETCH_LAZY
         ) : $this->result;
     }

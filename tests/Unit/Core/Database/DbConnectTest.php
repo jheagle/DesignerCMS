@@ -75,10 +75,10 @@ class DbConnectTest extends TestCase
     final public function keyedSettingsReplaceConfig(): void
     {
         DbConnect::disconnectAll();
-        $db = PhpDbConnect::instantiateDB(['production' => false, 'testing' => true]);
+        $db = PhpDbConnect::instantiateDB(['production' => false, 'hostname' => '127.0.0.1']);
         $this->expectOutputRegex('/Connected to database \(designercms_test\)/');
-        $this->assertTrue($db->testing);
         $this->assertFalse($db->production);
+        $this->assertSame('127.0.0.1', $db->hostname);
         $this->assertSame('designercms_test', $db->database);
         // Its "Completed 0 Queries" goodbye is printed now, inside this test, not after it
         unset($db);
@@ -116,7 +116,7 @@ class DbConnectTest extends TestCase
             PhpDbConnect::instantiateDB(['password' => 'not-the-password']);
         } finally {
             $this->assertSame([], DbConnect::$instance);
-            $this->assertSame([], DbConnect::$pdoInstance);
+            $this->assertSame([], DbConnect::$connections);
         }
     }
 
