@@ -200,10 +200,7 @@ class SchemaTest extends TestCase
     /**
      * Given columns with negative defaults (BIGINT DEFAULT -5, tracking's class_id DEFAULT -1)
      * When they are read
-     * Then the defaults keep their sign.
-     *
-     * Incomplete until DESI-40: the integer DataTypes drop the minus sign (-1 becomes 1). The reader passes the
-     * database's default on correctly; the DataType changes it.
+     * Then the defaults keep their sign (the integer DataTypes used to drop it: DESI-40).
      */
     #[Test]
     final public function negativeDefaultsKeepTheirSign(): void
@@ -212,9 +209,6 @@ class SchemaTest extends TestCase
             $this->schema->fields($this->types)['big']->getDefault(),
             $this->schema->fields($this->tracking)['class_id']->getDefault(),
         ];
-        if ($defaults !== [-5, -1]) {
-            $this->markTestIncomplete('DESI-40: integer DataTypes drop the minus sign (read ' . json_encode($defaults) . ')');
-        }
         $this->assertSame([-5, -1], $defaults);
     }
 }
