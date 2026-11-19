@@ -18,7 +18,7 @@ is removed before the epic merges to `main`.
 
 ## Slices
 
-- [ ] **1. Every test starts clean (DESI-22).** One `resetAll()` that clears every adaptor's cached and custom
+- [x] **1. Every test starts clean (DESI-22).** (#23) One `resetAll()` that clears every adaptor's cached and custom
   instances, plus the other shared static state the tests touch (`Config`, `Lang`'s loaded translations,
   `CacheRegistry`). The base `TestCase::setUp()` calls it. Done when the suite passes in default, random and reverse
   order (fixes DESI-20), and `phpunit.xml` then runs in random order so it stays that way.
