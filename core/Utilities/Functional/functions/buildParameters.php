@@ -18,7 +18,7 @@ $buildParameters = static function (string $className, string $method, ...$args)
         ->getMethod($method)
         ->getParameters();
     $firstParamType = (count($parameters) > 0)
-        ? (!is_null($parameters[0]->getType()) ? $parameters[0]->getType()->getName() : '')
+        ? ($parameters[0]->getType() instanceof ReflectionNamedType ? $parameters[0]->getType()->getName() : (string)$parameters[0]->getType())
         : null;
     if (count($args) === 1 && is_array($args[0])) {
         $args = $firstParamType !== 'array' || is_array(reset($args[0]))
