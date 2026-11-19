@@ -167,6 +167,11 @@ class Logger extends Adaptor implements LoggerInterface
             $args['name'] = Config::get('logger.channelName', '');
         }
         $newInstance = parent::singleton($resource, ...$args);
+        // Only a real Monolog logger takes handlers, and only once: this runs on every log call
+        $logger = $newInstance->classInstance;
+        if (!$logger instanceof \Monolog\Logger || $logger->getHandlers() !== []) {
+            return $newInstance;
+        }
         foreach (Config::get('logger.handlers', []) as $handler) {
             $handlerClass = self::HANDLERS[$handler['type']];
             assert($handlerClass instanceof Adaptor);

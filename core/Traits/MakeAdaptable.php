@@ -142,10 +142,14 @@ trait MakeAdaptable
             self::setResource($resource);
         }
         $className = get_called_class();
-        if (is_null(Pure::dotGet(self::$staticInstances, $className))) {
+        $cached = self::$staticInstances[$className] ?? null;
+        $custom = self::$customInstances[$className] ?? null;
+        // initialize() and reset() cache an instance that only names the class (for static calls); the singleton
+        // needs the built instance, so build it then too. A custom resource is kept as given, even a string.
+        if (is_null($cached) || (is_null($custom) && is_string($cached->classInstance ?? null))) {
             self::$staticInstances[$className] = is_null(Pure::dotGet(self::$customInstances, $className))
                 ? (new static())->with($args)->build()
-                : new static();
+                : new static(true);
         }
         return self::$staticInstances[$className];
     }
