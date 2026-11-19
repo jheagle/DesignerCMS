@@ -22,7 +22,7 @@ is removed before the epic merges to `main`.
   instances, plus the other shared static state the tests touch (`Config`, `Lang`'s loaded translations,
   `CacheRegistry`). The base `TestCase::setUp()` calls it. Done when the suite passes in default, random and reverse
   order (fixes DESI-20), and `phpunit.xml` then runs in random order so it stays that way.
-- [ ] **2. The real Logger in tests, with a test log (DESI-23).** Fix the path that leaves a bare class name instead
+- [x] **2. The real Logger in tests, with a test log (DESI-23).** (#24) Fix the path that leaves a bare class name instead
   of a Monolog instance after a reset. `phpunit.xml` sets `LOG_FILE=logs/test.log`, emptied at the start of each run.
 - [ ] **3. Fakes for every adaptor (DESI-24).** `fake()` on `MakeAdaptable` swaps in a recording stand-in and
   returns it; checks such as `Logger::assertLogged('error', 'Unable to connect')` and `assertNothingLogged()`.
