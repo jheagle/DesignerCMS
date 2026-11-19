@@ -33,11 +33,17 @@ branch (`epic/DESI-13/data-layer`). This file is removed before the epic merges 
 - [ ] **4. Generic Entity (DESI-17).** A subclass declares its table and `Field`s; create, read, update and delete come
   from them through slice 2; `LazyAssignment` replaces the positional constructor. The address-book contact methods
   go, and `createEntity()`'s bugs are fixed. Tests with a small test entity.
-- [ ] **5. Trackable and MakeTrackable (DESI-18).** The contract and trait; `core/Tracking/` with a minimal tracking
-  entity (id, date_time, app_user, action, acting_class, class_id) and its rows as a `DataTransferObject`. Replaces
-  `core/Models/TrackingClass.php` on `feature/tracking-model` (the copy from addressbook stays in git history).
+- [ ] **5. Trackable and MakeTrackable (DESI-11).** The contract and trait; `core/Tracking/` with a minimal tracking
+  entity and its rows as a `DataTransferObject`. The `tracking` table from `feature/tracking-model` (bd062fc, in
+  `resources/designercms.sql`) is the one part carried over: same columns (id, date_time, app_user, action,
+  acting_class, class_id) and indexes (`tracking_record`, `tracking_time`), declared as `Field`s. Nothing else from
+  that branch; `core/Models/TrackingClass.php` stays in git history.
 - [ ] **6. Install tables from Fields (DESI-19).** `install.php` creates the tracking table from its `Field`s (slice 3)
   instead of `resources/designercms.sql`.
+
+## After the epic
+
+- Delete `feature/tracking-model` (local and on GitHub) once this epic is merged to `main` (Joshua, 2026-11-19).
 
 ## Out of scope
 
