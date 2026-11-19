@@ -61,7 +61,8 @@ class SchemaTest extends TestCase
             created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             UNIQUE KEY uniq_email (email),
             KEY idx_code_status (code, status),
-            FULLTEXT KEY ft_body (body)
+            FULLTEXT KEY ft_body (body),
+            KEY idx_lower_email ((lower(email)))
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
         // The tracking table as feature/tracking-model's resources/designercms.sql has it (bd062fc)
         $this->db->alter("CREATE TABLE $this->tracking (
@@ -112,6 +113,9 @@ class SchemaTest extends TestCase
         }
         $this->assertTrue($fields['id']->hasAttr(Field::REQUIRED), 'a primary key is required');
         $this->assertFalse($fields['nickname']->hasAttr(Field::NOT_NULL), 'NULL allowed');
+        $this->assertNull($fields['nickname']->getDefault(), 'DEFAULT NULL stays null, not an empty string');
+        $this->assertNull($fields['email']->getDefault(), 'no default at all');
+        $this->assertSame(0.0, (float)$fields['price']->getDefault(), 'an explicit zero default is kept');
         $this->assertSame('CA', $fields['code']->getDefault());
         $this->assertSame(2, $fields['code']->getDataType()->getLength());
         $this->assertSame(80, $fields['email']->getDataType()->getLength());
@@ -135,15 +139,15 @@ class SchemaTest extends TestCase
             $this->assertSame($sqlType, $fields[$name]->getSqlType(), $name);
         }
         $this->assertSame('new', $fields['status']->getDefault());
-        $this->assertSame('', $fields['created']->getDefault(), 'CURRENT_TIMESTAMP is the database\'s to apply');
+        $this->assertNull($fields['created']->getDefault(), 'CURRENT_TIMESTAMP is the database\'s to apply');
         $this->assertTrue($fields['body']->hasAttr(Field::FULLTEXT));
         $this->assertTrue($fields['status']->hasAttr(Field::INDEX), 'part of the composite index');
     }
 
     /**
-     * Given primary, unique, composite and full-text indexes
+     * Given primary, unique, composite, full-text and functional indexes
      * When reading them
-     * Then each is named, with its columns in order, uniqueness and type.
+     * Then each is named, with its columns in order (a functional part as its expression), uniqueness and type.
      */
     #[Test]
     final public function indexesKeepNamesAndColumnOrder(): void
@@ -152,10 +156,11 @@ class SchemaTest extends TestCase
         ksort($indexes);
         $this->assertSame(
             [
-                'PRIMARY' => ['columns' => ['id'], 'unique' => true, 'type' => 'BTREE'],
-                'ft_body' => ['columns' => ['body'], 'unique' => false, 'type' => 'FULLTEXT'],
-                'idx_code_status' => ['columns' => ['code', 'status'], 'unique' => false, 'type' => 'BTREE'],
-                'uniq_email' => ['columns' => ['email'], 'unique' => true, 'type' => 'BTREE'],
+                'PRIMARY' => ['columns' => ['id'], 'expressions' => [], 'unique' => true, 'type' => 'BTREE'],
+                'ft_body' => ['columns' => ['body'], 'expressions' => [], 'unique' => false, 'type' => 'FULLTEXT'],
+                'idx_code_status' => ['columns' => ['code', 'status'], 'expressions' => [], 'unique' => false, 'type' => 'BTREE'],
+                'idx_lower_email' => ['columns' => [], 'expressions' => ['lower(`email`)'], 'unique' => false, 'type' => 'BTREE'],
+                'uniq_email' => ['columns' => ['email'], 'expressions' => [], 'unique' => true, 'type' => 'BTREE'],
             ],
             $indexes
         );

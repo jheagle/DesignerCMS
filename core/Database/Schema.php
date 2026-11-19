@@ -102,12 +102,13 @@ class Schema
      *
      * @param string $table
      *
-     * @return array<string, array{columns: string[], unique: bool, type: string}> type: BTREE, FULLTEXT, HASH, SPATIAL
+     * @return array<string, array{columns: string[], expressions: string[], unique: bool, type: string}> expressions:
+     *  functional index parts (no column); type: BTREE, FULLTEXT, HASH, SPATIAL
      */
     public function indexes(string $table): array
     {
         $rows = $this->db->fetchAll(
-            'SELECT INDEX_NAME, COLUMN_NAME, NON_UNIQUE, INDEX_TYPE FROM INFORMATION_SCHEMA.STATISTICS'
+            'SELECT INDEX_NAME, COLUMN_NAME, EXPRESSION, NON_UNIQUE, INDEX_TYPE FROM INFORMATION_SCHEMA.STATISTICS'
             . ' WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? ORDER BY INDEX_NAME, SEQ_IN_INDEX',
             [$table]
         );
@@ -115,10 +116,16 @@ class Schema
         foreach ($rows as $row) {
             $indexes[$row['INDEX_NAME']] ??= [
                 'columns' => [],
+                'expressions' => [],
                 'unique' => (int)$row['NON_UNIQUE'] === 0,
                 'type' => $row['INDEX_TYPE'],
             ];
-            $indexes[$row['INDEX_NAME']]['columns'][] = $row['COLUMN_NAME'];
+            // A functional index part (MySQL 8, e.g. KEY ((lower(email)))) has no column, only an expression
+            if ($row['COLUMN_NAME'] === null) {
+                $indexes[$row['INDEX_NAME']]['expressions'][] = $row['EXPRESSION'];
+            } else {
+                $indexes[$row['INDEX_NAME']]['columns'][] = $row['COLUMN_NAME'];
+            }
         }
 
         return $indexes;
@@ -163,8 +170,8 @@ class Schema
         return new Field(
             $column['COLUMN_NAME'],
             $class ?? StringDt::class,
-            // No default (or NULL): an empty value of the column's kind. Whether NULL is allowed is the NOT_NULL flag
-            $default ?? (is_subclass_of($class ?? StringDt::class, StringDt::class) || $class === null ? '' : 0),
+            // null: the column defaults to NULL or has no default (NOT_NULL says which may hold NULL)
+            $default,
             $length,
             $attributes,
             $sqlType,

@@ -94,12 +94,16 @@ class Field implements Potential
         if ($length !== null) {
             $settings['length'] = $length;
         }
-        $this->dataType = new $dataType($default, $settings);
-        $this->default = $this->dataType->getValue();
+        // A null default (a nullable column defaulting to NULL, or no default at all) is kept as null; the DataType then
+        // starts from its own empty value, as the DataTypes don't hold null
+        $this->dataType = $default === null ? new $dataType(settings: $settings) : new $dataType($default, $settings);
+        $this->default = $default === null ? null : $this->dataType->getValue();
     }
 
     /**
-     * @return int|mixed|string
+     * The column name (lower case, spaces as underscores).
+     *
+     * @return string
      */
     final public function getName(): string
     {
@@ -137,6 +141,9 @@ class Field implements Potential
         return $this->typeSupported;
     }
 
+    /**
+     * @return int|mixed|string
+     */
     final public function getValue(): mixed
     {
         if ($this->dataType instanceof NumberDt && property_exists(

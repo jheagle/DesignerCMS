@@ -64,4 +64,20 @@ class FieldTest extends TestCase
         $this->assertTrue($plain->isTypeSupported());
         $this->assertSame(Field::NOT_NULL, $plain->getAttributes());
     }
+
+    /**
+     * Given a null default (a nullable column defaulting to NULL)
+     * When making the Field
+     * Then the default stays null, while the DataType starts from its own empty value.
+     */
+    #[Test]
+    final public function aNullDefaultStaysNull(): void
+    {
+        $text = new Field('nickname', VarCharDt::class, null, 30, 0);
+        $this->assertNull($text->getDefault());
+        $this->assertSame('', $text->getDataType()->getValue());
+        $number = new Field('parent_id', IntDt::class, null, null, Field::UNSIGNED);
+        $this->assertNull($number->getDefault());
+        $this->assertSame(0, $number->getDataType()->getValue());
+    }
 }
