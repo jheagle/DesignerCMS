@@ -65,7 +65,7 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     protected int $lastRowCount = 0;
 
-    public mixed $result;
+    public mixed $result = null;
 
     public string $queryRaw = '';
 
@@ -373,7 +373,8 @@ abstract class DbConnect implements LazyAssignable, Potential
 
     /**
      * The next row of a query, read one call at a time: `while ($row = $db->nextRow($sql)) { ... }`. A different SQL
-     * or different values start the query again; when the rows run out it returns false.
+     * or different values start the query again; when the rows run out it returns false, and the next call (even with
+     * the same SQL and values) runs the query again, so a second loop sees the rows as they are then.
      *
      * @param string $sql
      * @param array $params
@@ -386,8 +387,13 @@ abstract class DbConnect implements LazyAssignable, Potential
         if (!isset($this->result) || $sql !== $this->queryRaw || $params !== $this->queryParams) {
             $this->query($sql, $params);
         }
+        $row = $this->result->fetch($mode);
+        if ($row === false) {
+            // Used up: forget it, so the same query asked again runs again instead of returning false forever
+            $this->result = null;
+        }
 
-        return $this->result->fetch($mode);
+        return $row;
     }
 
     /**
@@ -475,6 +481,9 @@ abstract class DbConnect implements LazyAssignable, Potential
      * Run $work as one unit: all of it is kept, or none of it. Commits when $work returns; rolls back and rethrows
      * when it throws. $work is given this DbConnect; transaction() returns what $work returns.
      *
+     * Inside another transaction it joins that one (no savepoints): the outer transaction decides, so a failure
+     * anywhere undoes the whole thing. If the rollback itself fails, that is logged and the original error is thrown.
+     *
      * @param callable $work
      *
      * @return mixed
@@ -483,6 +492,10 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     final public function transaction(callable $work): mixed
     {
+        if ($this->inTransaction()) {
+            // Nested: part of the transaction already open, which commits or rolls back for all of it
+            return $work($this);
+        }
         $this->begin();
         try {
             $result = $work($this);
@@ -490,8 +503,13 @@ abstract class DbConnect implements LazyAssignable, Potential
 
             return $result;
         } catch (Throwable $e) {
-            if ($this->inTransaction()) {
-                $this->rollBack();
+            try {
+                if ($this->inTransaction()) {
+                    $this->rollBack();
+                }
+            } catch (Throwable $rollbackError) {
+                // Keep the real cause: report the failed rollback, then throw what $work threw
+                Logger::error('Rollback failed', ['message' => $rollbackError->getMessage()]);
             }
             throw $e;
         }

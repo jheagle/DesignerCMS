@@ -14,6 +14,7 @@ use PHPUnit\Framework\Attributes\Test;
 use ReflectionObject;
 use Error;
 use PDOException;
+use RuntimeException;
 use Tests\TestCase;
 
 /**
@@ -191,5 +192,29 @@ class DatabaseDriversTest extends TestCase
         }
         $arguments = (new ReflectionObject($connection))->getProperty('constructorArgs')->getValue($connection);
         $this->assertSame([], $arguments);
+    }
+
+    /**
+     * Given a transaction whose work fails, and a rollback that fails too (e.g. the connection dropped)
+     * When transaction() handles it
+     * Then the work's error is the one thrown, and the failed rollback is logged.
+     */
+    #[Test]
+    final public function aFailedRollbackKeepsTheOriginalError(): void
+    {
+        $open = false;
+        Connection::fake([
+            'beginTransaction' => function () use (&$open) { $open = true; return true; },
+            'inTransaction' => function () use (&$open) { return $open; },
+            'rollBack' => fn() => throw new PDOException('connection lost'),
+        ]);
+        $db = PhpDbConnect::instantiateDB(['database' => 'shop', 'username' => 'shop_user']);
+        try {
+            $db->transaction(fn() => throw new RuntimeException('the real cause'));
+            $this->fail('The error should come back out');
+        } catch (RuntimeException $e) {
+            $this->assertSame('the real cause', $e->getMessage());
+        }
+        Logger::assertLogged('error', 'Rollback failed');
     }
 }

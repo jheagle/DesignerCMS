@@ -163,4 +163,64 @@ class PreparedStatementsTest extends TestCase
         $this->db->rollBack();
         $this->assertSame(0, (int)$this->db->fetchValue('SELECT COUNT(*) FROM people'));
     }
+
+    /**
+     * Given a loop that read every row
+     * When the same query is read again (after another row was added)
+     * Then it runs again and sees the rows as they are now (it used to return false forever).
+     */
+    #[Test]
+    final public function theSameQueryCanBeReadAgain(): void
+    {
+        $this->db->insert('INSERT INTO people (name) VALUES (?), (?)', ['a', 'b']);
+        $read = function (): array {
+            $names = [];
+            while ($row = $this->db->selectAssoc('SELECT name FROM people ORDER BY id')) {
+                $names[] = $row['name'];
+            }
+            return $names;
+        };
+        $this->assertSame(['a', 'b'], $read());
+        $this->db->insert('INSERT INTO people (name) VALUES (?)', ['c']);
+        $this->assertSame(['a', 'b', 'c'], $read());
+    }
+
+    /**
+     * Given a transaction inside another
+     * When both finish
+     * Then the inner one joined the outer, and everything is kept.
+     */
+    #[Test]
+    final public function nestedTransactionsJoinTheOuterOne(): void
+    {
+        $this->db->transaction(function (PhpDbConnect $db) {
+            $db->insert('INSERT INTO people (name) VALUES (?)', ['outer']);
+            $db->transaction(fn(PhpDbConnect $inner) => $inner->insert('INSERT INTO people (name) VALUES (?)', ['inner']));
+            $this->assertTrue($db->inTransaction(), 'still in the outer transaction after the inner one');
+        });
+        $this->assertSame(2, (int)$this->db->fetchValue('SELECT COUNT(*) FROM people'));
+    }
+
+    /**
+     * Given a failure in an inner transaction
+     * When it reaches the outer one
+     * Then nothing from either is kept.
+     */
+    #[Test]
+    final public function aNestedFailureUndoesEverything(): void
+    {
+        try {
+            $this->db->transaction(function (PhpDbConnect $db) {
+                $db->insert('INSERT INTO people (name) VALUES (?)', ['outer']);
+                $db->transaction(function (PhpDbConnect $inner) {
+                    $inner->insert('INSERT INTO people (name) VALUES (?)', ['inner']);
+                    throw new RuntimeException('inner failed');
+                });
+            });
+            $this->fail('The error should come back out');
+        } catch (RuntimeException $e) {
+            $this->assertSame('inner failed', $e->getMessage());
+        }
+        $this->assertSame(0, (int)$this->db->fetchValue('SELECT COUNT(*) FROM people'));
+    }
 }
