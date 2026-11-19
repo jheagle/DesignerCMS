@@ -1,40 +1,51 @@
 <?php
 
-namespace Core\Entity;
+namespace Core\Entity\Interfaces;
 
-use Core\DataTypes\Potential;
-use Core\Utilities\Comparable;
+use Core\Contracts\Comparable;
+use Core\DataTypes\Interfaces\Potential;
+use Core\Entity\Field;
 
 /**
- * Interface EntityObject
+ * A record of one table: its Fields describe the columns, its values are one row.
  *
- * @package Core\Entity
+ * @package Core\Entity\Interfaces
  */
-interface EntityObject extends Potential, Comparable
+interface EntityObject extends Comparable, Potential
 {
+    /**
+     * The table this entity's rows live in.
+     *
+     * @return string
+     */
+    public static function table(): string;
 
     /**
-     * @return mixed
+     * The columns, keyed by name.
+     *
+     * @return array<string, Field>
      */
-    public function createEntity();
+    public static function fields(): array;
 
     /**
-     * @return mixed
+     * Insert the row, or update it when it already has its primary key.
+     *
+     * @return static
      */
-    public function getEntity();
+    public function save(): static;
 
     /**
-     * @return mixed
+     * The values, keyed by column name. (Not Arrayable: an entity can't be built from an array alone, it needs its
+     * database connection.)
+     *
+     * @return array<string, mixed>
      */
-    public function updateEntity();
+    public function toArray(): array;
 
     /**
-     * @return mixed
+     * Delete the row.
+     *
+     * @return bool Whether a row was deleted.
      */
-    public function deleteEntity();
-
-    /**
-     * @return mixed
-     */
-    public function get_as_json();
+    public function delete(): bool;
 }
