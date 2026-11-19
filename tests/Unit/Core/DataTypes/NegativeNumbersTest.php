@@ -96,4 +96,33 @@ class NegativeNumbersTest extends TestCase
         $this->assertSame('-3.0', (new DecimalDt(-3))->getValue());
         $this->assertSame('3.0', (new DecimalDt(3))->getValue());
     }
+
+    /**
+     * Given an existing DecimalDt
+     * When its value is changed to a negative one, then back to a positive one
+     * Then each is held with its sign (the path DecimalDt::setValue's rebuild fixed).
+     */
+    #[Test]
+    final public function decimalSetValueKeepsItsSign(): void
+    {
+        $decimal = new DecimalDt(5);
+        $decimal->setValue(-3);
+        $this->assertSame('-3.0', $decimal->getValue());
+        $decimal->setValue(4);
+        $this->assertSame('4.0', $decimal->getValue());
+    }
+
+    /**
+     * Given a negative decimal cut to its precision
+     * When it is rebuilt
+     * Then it keeps its sign: the negative is the mirror of the positive. (How the cut itself works, keeping the
+     * lowest digits, belongs to DESI-42.)
+     */
+    #[Test]
+    final public function aCutDecimalKeepsItsSign(): void
+    {
+        $settings = ['precision' => 2, 'scale' => 0];
+        $positive = (new DecimalDt(123, $settings))->getValue();
+        $this->assertEquals('-' . $positive, (new DecimalDt(-123, $settings))->getValue());
+    }
 }
