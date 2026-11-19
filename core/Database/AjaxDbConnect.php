@@ -16,9 +16,9 @@ class AjaxDbConnect extends PhpDbConnect
      * @param string $queryRaw
      * @return int
      */
-    final public function insert(string $queryRaw = ''): int
+    final public function insert(string $queryRaw = '', array $params = []): int
     {
-        $this->jsonResult = json_encode(parent::insert($queryRaw));
+        $this->jsonResult = json_encode(parent::insert($queryRaw, $params));
 
         return $this->jsonResult;
     }
@@ -27,9 +27,9 @@ class AjaxDbConnect extends PhpDbConnect
      * @param string $queryRaw
      * @return int
      */
-    final public function update(string $queryRaw = ''): int
+    final public function update(string $queryRaw = '', array $params = []): int
     {
-        $this->jsonResult = json_encode(parent::update($queryRaw));
+        $this->jsonResult = json_encode(parent::update($queryRaw, $params));
 
         return $this->jsonResult;
     }
@@ -38,9 +38,9 @@ class AjaxDbConnect extends PhpDbConnect
      * @param string $queryRaw
      * @return int
      */
-    final public function delete(string $queryRaw = ''): int
+    final public function delete(string $queryRaw = '', array $params = []): int
     {
-        $this->jsonResult = json_encode(parent::delete($queryRaw));
+        $this->jsonResult = json_encode(parent::delete($queryRaw, $params));
 
         return $this->jsonResult;
     }
@@ -49,9 +49,9 @@ class AjaxDbConnect extends PhpDbConnect
      * @param string $queryRaw
      * @return int
      */
-    final public function alter(string $queryRaw = ''): int
+    final public function alter(string $queryRaw = '', array $params = []): int
     {
-        $this->jsonResult = json_encode(parent::alter($queryRaw));
+        $this->jsonResult = json_encode(parent::alter($queryRaw, $params));
 
         return $this->jsonResult;
     }
@@ -60,9 +60,9 @@ class AjaxDbConnect extends PhpDbConnect
      * @param string $queryRaw
      * @return string|bool
      */
-    final public function select(string $queryRaw = ''): string|bool
+    final public function select(string $queryRaw = '', array $params = []): string|bool
     {
-        $this->jsonResult = json_encode(parent::selectAssoc($queryRaw));
+        $this->jsonResult = json_encode(parent::selectAssoc($queryRaw, $params));
 
         return $this->jsonResult;
     }

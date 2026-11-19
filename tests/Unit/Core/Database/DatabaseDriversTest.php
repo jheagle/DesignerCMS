@@ -14,6 +14,7 @@ use PHPUnit\Framework\Attributes\Test;
 use ReflectionObject;
 use Error;
 use PDOException;
+use RuntimeException;
 use Tests\TestCase;
 
 /**
@@ -84,15 +85,19 @@ class DatabaseDriversTest extends TestCase
     #[Test]
     final public function theConnectionCanBeFaked(): void
     {
+        // Every statement is prepared, then executed with its values: the fake answers prepare() with a statement
         $fake = Connection::fake([
-            'exec' => 3,
-            'query' => fn() => new RecordingFake(['fetch' => ['id' => 7]]),
+            'prepare' => fn(string $sql) => new RecordingFake(
+                str_starts_with($sql, 'UPDATE')
+                    ? ['execute' => true, 'rowCount' => 3]
+                    : ['execute' => true, 'rowCount' => 1, 'fetch' => ['id' => 7]]
+            ),
         ]);
         $db = PhpDbConnect::instantiateDB(['database' => 'shop', 'username' => 'shop_user']);
-        $this->assertSame(3, $db->update('UPDATE orders SET paid = 1'));
-        $this->assertSame(['id' => 7], $db->selectAssoc('SELECT id FROM orders'));
-        $fake->assertCalled('exec', fn(string $sql) => str_starts_with($sql, 'UPDATE orders'), 1)
-            ->assertCalled('query', times: 1);
+        $this->assertSame(3, $db->update('UPDATE orders SET paid = ? WHERE id = ?', [1, 7]));
+        $this->assertSame(['id' => 7], $db->selectAssoc('SELECT id FROM orders WHERE id = ?', [7]));
+        $fake->assertCalled('prepare', fn(string $sql) => str_starts_with($sql, 'UPDATE orders'), 1)
+            ->assertCalled('prepare', fn(string $sql) => str_starts_with($sql, 'SELECT id'), 1);
     }
 
     /**
@@ -158,7 +163,11 @@ class DatabaseDriversTest extends TestCase
     #[Test]
     final public function rowCountIsTheLastStatements(): void
     {
-        Connection::fake(['exec' => 3, 'query' => fn() => new RecordingFake(['rowCount' => 2, 'fetch' => false])]);
+        Connection::fake([
+            'prepare' => fn(string $sql) => new RecordingFake(
+                ['execute' => true, 'rowCount' => str_starts_with($sql, 'UPDATE') ? 3 : 2, 'fetch' => false]
+            ),
+        ]);
         $db = PhpDbConnect::instantiateDB(['database' => 'shop', 'username' => 'shop_user']);
         $db->update('UPDATE orders SET paid = 1');
         $this->assertSame(3, $db->rowCount());
@@ -183,5 +192,29 @@ class DatabaseDriversTest extends TestCase
         }
         $arguments = (new ReflectionObject($connection))->getProperty('constructorArgs')->getValue($connection);
         $this->assertSame([], $arguments);
+    }
+
+    /**
+     * Given a transaction whose work fails, and a rollback that fails too (e.g. the connection dropped)
+     * When transaction() handles it
+     * Then the work's error is the one thrown, and the failed rollback is logged.
+     */
+    #[Test]
+    final public function aFailedRollbackKeepsTheOriginalError(): void
+    {
+        $open = false;
+        Connection::fake([
+            'beginTransaction' => function () use (&$open) { $open = true; return true; },
+            'inTransaction' => function () use (&$open) { return $open; },
+            'rollBack' => fn() => throw new PDOException('connection lost'),
+        ]);
+        $db = PhpDbConnect::instantiateDB(['database' => 'shop', 'username' => 'shop_user']);
+        try {
+            $db->transaction(fn() => throw new RuntimeException('the real cause'));
+            $this->fail('The error should come back out');
+        } catch (RuntimeException $e) {
+            $this->assertSame('the real cause', $e->getMessage());
+        }
+        Logger::assertLogged('error', 'Rollback failed');
     }
 }
