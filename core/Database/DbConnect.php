@@ -65,6 +65,11 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     protected int $lastRowCount = 0;
 
+    /**
+     * Savepoints made so far, for unique names (nested transaction() calls).
+     */
+    protected int $savepoints = 0;
+
     public mixed $result = null;
 
     public string $queryRaw = '';
@@ -481,8 +486,10 @@ abstract class DbConnect implements LazyAssignable, Potential
      * Run $work as one unit: all of it is kept, or none of it. Commits when $work returns; rolls back and rethrows
      * when it throws. $work is given this DbConnect; transaction() returns what $work returns.
      *
-     * Inside another transaction it joins that one (no savepoints): the outer transaction decides, so a failure
-     * anywhere undoes the whole thing. If the rollback itself fails, that is logged and the original error is thrown.
+     * Inside another transaction it is a savepoint of that one: a failure undoes only this part (then the error goes
+     * on to the outer work, which may catch it and carry on, or fail too and undo everything); success keeps this
+     * part for the outer transaction to commit. If a rollback itself fails, that is logged and the original error is
+     * thrown.
      *
      * @param callable $work
      *
@@ -493,8 +500,7 @@ abstract class DbConnect implements LazyAssignable, Potential
     final public function transaction(callable $work): mixed
     {
         if ($this->inTransaction()) {
-            // Nested: part of the transaction already open, which commits or rolls back for all of it
-            return $work($this);
+            return $this->savepoint($work);
         }
         $this->begin();
         try {
@@ -510,6 +516,34 @@ abstract class DbConnect implements LazyAssignable, Potential
             } catch (Throwable $rollbackError) {
                 // Keep the real cause: report the failed rollback, then throw what $work threw
                 Logger::error('Rollback failed', ['message' => $rollbackError->getMessage()]);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Run $work in a savepoint of the open transaction: released when it returns, rolled back to when it throws.
+     *
+     * @param callable $work
+     *
+     * @return mixed
+     *
+     * @throws Throwable Whatever $work threw, after rolling back to the savepoint.
+     */
+    private function savepoint(callable $work): mixed
+    {
+        $name = 'dcms_savepoint_' . ++$this->savepoints;
+        $this->statement("SAVEPOINT $name");
+        try {
+            $result = $work($this);
+            $this->statement("RELEASE SAVEPOINT $name");
+
+            return $result;
+        } catch (Throwable $e) {
+            try {
+                $this->statement("ROLLBACK TO SAVEPOINT $name");
+            } catch (Throwable $rollbackError) {
+                Logger::error('Rollback to savepoint failed', ['message' => $rollbackError->getMessage()]);
             }
             throw $e;
         }

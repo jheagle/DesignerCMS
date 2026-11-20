@@ -39,7 +39,7 @@ in code (migrations) is a possible later feature, not part of this epic.
   query type; `begin` / `commit` / `rollback` and a `transaction(callable)` helper.
 - [x] **4. Schema to Fields (DESI-16).** (#32) Read a table's columns, keys and indexes from `INFORMATION_SCHEMA` into
   `Field` objects. Tests against tables in the test database.
-- [ ] **5. Generic Entity (DESI-17).** A subclass declares its table and `Field`s; create, read, update and delete come
+- [x] **5. Generic Entity (DESI-17).** (#34) A subclass declares its table and `Field`s; create, read, update and delete come
   from them through slice 3; `LazyAssignment` replaces the positional constructor. The address-book contact methods
   go, and `createEntity()`'s bugs are fixed. Tests with a small test entity.
 - [ ] **6. Trackable and MakeTrackable (DESI-11).** The contract and trait; `core/Tracking/` with a minimal tracking

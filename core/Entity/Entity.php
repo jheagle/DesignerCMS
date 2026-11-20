@@ -7,6 +7,7 @@ use Core\DataTypes\Numbers\Integers\BigIntDt;
 use Core\Entity\Interfaces\EntityObject;
 use InvalidArgumentException;
 use LogicException;
+use Throwable;
 
 /**
  * One row of a table, built from the table's Fields. A subclass only declares what the table is:
@@ -38,6 +39,13 @@ abstract class Entity implements EntityObject
     public const TABLE = '';
 
     /**
+     * The changes onChange() is told about.
+     */
+    public const CREATED = 'created';
+    public const UPDATED = 'updated';
+    public const DELETED = 'deleted';
+
+    /**
      * The Fields of each Entity class, built once per class.
      *
      * @var array<string, array<string, Field>>
@@ -56,6 +64,14 @@ abstract class Entity implements EntityObject
      * deletes find the row by it.
      */
     protected mixed $persistedKey = null;
+
+    /**
+     * The values as the database last had them (read or saved), to tell which columns changed. Empty while the row
+     * isn't in the database.
+     *
+     * @var array<string, mixed>
+     */
+    protected array $persistedValues = [];
 
     /**
      * @param DbConnect $db The connection this row is read from and written to.
@@ -196,6 +212,7 @@ abstract class Entity implements EntityObject
             }
         }
         $entity->persistedKey = $entity->id();
+        $entity->persistedValues = $entity->values;
 
         return $entity;
     }
@@ -266,6 +283,27 @@ abstract class Entity implements EntityObject
     }
 
     /**
+     * The columns whose value differs from what the database has (every set column, for a row not saved yet).
+     *
+     * @return string[]
+     */
+    public function changedColumns(): array
+    {
+        $changed = [];
+        foreach ($this->values as $name => $value) {
+            $stored = $this->persistedValues[$name] ?? null;
+            // Compared as text when both are set: PDO gives values back as text, and a value set as '1' is the 1 read
+            // back. (A decimal set as 9.5 still differs from the '9.50' read back: an UPDATE that changes nothing.)
+            $same = $value === null || $stored === null ? $value === $stored : (string)$value === (string)$stored;
+            if (!$same || ($this->persistedKey === null && $value !== null)) {
+                $changed[] = $name;
+            }
+        }
+
+        return $changed;
+    }
+
+    /**
      * The primary key's value, or null for a row not saved yet.
      *
      * @return mixed
@@ -279,7 +317,8 @@ abstract class Entity implements EntityObject
      * Insert the row when it isn't in the database yet, otherwise update it. A row is in the database once it was
      * loaded (find, findWhere) or saved, until it is deleted; so a key the caller sets (a code, or an explicit id)
      * still inserts. After an insert an empty auto-increment key is filled in, and the row is read back. Checks the
-     * values first.
+     * values first. The write and the hooks run in one transaction (joining one already open), so what the hooks
+     * write, such as a tracking row, is kept only with the change itself.
      *
      * @return static
      *
@@ -290,7 +329,31 @@ abstract class Entity implements EntityObject
     {
         $this->validate();
 
-        return $this->persistedKey === null ? $this->insertRow() : $this->updateRow();
+        return $this->keepStateOnFailure(
+            fn() => $this->db->transaction(
+                fn() => $this->persistedKey === null ? $this->insertRow() : $this->updateRow()
+            )
+        );
+    }
+
+    /**
+     * Run $write; when it throws, put this entity back as it was, so it doesn't believe a write that was undone. The
+     * write was undone either way: its own transaction rolled back, or, inside a caller's transaction, its savepoint
+     * (DbConnect::transaction()). A later rollback of the caller's own transaction isn't seen here.
+     *
+     * @param callable $write
+     *
+     * @return mixed What $write returns.
+     */
+    private function keepStateOnFailure(callable $write): mixed
+    {
+        $before = [$this->values, $this->persistedKey, $this->persistedValues];
+        try {
+            return $write();
+        } catch (Throwable $e) {
+            [$this->values, $this->persistedKey, $this->persistedValues] = $before;
+            throw $e;
+        }
     }
 
     /**
@@ -316,6 +379,7 @@ abstract class Entity implements EntityObject
         // Read the row back: the database may have filled columns itself (defaults such as CURRENT_TIMESTAMP),
         // and a later update would otherwise write the stale nulls over them
         $this->refresh();
+        $this->onChange(self::CREATED, array_keys($columns));
         $this->afterCreate();
 
         return $this;
@@ -332,6 +396,7 @@ abstract class Entity implements EntityObject
     private function updateRow(): static
     {
         $key = static::primaryKey()->getName();
+        $columns = $this->changedColumns();
         $assignments = implode(', ', array_map(fn(string $name) => self::quote($name) . ' = ?', array_keys($this->values)));
         $changed = $this->db->update(
             'UPDATE ' . self::quote(static::table()) . " SET $assignments WHERE " . self::quote($key) . ' = ?',
@@ -344,7 +409,10 @@ abstract class Entity implements EntityObject
             }
             return $this;
         }
+        // onChange() first, while persistedKey is still the key the row had (tracking moves its history when it changed)
+        $this->onChange(self::UPDATED, $columns);
         $this->persistedKey = $this->id();
+        $this->persistedValues = $this->values;
         $this->afterUpdate();
 
         return $this;
@@ -365,12 +433,13 @@ abstract class Entity implements EntityObject
         $fresh = static::find($this->db, $this->persistedKey)
             ?? throw new LogicException(static::class . ' row ' . $this->persistedKey . ' no longer exists');
         $this->values = $fresh->values;
+        $this->persistedValues = $fresh->values;
 
         return $this;
     }
 
     /**
-     * Delete the row by its primary key.
+     * Delete the row by its primary key, in a transaction with the hooks (as save() does).
      *
      * @return bool Whether a row was deleted (false for a row never saved, or already gone).
      */
@@ -379,13 +448,26 @@ abstract class Entity implements EntityObject
         if ($this->persistedKey === null) {
             return false;
         }
+
+        return $this->keepStateOnFailure(fn() => $this->db->transaction(fn() => $this->deleteRow()));
+    }
+
+    /**
+     * DELETE the row, then run the hooks when there was one.
+     *
+     * @return bool
+     */
+    private function deleteRow(): bool
+    {
         $deleted = $this->db->delete(
             'DELETE FROM ' . self::quote(static::table()) . ' WHERE ' . self::quote(static::primaryKey()->getName()) . ' = ?',
             [$this->persistedKey]
         ) > 0;
         // Not in the database any more either way: a later save() inserts it again
         $this->persistedKey = null;
+        $this->persistedValues = [];
         if ($deleted) {
+            $this->onChange(self::DELETED);
             $this->afterDelete();
         }
 
@@ -420,7 +502,21 @@ abstract class Entity implements EntityObject
     }
 
     /**
-     * Called after a new row is inserted. Empty here: behaviours such as tracking (MakeTrackable) hook in.
+     * Called after every change, before the after* hook: what changed (CREATED, UPDATED, DELETED) and, for created
+     * and updated, the columns written. For UPDATED, persistedKey is still the key the row had before. Empty here: it is for framework behaviours such as tracking (MakeTrackable),
+     * so a model's own afterCreate()/afterUpdate()/afterDelete() never replace them.
+     *
+     * @param string $action
+     * @param string[] $columns
+     *
+     * @return void
+     */
+    protected function onChange(string $action, array $columns = []): void
+    {
+    }
+
+    /**
+     * Called after a new row is inserted. Empty here: for the model's own behaviour (framework ones use onChange()).
      */
     protected function afterCreate(): void
     {
