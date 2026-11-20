@@ -17,7 +17,7 @@ php perform models orders users # just these
 ```
 
 Each table gets two classes in `models/` (namespace `Models`; change with `MODELS_PATH` / `MODELS_NAMESPACE` in
-`.env`):
+`.env`, and give another namespace its own `autoload` entry in `composer.json`):
 
 - `models/Generated/<Name>Base.php`: the table's columns as `Field`s. Rebuilt on every run, so it always matches the
   table; don't edit it.

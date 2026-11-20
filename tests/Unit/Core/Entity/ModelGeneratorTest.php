@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Core\Entity;
 
+use Core\Adaptors\Config;
 use Core\Database\PhpDbConnect;
 use Core\Database\Schema;
 use Core\Entity\Entity;
@@ -247,14 +248,14 @@ class ModelGeneratorTest extends TestCase
         $noKey = $this->table('gen_log', 'line VARCHAR(50) NOT NULL');
         $composite = $this->table('gen_pairs', 'a INT NOT NULL, b INT NOT NULL, PRIMARY KEY (a, b)');
         $framework = $this->table('gen_framework', 'id INT NOT NULL PRIMARY KEY');
-        $this->tables[] = 'list';
-        $this->db->alter('DROP TABLE IF EXISTS `list`');
-        $this->db->alter('CREATE TABLE `list` (id INT NOT NULL PRIMARY KEY)');
         $first = $this->table('gen_a_b', 'id INT NOT NULL PRIMARY KEY');
         $clash = $this->table('gen-a-b', 'id INT NOT NULL PRIMARY KEY');
+        $lower = $this->table('gen_xy', 'id INT NOT NULL PRIMARY KEY');
+        $caseOnly = $this->table('gen_xY', 'id INT NOT NULL PRIMARY KEY');
 
+        // 'list' needs no table: class names are checked before the database
         $report = (new ModelGenerator($this->schema, $this->directory, $this->namespace, [$framework]))
-            ->generate([$noKey, $composite, $framework, 'list', 'no_such_table', $first, $clash]);
+            ->generate([$noKey, $composite, $framework, 'list', 'no_such_table', $first, $clash, $lower, $caseOnly]);
 
         $this->assertStringContainsString('no primary key', $report->skipped[$noKey]);
         $this->assertStringContainsString('more than one column', $report->skipped[$composite]);
@@ -262,7 +263,8 @@ class ModelGeneratorTest extends TestCase
         $this->assertStringContainsString("isn't a valid PHP class name", $report->skipped['list']);
         $this->assertStringContainsString('no such table', $report->skipped['no_such_table']);
         $this->assertStringContainsString("already the model for $first", $report->skipped[$clash]);
-        $this->assertCount(1, $report->written, 'only the first of the clashing pair');
+        $this->assertStringContainsString("already the model for $lower", $report->skipped[$caseOnly], 'GenXY is GenXy to PHP');
+        $this->assertCount(2, $report->written, 'only the first of each clashing pair');
         $this->assertContains('tracking', ModelGenerator::FRAMEWORK_TABLES);
     }
 
@@ -318,5 +320,35 @@ class ModelGeneratorTest extends TestCase
         $this->assertSame(0, $status, $output);
         $this->assertStringContainsString('Created (yours to edit)', $output);
         $this->assertFileExists("$this->directory/Generated/" . ModelGenerator::className($table) . 'Base.php');
+    }
+
+    /**
+     * Given MODELS_PATH unset, relative, then absolute
+     * When the models path is read from config
+     * Then it is models/ in the project, the relative path from the project folder, then the path as given.
+     */
+    #[Test]
+    final public function theModelsPathIsFromTheProjectFolder(): void
+    {
+        $root = dirname(__DIR__, 4);
+        $saved = $_ENV['MODELS_PATH'] ?? null;
+        try {
+            unset($_ENV['MODELS_PATH']);
+            Config::reset();
+            $this->assertSame("$root/models", Config::get('system.modelsPath'));
+            $_ENV['MODELS_PATH'] = 'app/models';
+            Config::reset();
+            $this->assertSame("$root/app/models", Config::get('system.modelsPath'));
+            $_ENV['MODELS_PATH'] = '/srv/app/models';
+            Config::reset();
+            $this->assertSame('/srv/app/models', Config::get('system.modelsPath'));
+        } finally {
+            if ($saved === null) {
+                unset($_ENV['MODELS_PATH']);
+            } else {
+                $_ENV['MODELS_PATH'] = $saved;
+            }
+            Config::reset();
+        }
     }
 }
