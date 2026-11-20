@@ -35,7 +35,8 @@ class DecimalDt extends NumberDt
         );
         self::setPrecision($settings['precision']);
         self::setScale($settings['scale']);
-        self::setValue($this->value);
+        // From the value given, not $this->value, which already holds the magnitude: setting it again lost the sign
+        self::setValue($value);
     }
 
     /**
@@ -104,7 +105,8 @@ class DecimalDt extends NumberDt
             $valueChange = true;
             $numParts[0] = substr($numParts[0], $removeDigits);
         }
-        $prefix = '';
+        // The rebuilt number goes through setValue again, which reads the sign from the text: keep the '-' (DESI-40)
+        $prefix = $this->isNegative ? '-' : '';
 
         return parent::setValue($prefix . implode('.', $numParts));
     }

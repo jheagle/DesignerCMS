@@ -50,4 +50,29 @@ class VarCharDtTest extends TestCase
         $this->assertEquals(255, $anotherVarChar->getLength());
         $this->assertEquals('hello', $anotherVarChar->getValue());
     }
+
+    /**
+     * Given a VarChar of length 2
+     * When it is given a value exactly 2 long, then one 3 long
+     * Then the first fits with no warning; only the longer one is truncated (and warned about).
+     */
+    #[Test]
+    final public function onlyLongerValuesAreTruncated(): void
+    {
+        $warnings = [];
+        set_error_handler(function (int $level, string $message) use (&$warnings) {
+            $warnings[] = $message;
+            return true;
+        }, E_USER_WARNING);
+        try {
+            $exact = new VarCharDt('CA', ['length' => 2]);
+            $this->assertSame('CA', $exact->getValue());
+            $this->assertSame([], $warnings, 'a value exactly as long fits');
+            $long = new VarCharDt('CAN', ['length' => 2]);
+            $this->assertSame('CA', $long->getValue());
+            $this->assertSame(['Truncating VarChar value: "CAN"'], $warnings);
+        } finally {
+            restore_error_handler();
+        }
+    }
 }

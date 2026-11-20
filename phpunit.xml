@@ -24,7 +24,12 @@
     <env name="QUEUE_DRIVER" value="sync"/>
     <env name="APP_DEBUG" value="false"/>
     <env name="APP_ENV" value="testing"/>
-    <env name="DB_CONNECTION" value="memory"/>
+    <!-- The MySQL test database (user and password from .env); tests never use the app's own database -->
+    <env name="DB_CONNECTION" value="mysql"/>
+    <env name="DB_DATABASE" value="designercms_test"/>
+    <env name="DB_HOSTNAME" value="localhost"/>
+    <env name="TESTING" value="false"/>
+    <env name="PRODUCTION" value="true"/>
     <!-- Tests log here (emptied at the start of each run by tests/bootstrap.php), never to logs/all.log -->
     <env name="LOG_FILE" value="logs/test.log"/>
     <env name="FILESYSTEM_DRIVER" value="testing"/>

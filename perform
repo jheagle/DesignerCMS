@@ -1,28 +1,75 @@
 #!/usr/bin/env php
 <?php
 
+/**
+ * DesignerCMS's command line.
+ *
+ *     php perform models [table ...]   Generate models from the database's tables (all of them, or the ones named)
+ *     php perform help                 This list
+ */
+
 require __DIR__ . '/vendor/autoload.php';
 
+use Core\Adaptors\Config;
 use Core\Database\PhpDbConnect;
+use Core\Database\Schema;
+use Core\Entity\ModelGenerator;
 use Core\Utilities\Functional\Pure;
 
 Pure::extractAll();
 
+$command = $argv[1] ?? 'help';
+$arguments = array_slice($argv, 2);
+
+if ($command === 'help' || $command === '--help') {
+    echo "Usage: php perform <command>\n\n";
+    echo "  models [table ...]  Generate models from the database's tables (all of them, or the ones named)\n";
+    echo "  help                This list\n";
+    exit(0);
+}
+
+if ($command !== 'models') {
+    fwrite(STDERR, "Unknown command: $command (php perform help lists them)\n");
+    exit(1);
+}
+
 $db = null;
 require __DIR__ . '/bootstrap.php';
-
 assert($db instanceof PhpDbConnect);
-$total = [];
-while ($result = $db->selectColumn('SHOW TABLES')) {
-    Pure::trace('result')($result);
-    $total[] = $result;
+if ($db->testing) {
+    // The log driver runs no queries, so there would be no tables to read
+    fwrite(STDERR, "Testing mode is on (TESTING=true): queries only go to the log, so no tables can be read. "
+        . "Run with TESTING=false.\n");
+    exit(1);
 }
-$allDescriptions = array_flip($total);
-foreach ($total as $table) {
-    $allDescriptions[$table] = [];
-    while ($desc = $db->selectAssoc("DESCRIBE $table")) {
-        Pure::trace('desc')($desc);
-        $allDescriptions[$table][dotGet($desc, 'Field')] = $desc;
+
+$directory = Config::get('system.modelsPath');
+$generator = new ModelGenerator(new Schema($db), $directory, Config::get('system.modelsNamespace'));
+$report = $generator->generate($arguments === [] ? null : $arguments);
+
+$relative = fn(string $file) => str_starts_with($file, __DIR__ . '/') ? substr($file, strlen(__DIR__) + 1) : $file;
+foreach (
+    [
+        'written' => 'Written',
+        'unchanged' => 'Unchanged',
+        'created' => 'Created (yours to edit)',
+        'kept' => 'Kept (yours, not touched)',
+        'stale' => 'Stale (no table any more; remove when ready)',
+    ] as $list => $heading
+) {
+    if ($report->$list !== []) {
+        echo "$heading:\n";
+        foreach ($report->$list as $file) {
+            echo '  ' . $relative($file) . "\n";
+        }
     }
 }
-Pure::tt('all')($allDescriptions);
+if ($report->skipped !== []) {
+    echo "Skipped:\n";
+    foreach ($report->skipped as $table => $reason) {
+        echo "  $table: $reason\n";
+    }
+}
+if ($report->written === [] && $report->created === [] && $report->unchanged === [] && $report->kept === []) {
+    echo "No models generated.\n";
+}

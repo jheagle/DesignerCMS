@@ -138,4 +138,18 @@ CREATE TABLE IF NOT EXISTS `translation` (
   `modify_by` varchar(65) DEFAULT NULL,
   PRIMARY KEY (`language_id`, `table`, `column`, `table_id`),
   FOREIGN KEY (`language_id`) REFERENCES `language`(`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Every change to a trackable record (Core\Tracking\Tracking, written by MakeTrackable). The columns come from the
+-- old addressbook demo's TrackingClass (reconstructed 2026-11-17 from its INSERT and SELECTs; the original script was
+-- lost)
+CREATE TABLE IF NOT EXISTS `tracking` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `app_user` varchar(65) NOT NULL DEFAULT '',
+  `action` text NOT NULL,
+  `acting_class` varchar(100) NOT NULL DEFAULT 'tracking',
+  `class_id` int(11) NOT NULL DEFAULT -1,
+  PRIMARY KEY (`id`),
+  KEY `tracking_record` (`acting_class`, `class_id`),
+  KEY `tracking_time` (`date_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

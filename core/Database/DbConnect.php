@@ -3,13 +3,17 @@
 namespace Core\Database;
 
 use Core\Adaptors\Config;
+use Core\Adaptors\Vendor\Database\Connection;
 use Core\Adaptors\Vendor\Logger\Logger;
 use Core\Contracts\LazyAssignable;
 use Core\DataTypes\Interfaces\Potential;
 use Core\Traits\LazyAssignment;
-use Core\Utilities\Functional\Pure;
+use InvalidArgumentException;
+use LogicException;
 use PDO;
 use PDOException;
+use SensitiveParameter;
+use Throwable;
 
 /**
  *
@@ -24,113 +28,139 @@ abstract class DbConnect implements LazyAssignable, Potential
     public static array $instance = [];
 
     /**
-     * @var PDO[] $pdoInstance
+     * The open connections (adaptors around PDO, or the log driver), shared by key.
+     *
+     * @var Connection[] $connections
      */
-    public static array $pdoInstance = [];
+    public static array $connections = [];
 
-    private static string $staticDatabase;
+    /**
+     * Which shared connection the static calls (__callStatic) use: the last one made.
+     */
+    private static string $staticConnectionKey = '';
 
-    public string $database;
+    /**
+     * This object's key in $connections: driver, host and database, so two servers with the same database name never
+     * share a connection.
+     */
+    protected string $connectionKey = '';
 
-    public bool $production; // environment
+    /**
+     * The driver: a PDO driver such as 'mysql', or 'log' (record and log statements, run nothing; see QueryLog).
+     */
+    public string $connection = 'mysql';
 
-    public bool $testing; // mode (truly run a query or not)
+    public string $hostname = 'localhost';
+
+    public string $database = '';
+
+    public bool $production = true; // environment
+
+    public bool $testing = false; // testing mode: statements are not run (it uses the log driver)
 
     public int $queries = 0;
 
-    public mixed $result;
+    /**
+     * Rows affected or returned by the last statement (rowCount() reads it; PDO itself has no row count).
+     */
+    protected int $lastRowCount = 0;
+
+    /**
+     * Savepoints made so far, for unique names (nested transaction() calls).
+     */
+    protected int $savepoints = 0;
+
+    public mixed $result = null;
 
     public string $queryRaw = '';
 
     public string $query = '';
 
     /**
-     * @param array $settings
+     * The values bound to the last query (with $queryRaw, it says whether nextRow() continues or starts again).
      */
-    public function __construct(array $settings = [])
+    public array $queryParams = [];
+
+    /**
+     * Connect with keyed settings. instantiateDB() is the usual way in: it fills in what is left out from config and
+     * reuses the connection.
+     *
+     * @param array $settings connection, hostname, database, username, password, testing, production. Only the
+     *  class members are kept; username and password are used to connect and never stored or logged.
+     *
+     * @throws InvalidArgumentException When no database or no user is named.
+     * @throws PDOException When the connection fails (logged first).
+     */
+    public function __construct(#[SensitiveParameter] array $settings = [])
     {
         $this->applyMemberSettings($settings);
-        $localHosts = ['127.0.0.1', '::1'];
-        if (in_array(Pure::dotGet($_SERVER, 'SERVER_ADDR', ''), $localHosts, true) && in_array(
-                $_SERVER['REMOTE_ADDR'],
-                $localHosts,
-                true
-            )) {
-            //    header('Content-Type: application/json'); This is my debugging trick, but if I have xdebug then this ruins it
-            $this->testing = true;
-            $this->production = false;
+        // Testing mode means the log driver: statements are recorded and logged, never run
+        if ($this->testing) {
+            $this->connection = self::LOG_DRIVER;
         }
-        $connection = Pure::dotGet($settings, 'connection', 'mysql');
-        $username = Pure::dotGet($settings, 'username', 'root');
-        $password = Pure::dotGet($settings, 'password', '');
-        $hostname = Pure::dotGet($settings, 'hostname', 'localhost');
-        $this->database = Pure::dotGet($settings, 'database', '127.0.0.1');
-        self::$staticDatabase = $this->database;
-        if (($hostname === 'localhost' || empty($hostname)) && empty($database) && ($username === 'root' || empty($username)) && empty($password) && $this->production) {
-            global $RESOURCES;
-            include_once $RESOURCES['dbInfo'];
+        if ($this->connection === self::LOG_DRIVER) {
+            $this->openLog();
+            return;
         }
-        if (empty(self::$pdoInstance) || !is_array(self::$pdoInstance)) {
-            self::$pdoInstance = [];
+        if ($this->database === '') {
+            throw new InvalidArgumentException('No database to connect to: set DB_DATABASE, or pass "database"');
         }
+        $username = (string)($settings['username'] ?? '');
+        if ($username === '') {
+            throw new InvalidArgumentException('No database user: set DB_USERNAME, or pass "username"');
+        }
+        $this->useConnectionKey();
         try {
-            if (empty(self::$pdoInstance[$this->database])) {
-                self::$pdoInstance[$this->database] = new PDO(
-                    "$connection:host=$hostname;dbname=$this->database",
-                    $username,
-                    $password
-                );
-            }
-            if ($this->testing || !$this->production) {
-                $this->consoleOut("Connected to database ($this->database)");
-            }
-            Logger::info("Connected to database ($this->database@$hostname)");
+            self::$connections[$this->connectionKey] ??= Connection::instantiate()->connect(
+                "$this->connection:host=$this->hostname;dbname=$this->database",
+                $username,
+                (string)($settings['password'] ?? ''),
+                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+            );
         } catch (PDOException $e) {
-            if ($this->testing || !$this->production) {
-                $this->consoleOut($e->getMessage());
-            }
-            Logger::error("Unable to connect to $this->database@$hostname", [
-                'Exception' => $e
+            // Only the message and code: the exception's trace holds the call arguments, which include the password
+            // wherever zend.exception_ignore_args is off (#[SensitiveParameter] hides it from new traces)
+            Logger::error("Unable to connect to $this->database@$this->hostname", [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
             ]);
+            throw new PDOException($e->getMessage(), (int)$e->getCode());
         }
+        if ($this->testing || !$this->production) {
+            $this->consoleOut("Connected to database ($this->database)");
+        }
+        Logger::info("Connected to database ($this->database@$this->hostname)");
     }
 
     /**
      * @param string $queryRaw
      * @return mixed
      */
-    abstract public function insert(string $queryRaw): mixed;
+    abstract public function insert(string $queryRaw, array $params = []): mixed;
 
     /**
      * @param string $queryRaw
      * @return mixed
      */
-    abstract public function update(string $queryRaw): mixed;
+    abstract public function update(string $queryRaw, array $params = []): mixed;
 
     /**
      * @param string $queryRaw
      * @return mixed
      */
-    abstract public function delete(string $queryRaw): mixed;
+    abstract public function delete(string $queryRaw, array $params = []): mixed;
 
     /**
      * @param string $queryRaw
      * @return mixed
      */
-    abstract public function alter(string $queryRaw): mixed;
+    abstract public function alter(string $queryRaw, array $params = []): mixed;
 
     /**
      * @param string $queryRaw
      * @return mixed
      */
-    abstract public function select(string $queryRaw): mixed;
-
-    /**
-     * @param string $queryRaw
-     * @param string $type
-     * @return string
-     */
-    abstract public function queryValidation(string $queryRaw, string $type): string;
+    abstract public function select(string $queryRaw, array $params = []): mixed;
 
     /**
      * @param string $outputIn
@@ -156,46 +186,94 @@ abstract class DbConnect implements LazyAssignable, Potential
     }
 
     /**
+     * The shared connection to a database: made once per class and database, then reused.
+     *
+     * @param array $settings Keyed: connection, hostname, database, username, password, testing, production. What is
+     *  left out comes from config (core/config/database.php and system.php, so from .env).
+     *
      * @return static
+     *
+     * @throws InvalidArgumentException When no database or no user is named.
+     * @throws PDOException When the connection fails.
      */
-    final public static function instantiateDB(): self
+    final public static function instantiateDB(#[SensitiveParameter] array $settings = []): static
     {
-        $args = func_get_args();
-        $defaultArgs = [
-            'string' => [
-                'connection' => 'mysql',
-                'hostname' => 'localhost',
-                'database' => '',
-                'username' => 'root',
-                'password' => '',
-            ],
-            'boolean' => [
-                'testing' => false,
-                'production' => true,
-            ],
+        $settings = array_replace(static::configuredSettings(), $settings);
+        $key = static::class . "|{$settings['connection']}|{$settings['hostname']}|{$settings['database']}";
+
+        return self::$instance[$key] ??= new static($settings);
+    }
+
+    /**
+     * The connection settings config gives: the current connection's from database.php, testing and production from
+     * system.php.
+     *
+     * @return array
+     */
+    public static function configuredSettings(): array
+    {
+        $connection = Config::get('database.connection', 'mysql');
+
+        return [
+            'connection' => $connection,
+            'hostname' => (string)Config::get("database.connections.$connection.hostname", 'localhost'),
+            'database' => (string)Config::get("database.connections.$connection.database", ''),
+            'username' => (string)Config::get("database.connections.$connection.username", ''),
+            'password' => (string)Config::get("database.connections.$connection.password", ''),
+            'testing' => (bool)Config::get('system.testing', false),
+            'production' => (bool)Config::get('system.production', true),
         ];
-        $settings = [];
-        if (count($args) === 1 and is_array($args[0])) {
-            $settings = array_shift($args);
-        }
-        foreach ($args as $val) {
-            $type = gettype($val);
-            if (array_key_exists($type, $defaultArgs)) {
-                $key = key($defaultArgs[$type]);
-                array_shift($defaultArgs[$type]);
-                $settings[$key] = $val;
-            }
-        }
-        foreach ($defaultArgs as $defaults) {
-            $settings = array_merge($defaults, $settings);
-        }
+    }
 
-        if (empty(self::$instance[$settings['database']])) {
-            $class = get_called_class();
-            self::$instance[$settings['database']] = new $class($settings);
-        }
+    /**
+     * The driver name that records and logs statements instead of running them.
+     */
+    public const LOG_DRIVER = 'log';
 
-        return self::$instance[$settings['database']];
+    /**
+     * Key this object's connection by driver, host and database, and make it the one static calls use.
+     *
+     * @return void
+     */
+    private function useConnectionKey(): void
+    {
+        $this->connectionKey = "$this->connection|$this->hostname|$this->database";
+        self::$staticConnectionKey = $this->connectionKey;
+    }
+
+    /**
+     * Open the log driver: no server, no credentials.
+     *
+     * @return void
+     */
+    private function openLog(): void
+    {
+        $this->useConnectionKey();
+        self::$connections[$this->connectionKey] ??= Connection::instantiate()->useLog();
+        Logger::info("Using the log driver: statements are recorded and logged, not run ($this->database)");
+    }
+
+    /**
+     * Forget every shared connection (tests, or a long-running process that changes its settings). The next
+     * instantiateDB() connects again.
+     *
+     * @return void
+     */
+    public static function disconnectAll(): void
+    {
+        self::$instance = [];
+        self::$connections = [];
+        self::$staticConnectionKey = '';
+    }
+
+    /**
+     * This object's connection (the adaptor around PDO, or the log driver), or null when there is none.
+     *
+     * @return Connection|null
+     */
+    final public function connection(): ?Connection
+    {
+        return self::$connections[$this->connectionKey] ?? null;
     }
 
     /**
@@ -212,73 +290,276 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     public function __call(string $name, array $arguments = []): mixed
     {
-        return (!method_exists($this, $name) && method_exists(
-                self::$pdoInstance[$this->database],
-                $name
-            )) ? call_user_func_array(
-            [self::$pdoInstance[$this->database], $name],
-            $arguments
-        ) : false;
+        $connection = $this->connection();
+
+        return $connection !== null && !method_exists($this, $name)
+            ? $connection->$name(...$arguments)
+            : false;
     }
 
     /**
+     * Call a connection method on the last connection made, e.g. PhpDbConnect::setAttribute(...).
+     *
      * @param string $name
      * @param array $arguments
      * @return mixed
      */
     public static function __callStatic(string $name, array $arguments = []): mixed
     {
-        return (!method_exists(DbConnect::class, $name) && method_exists(
-                self::$pdoInstance[self::$staticDatabase],
-                $name
-            )) ? call_user_func_array(
-            [self::$pdoInstance[self::$staticDatabase], $name],
-            $arguments
-        ) : false;
+        $connection = self::$connections[self::$staticConnectionKey] ?? null;
+
+        return $connection !== null && !method_exists(DbConnect::class, $name)
+            ? $connection->$name(...$arguments)
+            : false;
     }
 
     /**
-     * @param string $queryRaw
-     * @param string $type
-     * @return int
+     * Run one statement: prepare it, then execute it with its values bound, so a value never becomes part of the SQL
+     * (no injection, no quoting). Every query in DbConnect goes through here.
+     *
+     * @param string $sql With ? or :name placeholders for the values.
+     * @param array $params The values: a list for ?, keyed by name for :name.
+     *
+     * @return object The executed statement (a PDOStatement, or the log driver's or a fake's stand-in).
+     *
+     * @throws PDOException When the statement fails (logged with the SQL, never the values).
+     * @throws LogicException When there is no connection.
      */
-    final public function exec(string $queryRaw = '', string $type = 'insert'): int
+    final public function statement(string $sql, array $params = []): object
     {
-        $count = 0;
-        $query = empty($queryRaw) ? $this->query : $this->queryValidation(
-            $queryRaw,
-            $type
-        );
-        if (empty($query)) {
-            return 0;
+        $connection = $this->requireConnection();
+        if ($this->testing || !$this->production) {
+            $this->consoleOut($sql);
         }
         try {
-            if ($this->testing || !$this->production) {
-                $this->consoleOut($query);
-            }
-            Logger::info("Running query:", [
-                'Query' => $query,
-            ]);
-            if (!$this->testing && self::$pdoInstance[$this->database]) {
-                $count = self::$pdoInstance[$this->database]->exec($query);
-            }
-            Logger::info("Query complete:", [
-                'Query' => $query,
-            ]);
-            $this->queries += $count;
-
-            return $count;
+            $statement = $connection->prepare($sql);
+            $statement->execute($params);
         } catch (PDOException $e) {
-            if ($this->testing || !$this->production) {
-                $this->consoleOut($e->getMessage());
-            }
-            Logger::error("Failed to execute query", [
-                'Query' => $query,
-                'Exception' => $e,
-                'Raw' => $queryRaw,
-            ]);
-            return 0;
+            // The values are left out on purpose: they can be personal data or secrets
+            Logger::error('Statement failed', ['sql' => $sql, 'message' => $e->getMessage(), 'code' => $e->getCode()]);
+            throw $e;
         }
+        $this->lastRowCount = (int)$statement->rowCount();
+        $this->queries++;
+        Logger::debug('Statement run', ['sql' => $sql]);
+
+        return $statement;
+    }
+
+    /**
+     * Run a statement that changes data or schema (INSERT, UPDATE, DELETE, ALTER...).
+     *
+     * @param string $sql
+     * @param array $params
+     *
+     * @return int The rows it affected.
+     */
+    final public function exec(string $sql, array $params = []): int
+    {
+        return (int)$this->statement($sql, $params)->rowCount();
+    }
+
+    /**
+     * Run a query and keep its result for reading row by row (the select* methods do this).
+     *
+     * @param string $sql
+     * @param array $params
+     *
+     * @return object The executed statement, also kept in $this->result.
+     */
+    final public function query(string $sql, array $params = []): object
+    {
+        $this->result = $this->statement($sql, $params);
+        $this->queryRaw = $this->query = $sql;
+        $this->queryParams = $params;
+
+        return $this->result;
+    }
+
+    /**
+     * The next row of a query, read one call at a time: `while ($row = $db->nextRow($sql)) { ... }`. A different SQL
+     * or different values start the query again; when the rows run out it returns false, and the next call (even with
+     * the same SQL and values) runs the query again, so a second loop sees the rows as they are then.
+     *
+     * @param string $sql
+     * @param array $params
+     * @param int $mode A PDO::FETCH_* mode.
+     *
+     * @return mixed The row, or false when there are no more.
+     */
+    final public function nextRow(string $sql, array $params = [], int $mode = PDO::FETCH_ASSOC): mixed
+    {
+        if (!isset($this->result) || $sql !== $this->queryRaw || $params !== $this->queryParams) {
+            $this->query($sql, $params);
+        }
+        $row = $this->result->fetch($mode);
+        if ($row === false) {
+            // Used up: forget it, so the same query asked again runs again instead of returning false forever
+            $this->result = null;
+        }
+
+        return $row;
+    }
+
+    /**
+     * All rows of a query, each keyed by column name.
+     *
+     * @param string $sql
+     * @param array $params
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    final public function fetchAll(string $sql, array $params = []): array
+    {
+        return $this->statement($sql, $params)->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    /**
+     * The first row of a query, keyed by column name, or null when there is none.
+     *
+     * @param string $sql
+     * @param array $params
+     *
+     * @return array<string, mixed>|null
+     */
+    final public function fetchOne(string $sql, array $params = []): ?array
+    {
+        return $this->statement($sql, $params)->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    /**
+     * The first column of the first row (e.g. a COUNT), or null when there is no row.
+     *
+     * @param string $sql
+     * @param array $params
+     *
+     * @return mixed
+     */
+    final public function fetchValue(string $sql, array $params = []): mixed
+    {
+        $value = $this->statement($sql, $params)->fetchColumn();
+
+        return $value === false ? null : $value;
+    }
+
+    /**
+     * Start a transaction: nothing until commit() is kept.
+     *
+     * @return bool
+     */
+    final public function begin(): bool
+    {
+        return (bool)$this->requireConnection()->beginTransaction();
+    }
+
+    /**
+     * Keep everything since begin().
+     *
+     * @return bool
+     */
+    final public function commit(): bool
+    {
+        return (bool)$this->requireConnection()->commit();
+    }
+
+    /**
+     * Undo everything since begin().
+     *
+     * @return bool
+     */
+    final public function rollBack(): bool
+    {
+        return (bool)$this->requireConnection()->rollBack();
+    }
+
+    /**
+     * Whether a transaction is open.
+     *
+     * @return bool
+     */
+    final public function inTransaction(): bool
+    {
+        return (bool)$this->requireConnection()->inTransaction();
+    }
+
+    /**
+     * Run $work as one unit: all of it is kept, or none of it. Commits when $work returns; rolls back and rethrows
+     * when it throws. $work is given this DbConnect; transaction() returns what $work returns.
+     *
+     * Inside another transaction it is a savepoint of that one: a failure undoes only this part (then the error goes
+     * on to the outer work, which may catch it and carry on, or fail too and undo everything); success keeps this
+     * part for the outer transaction to commit. If a rollback itself fails, that is logged and the original error is
+     * thrown.
+     *
+     * @param callable $work
+     *
+     * @return mixed
+     *
+     * @throws Throwable Whatever $work threw, after the rollback.
+     */
+    final public function transaction(callable $work): mixed
+    {
+        if ($this->inTransaction()) {
+            return $this->savepoint($work);
+        }
+        $this->begin();
+        try {
+            $result = $work($this);
+            $this->commit();
+
+            return $result;
+        } catch (Throwable $e) {
+            try {
+                if ($this->inTransaction()) {
+                    $this->rollBack();
+                }
+            } catch (Throwable $rollbackError) {
+                // Keep the real cause: report the failed rollback, then throw what $work threw
+                Logger::error('Rollback failed', ['message' => $rollbackError->getMessage()]);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Run $work in a savepoint of the open transaction: released when it returns, rolled back to when it throws.
+     *
+     * @param callable $work
+     *
+     * @return mixed
+     *
+     * @throws Throwable Whatever $work threw, after rolling back to the savepoint.
+     */
+    private function savepoint(callable $work): mixed
+    {
+        $name = 'dcms_savepoint_' . ++$this->savepoints;
+        $this->statement("SAVEPOINT $name");
+        try {
+            $result = $work($this);
+            $this->statement("RELEASE SAVEPOINT $name");
+
+            return $result;
+        } catch (Throwable $e) {
+            try {
+                $this->statement("ROLLBACK TO SAVEPOINT $name");
+            } catch (Throwable $rollbackError) {
+                Logger::error('Rollback to savepoint failed', ['message' => $rollbackError->getMessage()]);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * The connection, or a clear error when there is none.
+     *
+     * @return Connection
+     *
+     * @throws LogicException
+     */
+    private function requireConnection(): Connection
+    {
+        return $this->connection()
+            ?? throw new LogicException('No database connection: connect with instantiateDB() first');
     }
 
     /**
@@ -287,7 +568,7 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     final public function lastInsertId(?string $name = null): string
     {
-        return self::$pdoInstance[$this->database]->lastInsertId($name);
+        return (string)$this->connection()?->lastInsertId($name);
     }
 
     /**
@@ -295,51 +576,8 @@ abstract class DbConnect implements LazyAssignable, Potential
      */
     final public function rowCount(): int
     {
-        return self::$pdoInstance[$this->database]->rowCount();
-    }
-
-    /**
-     * @param string $queryRaw
-     * @param string $type
-     * @return mixed
-     */
-    final public function query(string $queryRaw = '', string $type = 'select'): mixed
-    {
-        $query = empty($queryRaw) ? $this->query : $this->queryValidation(
-            $queryRaw,
-            $type
-        );
-        if (empty($query)) {
-            return 0;
-        }
-        try {
-            if ($queryRaw === $this->queryRaw && isset(self::$pdoInstance[$this->database])) {
-                $this->result = self::$pdoInstance[$this->database]->query(
-                    $this->query
-                );
-            }
-            Logger::info("Running query:", [
-                'Query' => $query,
-            ]);
-            if ($this->testing || !$this->production) {
-                $this->consoleOut($this->query);
-            }
-            Logger::info("Query complete:", [
-                'Query' => $query,
-            ]);
-
-            return $this->result;
-        } catch (PDOException $e) {
-            if ($this->testing || !$this->production) {
-                $this->consoleOut($e->getMessage());
-            }
-            Logger::error("Failed to execute query", [
-                'Query' => $query,
-                'Exception' => $e,
-                'Raw' => $queryRaw,
-            ]);
-            return 0;
-        }
+        // Only a statement has a row count (PDO has no rowCount()), so this is the last statement's
+        return $this->lastRowCount;
     }
 
     /**
@@ -351,7 +589,7 @@ abstract class DbConnect implements LazyAssignable, Potential
     final public function sanitizeInput(
         mixed $input,
         bool $escape = true,
-        string &$type = null
+        mixed &$type = null
     ): string|array|bool|int|null|object|float {
         if (is_array($input)) {
             $type = [];
@@ -389,7 +627,7 @@ abstract class DbConnect implements LazyAssignable, Potential
     final public function filterVarType(
         string $val,
         bool $escape = true,
-        int &$type = null
+        ?int &$type = null
     ): string|array|bool|int|null|object|float {
         $input = trim($val);
         $length = strlen($input);

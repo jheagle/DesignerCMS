@@ -29,8 +29,11 @@ class BigIntDt extends NumberDt
         );
         self::setMin();
         self::setMax();
-        self::setLength($settings['length']);
-        self::setValue($this->value);
+        // The length given, else the default (0): $settings is the unmerged input, so 'length' may be absent
+        self::setLength($settings['length'] ?? 0);
+        // From the value given, not $this->value: NumberDt already stored the magnitude there (the sign is kept in
+        // isNegative), so setting it again from $this->value found no '-' and turned -1 into 1 (DESI-40)
+        self::setValue($value);
     }
 
     protected function setMin()
