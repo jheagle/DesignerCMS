@@ -42,7 +42,7 @@ in code (migrations) is a possible later feature, not part of this epic.
 - [x] **5. Generic Entity (DESI-17).** (#34) A subclass declares its table and `Field`s; create, read, update and delete come
   from them through slice 3; `LazyAssignment` replaces the positional constructor. The address-book contact methods
   go, and `createEntity()`'s bugs are fixed. Tests with a small test entity.
-- [ ] **6. Trackable and MakeTrackable (DESI-11).** The contract and trait; `core/Tracking/` with a minimal tracking
+- [x] **6. Trackable and MakeTrackable (DESI-11).** (#35) The contract and trait; `core/Tracking/` with a minimal tracking
   entity and its rows as a `DataTransferObject`. The `tracking` table from `feature/tracking-model` (bd062fc, in
   `resources/designercms.sql`) is the one part carried over and stays in that SQL file; the entity's `Field`s are
   checked against the real table with slice 4. Nothing else from that branch.
