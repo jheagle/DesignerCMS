@@ -52,6 +52,22 @@ class Schema
     }
 
     /**
+     * The tables in the current database (not views), by name.
+     *
+     * @return string[]
+     */
+    public function tables(): array
+    {
+        return array_column(
+            $this->db->fetchAll(
+                'SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES'
+                . " WHERE TABLE_SCHEMA = DATABASE() AND TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME"
+            ),
+            'TABLE_NAME'
+        );
+    }
+
+    /**
      * Whether the table exists in the current database.
      *
      * @param string $table

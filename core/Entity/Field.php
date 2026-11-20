@@ -59,6 +59,11 @@ class Field implements Potential
     private bool $typeSupported;
 
     /**
+     * The length given (characters for text, digits for numbers), or null for the DataType's own default.
+     */
+    private ?int $length;
+
+    /**
      * Field constructor.
      *
      * @param string $name
@@ -78,6 +83,7 @@ class Field implements Potential
     ) {
         $this->sqlType = $sqlType;
         $this->typeSupported = $typeSupported;
+        $this->length = $length;
         $this->name = strtolower(str_replace(' ', '_', $name));
         // Set Required attribute if this field is Unique or a Primary Key
         $this->attributes = $attributes & self::PRIMARY_KEY || $attributes & self::UNIQUE
@@ -131,6 +137,14 @@ class Field implements Potential
     final public function getSqlType(): ?string
     {
         return $this->sqlType;
+    }
+
+    /**
+     * The length this Field was given, or null when it uses its DataType's default.
+     */
+    final public function getLength(): ?int
+    {
+        return $this->length;
     }
 
     /**
